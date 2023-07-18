@@ -1,0 +1,14 @@
+[project]
+name = ""
+version = ""
+description = ""
+authors = [
+    {name = "Martin Ruefenacht", email = "martin.ruefenacht@lrz.de"},
+]
+dependencies = [
+    "flask>=2.3.2",
+]
+requires-python = ">=3.10,<3.11"
+readme = "README.md"
+license = {text = "MIT"}
+
