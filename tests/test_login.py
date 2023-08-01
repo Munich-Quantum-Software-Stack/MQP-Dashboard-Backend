@@ -8,8 +8,6 @@ def test_correct_login(client) -> None:
 
     response = client.post("/login", json=user_data)
 
-    print(response.data)
-
     assert (
         response.json["status"] == HTTPStatus.OK
         and response.json["user_token"]
