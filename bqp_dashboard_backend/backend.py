@@ -1,10 +1,12 @@
 from flask import current_app, Blueprint, request
+import os
 
 from http import HTTPStatus
 from hashlib import md5
 
 import bqp_database_access as database
 from bqp_database_access.users import UnknownIdentityError
+
 
 backend = Blueprint("backend", __name__)
 
@@ -28,7 +30,7 @@ def login():
             raise RuntimeError("user is blocked")
 
     except Exception as error:
-        print(error)
+        # TODO log error
 
         return {
             "status": HTTPStatus.UNAUTHORIZED,

@@ -1,5 +1,7 @@
 from http import HTTPStatus
 
+import os
+
 
 def test_correct_login(client) -> None:
     """Test whether a normal login works."""

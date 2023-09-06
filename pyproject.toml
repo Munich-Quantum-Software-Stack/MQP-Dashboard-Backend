@@ -7,7 +7,7 @@ authors = [
 ]
 dependencies = [
     "flask>=2.3.2",
-    "bqp-database-access>=0.1.10",
+    "bqp-database-access>=0.2",
     "pony>=0.7.16",
 ]
 requires-python = ">=3.10,<3.11"
@@ -17,4 +17,14 @@ license = {text = "MIT"}
 [tool.pdm.dev-dependencies]
 test = [
     "pytest>=7.4.0",
+    "pytest-env>=0.8.2",
+]
+
+[tool.pytest.ini_options]
+env = [
+    "QUANTUM_DB_TESTING=TRUE",
+    "QUANTUM_DB_FILENAME=test_db.sqlite",
+    "QUANTUM_DB_USER=",
+    "QUANTUM_DB_PASS=",
+    "QUANTUM_DB_HOST="
 ]

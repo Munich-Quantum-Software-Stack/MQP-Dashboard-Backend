@@ -6,7 +6,7 @@ groups = ["default", "test"]
 cross_platform = true
 static_urls = false
 lock_version = "4.3"
-content_hash = "sha256:e12330e87b9f47c333c3f9454e10928ad0e3f9ca3ef7090d017c0b765805ab9a"
+content_hash = "sha256:858a6648d24bc5b68a16a15130077700a091693fd3c6b271ded3241a53235737"
 
 [[package]]
 name = "bcrypt"
@@ -49,7 +49,7 @@ files = [
 
 [[package]]
 name = "bqp-database-access"
-version = "0.1.10"
+version = "0.2.8"
 requires_python = ">=3.10"
 summary = ""
 dependencies = [
@@ -58,8 +58,8 @@ dependencies = [
     "psycopg2-binary>=2.9.6",
 ]
 files = [
-    {file = "bqp_database_access-0.1.10-py3-none-any.whl", hash = "sha256:06c7074b533b20222ca1e8790f73e3e9de1194c58f5c66240e37010a3e493ac6"},
-    {file = "bqp_database_access-0.1.10.tar.gz", hash = "sha256:ea25686d32942bd135bc7317767ce9bf2c8c55972400f22e7c6f54920a142212"},
+    {file = "bqp_database_access-0.2.8-py3-none-any.whl", hash = "sha256:90515812335a472cd6f3433393daa2436a0eb05ca72145e2c5005f376f043dff"},
+    {file = "bqp_database_access-0.2.8.tar.gz", hash = "sha256:5bbe6ecc3f9bdfc39116ea60e42ccdc5cf46d48e1f61e5ac52551a6a09e598e9"},
 ]
 
 [[package]]
@@ -318,6 +318,19 @@ dependencies = [
 files = [
     {file = "pytest-7.4.0-py3-none-any.whl", hash = "sha256:78bf16451a2eb8c7a2ea98e32dc119fd2aa758f1d5d66dbf0a59d69a3969df32"},
     {file = "pytest-7.4.0.tar.gz", hash = "sha256:b4bf8c45bd59934ed84001ad51e11b4ee40d40a1229d2c79f9c592b0a3f6bd8a"},
+]
+
+[[package]]
+name = "pytest-env"
+version = "0.8.2"
+requires_python = ">=3.7"
+summary = "py.test plugin that allows you to add environment variables."
+dependencies = [
+    "pytest>=7.3.1",
+]
+files = [
+    {file = "pytest_env-0.8.2-py3-none-any.whl", hash = "sha256:5e533273f4d9e6a41c3a3120e0c7944aae5674fa773b329f00a5eb1f23c53a38"},
+    {file = "pytest_env-0.8.2.tar.gz", hash = "sha256:baed9b3b6bae77bd75b9238e0ed1ee6903a42806ae9d6aeffb8754cd5584d4ff"},
 ]
 
 [[package]]
