@@ -8,9 +8,10 @@ from pony.orm import count
 from pony.orm import TransactionError
 from pony.orm import select
 from datetime import datetime
+from http import HTTPStatus
 
 
-@pytest.fixture()
+@pytest.fixture(scope="module")
 def app():
     app = create_app()
     app.config.update(
@@ -25,22 +26,30 @@ def app():
     yield app
 
     # clean up / reset resources here
-    os.remove(os.getcwd() + "/" + os.environ["QUANTUM_DB_FILENAME"])
+
+    delete_local_database()
 
 
-# @pytest.fixture(autouse=True)
 def create_local_database():
     db = open_database(create_tables=True)
-    print(db.provider.pool.filename)
+    db.disconnect()
 
     try:
         with db_session:
             database_access.users.create_new_security_level(
-                "BASIC", 10, 30, 1, 100, 100, 1, 365
+                "BASIC",
+                token_max_live_count=1,
+                token_max_lifetime=30,
+                token_min_creation_interval=1,
+                token_max_jobs=100,
+                token_max_budget=100,
+                token_max_rate=1,
+                login_max_interval=365,
             )
             database_access.users.create_new_user_with_secret(
                 "test_user", "test_password", "BASIC", "test@lrz.de", "LRZ", "quantum"
             )
+
             database_access.users.create_new_user_with_secret(
                 "blocked_test_user",
                 "test_password",
@@ -62,9 +71,38 @@ def create_local_database():
         pass
 
 
+def delete_local_database() -> None:
+    db = open_database()
+    path = db.provider.pool.filename
+    db.disconnect()
+    os.remove(path)
+
+
 @pytest.fixture()
 def client(app):
     return app.test_client()
+
+
+@pytest.fixture()
+def inactive_client(app):
+    return app.test_client()
+
+
+@pytest.fixture(scope="module")
+def active_client(app):
+    client = app.test_client()
+
+    user_data = {"identity": "test_user", "secret": "test_password"}
+    login_response = client.post("/login", json=user_data)
+
+    assert (
+        login_response.json["status"] == HTTPStatus.OK
+        and login_response.json["user_token"] is not None
+    )
+
+    client.user_token = login_response.json["user_token"]
+
+    return client
 
 
 @pytest.fixture()
