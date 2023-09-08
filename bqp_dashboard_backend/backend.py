@@ -154,3 +154,16 @@ def revoke_token():
 
     except TokenNotFound as error:
         return {"status": HTTPStatus.BAD_REQUEST}
+
+
+@backend.get("/jobs")
+def fetch_all_jobs():
+    """Fetch all jobs belonging to a user."""
+
+    request_data = request.get_json()
+
+    jobs = database.jobs.fetch_by_identity(request_data["user_token"])
+
+    sanitized_jobs = [job.to_dict() for job in jobs]
+
+    return {"status": HTTPStatus.OK, "jobs": sanitized_jobs}
