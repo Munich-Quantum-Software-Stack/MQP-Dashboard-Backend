@@ -136,3 +136,16 @@ def test_revoking_non_existing_token(active_client) -> None:
     )
 
     assert response.status_code == HTTPStatus.BAD_REQUEST
+
+
+def test_fetching_limits(active_client) -> None:
+    """Test if we can fetch a users user_security_level limits for token creation."""
+
+    response = active_client.get("/tokens/user_limits", headers=active_client.headers)
+
+    assert (
+        response.status_code == HTTPStatus.OK
+        and response.json["max_lifetime"] == 30
+        and response.json["max_jobs"] == 100
+        and response.json["max_budget"] == 100
+    )
