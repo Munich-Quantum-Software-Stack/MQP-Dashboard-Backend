@@ -6,7 +6,7 @@ groups = ["default", "test"]
 cross_platform = true
 static_urls = false
 lock_version = "4.3"
-content_hash = "sha256:c8b75cb7f340ddabe30d5d8538d59cbfb7c8fb19dc382a2021b0c2b6898663f8"
+content_hash = "sha256:1a5b87158632ecaec06739b57331e2b21315da1fcc90fa6ff133d48d4e572438"
 
 [[package]]
 name = "bcrypt"
@@ -110,6 +110,18 @@ dependencies = [
 files = [
     {file = "Flask-2.3.2-py3-none-any.whl", hash = "sha256:77fd4e1249d8c9923de34907236b747ced06e5467ecac1a7bb7115ae0e9670b0"},
     {file = "Flask-2.3.2.tar.gz", hash = "sha256:8c2f9abd47a9e8df7f0c3f091ce9497d011dc3b31effcf4c85a6e2b50f4114ef"},
+]
+
+[[package]]
+name = "flask-cors"
+version = "4.0.0"
+summary = "A Flask extension adding a decorator for CORS support"
+dependencies = [
+    "Flask>=0.9",
+]
+files = [
+    {file = "Flask-Cors-4.0.0.tar.gz", hash = "sha256:f268522fcb2f73e2ecdde1ef45e2fd5c71cc48fe03cffb4b441c6d1b40684eb0"},
+    {file = "Flask_Cors-4.0.0-py2.py3-none-any.whl", hash = "sha256:bc3492bfd6368d27cfe79c7821df5a8a319e1a6d5eab277a3794be19bdc51783"},
 ]
 
 [[package]]
