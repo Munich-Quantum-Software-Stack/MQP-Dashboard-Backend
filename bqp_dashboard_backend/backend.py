@@ -130,6 +130,7 @@ def get_all_tokens():
     sanitized_tokens = [
         {
             "token_name": token.remember_name,
+            "revoked": token.revoked,
             "token_expiration": token.expiration.isoformat(),
         }
         for token in tokens
