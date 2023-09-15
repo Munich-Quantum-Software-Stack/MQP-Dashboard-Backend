@@ -43,7 +43,7 @@ def login_user():
         if not database.users.authenticate(identity, secret):
             raise RuntimeError("failed to authenticate")
 
-        user = database.users.fetch_user_by_identity(request_data["identity"])
+        user = database.users.fetch_user_by_identity(identity)
 
         if user.blocked:
             # TODO handle through actual exception
@@ -138,6 +138,24 @@ def get_all_tokens():
     return {
         "tokens": sanitized_tokens,
     }, HTTPStatus.OK
+
+
+@backend.get("/tokens/user_limits")
+@jwt_required()
+def get_user_token_creation_limits():
+    """Fetch the user security level limits."""
+
+    identity = get_jwt_identity()
+
+    user = database.users.fetch_user_by_identity(identity)
+
+    security_level = user.security_level
+
+    return {
+        "max_lifetime": security_level.token_max_lifetime,
+        "max_jobs": security_level.token_max_jobs,
+        "max_budget": security_level.token_max_budget,
+    }
 
 
 @backend.delete("/tokens")
