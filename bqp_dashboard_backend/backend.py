@@ -119,6 +119,10 @@ def create_token():
         return {
             "error_message": "Token expiration beyond user limit.",
         }, HTTPStatus.FORBIDDEN
+    except TokenExistsError as error:
+        return {
+            "error_message": f"Token {request_data['token_name']} already exists.",
+        }
 
 
 @backend.get("/tokens")
@@ -203,16 +207,27 @@ def fetch_job(id = 0):
     jobs = database.jobs.fetch_by_identity(identity)
 
     sanitized_jobs = [job.to_dict() for job in jobs]
-    #print(sanitized_jobs)
 
     job = None
     for jobItem in sanitized_jobs:
-        #tempId = jobItem.get("id")
         if jobItem.get("id") == int(id):
             job = jobItem
     print("Found job: \n", job)
 
     return {"job": job}, HTTPStatus.OK
+
+
+@backend.get("/resources")
+@jwt_required()
+def fetch_all_resources():
+    """Fetch all jobs belonging to a user."""
+
+    identity = get_jwt_identity()
+    resources = database.resources.fetch_resources_available_to_identity(identity)
+
+    sanitized_resources = [resource.to_dict() for resource in resources]
+
+    return {"resources": sanitized_resources}, HTTPStatus.OK
 
 
 
