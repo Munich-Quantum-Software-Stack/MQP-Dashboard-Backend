@@ -1,3 +1,4 @@
+import json
 import string
 import os
 import secrets
@@ -6,7 +7,7 @@ from hashlib import md5
 from datetime import datetime, timedelta
 
 
-from flask import current_app, Blueprint, request
+from flask import current_app, Blueprint, request, json
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 
 
@@ -117,6 +118,10 @@ def create_token():
         return {
             "error_message": "Token expiration beyond user limit.",
         }, HTTPStatus.FORBIDDEN
+    except TokenExistsError as error:
+        return {
+            "error_message": f"Token {request_data['token_name']} already exists.",
+        }
 
 
 @backend.get("/tokens")
@@ -130,10 +135,14 @@ def get_all_tokens():
     sanitized_tokens = [
         {
             "token_name": token.remember_name,
+            "revoked": token.revoked,
+            "revoke_reason": token.revoke_reason,
             "token_expiration": token.expiration.isoformat(),
         }
         for token in tokens
     ]
+
+    # print("tokens: ", sanitized_tokens)
 
     return {
         "tokens": sanitized_tokens,
@@ -188,3 +197,34 @@ def fetch_all_jobs():
     sanitized_jobs = [job.to_dict() for job in jobs]
 
     return {"jobs": sanitized_jobs}, HTTPStatus.OK
+
+
+@backend.get("/jobs/<id>")
+@jwt_required()
+def fetch_job(id=0):
+    """Fetch all jobs belonging to a user."""
+    identity = get_jwt_identity()
+    jobs = database.jobs.fetch_by_identity(identity)
+
+    sanitized_jobs = [job.to_dict() for job in jobs]
+
+    job = None
+    for jobItem in sanitized_jobs:
+        if jobItem.get("id") == int(id):
+            job = jobItem
+    print("Found job: \n", job)
+
+    return {"job": job}, HTTPStatus.OK
+
+
+@backend.get("/resources")
+@jwt_required()
+def fetch_all_resources():
+    """Fetch all jobs belonging to a user."""
+
+    identity = get_jwt_identity()
+    resources = database.resources.fetch_resources_available_to_identity(identity)
+
+    sanitized_resources = [resource.to_dict() for resource in resources]
+
+    return {"resources": sanitized_resources}, HTTPStatus.OK
