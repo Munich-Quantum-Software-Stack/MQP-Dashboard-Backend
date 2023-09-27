@@ -1,4 +1,3 @@
-import json
 import string
 import os
 import secrets
@@ -7,7 +6,7 @@ from hashlib import md5
 from datetime import datetime, timedelta
 
 
-from flask import current_app, Blueprint, request, json
+from flask import current_app, Blueprint, request
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 
 
@@ -201,8 +200,9 @@ def fetch_all_jobs():
 
 @backend.get("/jobs/<id>")
 @jwt_required()
-def fetch_job(id=0):
-    """Fetch all jobs belonging to a user."""
+def fetch_job(id):
+    """Fetch a job by id."""
+
     identity = get_jwt_identity()
     jobs = database.jobs.fetch_by_identity(identity)
 
