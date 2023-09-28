@@ -31,3 +31,4 @@ env = [
     "QUANTUM_DB_PASS=",
     "QUANTUM_DB_HOST="
 ]
+pythonpath = ["."]
