@@ -143,7 +143,11 @@ def get_all_tokens():
         for token in tokens
     ]
 
+<<<<<<< HEAD
     #print("tokens: ", sanitized_tokens)
+=======
+    # print("tokens: ", sanitized_tokens)
+>>>>>>> 5c30848acefe4116b25cde601f45fc6832c793e1
 
     return {
         "tokens": sanitized_tokens,
@@ -199,10 +203,12 @@ def fetch_all_jobs():
 
     return {"jobs": sanitized_jobs}, HTTPStatus.OK
 
+
 @backend.get("/jobs/<id>")
 @jwt_required()
 def fetch_job(id = 0):
     """Fetch all jobs belonging to a user."""
+
     identity = get_jwt_identity()
     jobs = database.jobs.fetch_by_identity(identity)
 
@@ -228,8 +234,11 @@ def fetch_all_resources():
     sanitized_resources = [resource.to_dict() for resource in resources]
 
     return {"resources": sanitized_resources}, HTTPStatus.OK
+<<<<<<< HEAD
 
 
 
 
 
+=======
+>>>>>>> 5c30848acefe4116b25cde601f45fc6832c793e1
