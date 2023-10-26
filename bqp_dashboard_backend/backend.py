@@ -234,11 +234,9 @@ def fetch_all_resources():
     sanitized_resources = [resource.to_dict() for resource in resources]
 
     return {"resources": sanitized_resources}, HTTPStatus.OK
-<<<<<<< HEAD
 
 
 
 
 
-=======
->>>>>>> 5c30848acefe4116b25cde601f45fc6832c793e1
+
