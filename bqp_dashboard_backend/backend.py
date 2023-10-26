@@ -143,11 +143,9 @@ def get_all_tokens():
         for token in tokens
     ]
 
-<<<<<<< HEAD
-    #print("tokens: ", sanitized_tokens)
-=======
+
     # print("tokens: ", sanitized_tokens)
->>>>>>> 5c30848acefe4116b25cde601f45fc6832c793e1
+
 
     return {
         "tokens": sanitized_tokens,
