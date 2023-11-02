@@ -52,32 +52,21 @@ def authenticate_user_by_ldap(identity: str, secret: str):
     ]
 
     try:
-        # connect to ldap-server
-        connect = ldap.initialize(ldap_server)
+        connect = ldap.initialize(LRZ_LDAP_SERVER)
         connect.protocol_version = ldap.VERSION3
-        # required for AD authentication
         connect.set_option(ldap.OPT_REFERRALS, 0)
-        auth_user = connect.simple_bind_s(user_dn, password)
-        # logging.warning(auth_user)
+        auth_user = connect.simple_bind_s(user_dn, secret)
         if auth_user is None:
-            print("Identity is not found!")
-            return None
+            raise UnknownIdentityError
 
         ldap_user = connect.search_s(
             base_dn, ldap.SCOPE_SUBTREE, search_filter, attr_list
         )
-        # return True
-        return ldap_user
 
     except ldap.INVALID_CREDENTIALS:
-        # If the credentials are invalid, return False
-        return None
-    except Exception as e:
-        # Log any other exceptions that may occur
-        print(f"Error: {e}")
-        return None
+        raise IncorrectSecretError
+
     finally:
-        # close the connection to the server
         connect.unbind_s()
 
 
