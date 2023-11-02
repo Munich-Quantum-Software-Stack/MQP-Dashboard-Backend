@@ -12,7 +12,11 @@ from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identi
 
 
 import bqp_database_access as database
-from bqp_database_access.users import UnknownIdentityError
+from bqp_database_access.users import (
+    UnknownIdentityError,
+    BlockedIdentityError,
+    IncorrectSecretError,
+)
 from bqp_database_access.tokens import (
     TooManyTokensError,
     TokenExistsError,
@@ -31,6 +35,10 @@ def generate_token() -> str:
 backend = Blueprint("backend", __name__)
 
 
+def authenticate_user_by_ldap() -> bool:
+    pass
+
+
 @backend.post("/login")
 def login_user():
     request_data = request.get_json()
@@ -38,21 +46,29 @@ def login_user():
     identity = request_data["identity"]
     secret = request_data["secret"]
 
-    # TODO authenticate against LDAP
-
     try:
-        if not database.users.authenticate(identity, secret):
-            raise RuntimeError("failed to authenticate")
-
         user = database.users.fetch_user_by_identity(identity)
 
         if user.blocked:
-            # TODO handle through actual exception
-            raise RuntimeError("user is blocked")
+            raise BlockedIdentityError
 
-    except Exception as error:
+        if user.association == "LDAP":
+            authenticate_user_by_ldap(identity, secret)
+
+        else:
+            database.users.authenticate(identity, secret)
+
+    except (UnknownIdentityError, IncorrectSecretError):
         # TODO log error
+        return {
+            "error_message": "The identity/password is not valid. Please try again!",
+        }, HTTPStatus.UNAUTHORIZED
 
+    except BlockedIdentityError:
+        # TODO log error
+        # NOTE should we tell them they are blocked? this would leak information
+        #      confirming a user account exists
+        #      otherwise merge with above
         return {
             "error_message": "The identity/password is not valid. Please try again!",
         }, HTTPStatus.UNAUTHORIZED
