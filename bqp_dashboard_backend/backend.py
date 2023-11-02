@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 
 from flask import current_app, Blueprint, request, json
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+import ldap
 
 
 import bqp_database_access as database
@@ -26,6 +27,9 @@ from bqp_database_access.tokens import (
 )
 
 
+LRZ_LDAP_SERVER = "ldaps://auth.sim.lrz.de:636"
+
+
 def generate_token() -> str:
     return "".join(
         secrets.choice(string.ascii_letters + string.digits) for _ in range(64)
@@ -35,8 +39,46 @@ def generate_token() -> str:
 backend = Blueprint("backend", __name__)
 
 
-def authenticate_user_by_ldap() -> bool:
-    pass
+def authenticate_user_by_ldap(identity: str, secret: str):
+    """ """
+
+    base_dn = "ou=Intranet,ou=Kennungen,o=lrz-muenchen,c=de"
+    user_dn = f"cn={identity},ou=Intranet,ou=Kennungen,o=lrz-muenchen,c=de"
+    search_filter = f"(&(cn={identity})(mwnLRZAbteilung=QCT))"
+    attr_list = [
+        "cn",
+        "mwnAuthUserKontaktEmail",
+        "mwnSn",
+    ]
+
+    try:
+        # connect to ldap-server
+        connect = ldap.initialize(ldap_server)
+        connect.protocol_version = ldap.VERSION3
+        # required for AD authentication
+        connect.set_option(ldap.OPT_REFERRALS, 0)
+        auth_user = connect.simple_bind_s(user_dn, password)
+        # logging.warning(auth_user)
+        if auth_user is None:
+            print("Identity is not found!")
+            return None
+
+        ldap_user = connect.search_s(
+            base_dn, ldap.SCOPE_SUBTREE, search_filter, attr_list
+        )
+        # return True
+        return ldap_user
+
+    except ldap.INVALID_CREDENTIALS:
+        # If the credentials are invalid, return False
+        return None
+    except Exception as e:
+        # Log any other exceptions that may occur
+        print(f"Error: {e}")
+        return None
+    finally:
+        # close the connection to the server
+        connect.unbind_s()
 
 
 @backend.post("/login")
