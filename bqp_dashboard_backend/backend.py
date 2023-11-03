@@ -67,6 +67,9 @@ def authenticate_user_by_ldap(identity: str, secret: str):
 
         # check if part of ou=quantumcomputing
         search_filter = f"(&(objectClass=user))"
+        search_dn = (
+            f"cn={identity},ou=quantumcomputing,ou=Kennungen,o=lrz-muenchen,c=de"
+        )
         if not connect.search_s(user_dn, ldap.SCOPE_SUBTREE, search_filter):
             raise UnauthorizedUser
 
