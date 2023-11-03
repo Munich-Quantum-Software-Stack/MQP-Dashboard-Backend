@@ -39,6 +39,10 @@ class AuthenticationMechanismUnknownError(AuthenticationError):
     pass
 
 
+class UnauthorizedUser(Exception):
+    pass
+
+
 def generate_token() -> str:
     return "".join(
         secrets.choice(string.ascii_letters + string.digits) for _ in range(64)
@@ -51,26 +55,20 @@ backend = Blueprint("backend", __name__)
 def authenticate_user_by_ldap(identity: str, secret: str):
     """ """
 
-    base_dn = "ou=Intranet,ou=Kennungen,o=lrz-muenchen,c=de"
-    user_dn = f"cn={identity},ou=Intranet,ou=Kennungen,o=lrz-muenchen,c=de"
-    search_filter = f"(&(cn={identity})(mwnLRZAbteilung=QCT))"
-    attr_list = [
-        "cn",
-        "mwnAuthUserKontaktEmail",
-        "mwnSn",
-    ]
-
     try:
         connect = ldap.initialize(os.environ.get("QUANTUM_DS_HOST"))
         connect.protocol_version = ldap.VERSION3
         connect.set_option(ldap.OPT_REFERRALS, 0)
-        auth_user = connect.simple_bind_s(user_dn, secret)
-        if auth_user is None:
+
+        # authenticate user
+        user_dn = f"cn={identity},ou=Intranet,ou=Kennungen,o=lrz-muenchen,c=de"
+        if auth_user := connect.simple_bind_s(user_dn, secret) is None:
             raise UnknownIdentityError
 
-        ldap_user = connect.search_s(
-            base_dn, ldap.SCOPE_SUBTREE, search_filter, attr_list
-        )
+        # check if part of ou=quantumcomputing
+        search_filter = f"(&(objectClass=user))"
+        if not connect.search_s(user_dn, ldap.SCOPE_SUBTREE, search_filter):
+            raise UnauthorizedUser
 
     except ldap.INVALID_CREDENTIALS:
         raise IncorrectSecretError

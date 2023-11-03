@@ -11,9 +11,7 @@ from datetime import datetime
 from http import HTTPStatus
 from werkzeug.datastructures import Headers
 
-from socketserver import ThreadingTCPServer
-import ldapserver
-from threading import Thread
+from ldap_test import LdapServer
 
 
 @pytest.fixture(scope="module")
@@ -27,35 +25,31 @@ def app():
 
     # other setup can go here
     create_local_database()
-    server, thread = create_ldap_server()
+    server = create_ldap_server()
 
     yield app
 
     # clean up / reset resources here
 
     delete_local_database()
-    server.shutdown()
-    thread.join()
-
-
-class LDAPRequestHandler(ldapserver.LDAPRequestHandler):
-    # TODO somehow we need to add the ldap_test_user:ldap_test_password entry here to match the LRZ schema
-    subschema = ldapserver.SubschemaSubentry(
-        ldapserver.schema.RFC2307BIS_SCHEMA, "cn=Subschema"
-    )
-
-    def do_search(self, basedn, scope, filterobj):
-        # TODO this needs to match LRZ LDAP Setup
-        return []
+    server.stop()
 
 
 def create_ldap_server():
-    server = ThreadingTCPServer(("127.0.0.1", 7777), LDAPRequestHandler)
-    server_thread = Thread(target=server.serve_forever)
-    server_thread.daemon = True
-    server_thread.start()
+    properties = {
+        "port": 7777,
+        "bind_dn": "cn=ldap_test_user,ou=Intranet,ou=Kennungen,o=lrz-muenchen,c=de",
+        "password": "ldap_test_password",
+        "base": {
+            "objectclass": ["domain"],
+            "dn": "c=de",
+            "attributes": {"dc": "zoldar"},
+        },
+    }
 
-    return server, server_thread
+    server = LdapServer(properties, java_delay=0.5)
+
+    server.start()
 
 
 def create_local_database():
