@@ -278,10 +278,3 @@ def fetch_all_resources():
     return {"resources": sanitized_resources}, HTTPStatus.OK
 
 
-
-
-
-
-
-=======
->>>>>>> 010f8e5234a458ad0586ed4504354d970f7b55a7
