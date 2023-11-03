@@ -70,7 +70,7 @@ def authenticate_user_by_ldap(identity: str, secret: str):
         search_dn = (
             f"cn={identity},ou=quantumcomputing,ou=Kennungen,o=lrz-muenchen,c=de"
         )
-        if not connect.search_s(user_dn, ldap.SCOPE_SUBTREE, search_filter):
+        if not connect.search_s(search_dn, ldap.SCOPE_SUBTREE, search_filter):
             raise UnauthorizedUser
 
     except ldap.INVALID_CREDENTIALS:
