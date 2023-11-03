@@ -9,10 +9,15 @@ from datetime import datetime, timedelta
 
 from flask import current_app, Blueprint, request, json
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+import ldap
 
 
 import bqp_database_access as database
-from bqp_database_access.users import UnknownIdentityError
+from bqp_database_access.users import (
+    UnknownIdentityError,
+    BlockedIdentityError,
+    IncorrectSecretError,
+)
 from bqp_database_access.tokens import (
     TooManyTokensError,
     TokenExistsError,
@@ -20,6 +25,9 @@ from bqp_database_access.tokens import (
     TokenNotFound,
     TokenExpirationAfterMaximum,
 )
+
+
+LRZ_LDAP_SERVER = "ldaps://auth.sim.lrz.de:636"
 
 
 def generate_token() -> str:
@@ -31,6 +39,37 @@ def generate_token() -> str:
 backend = Blueprint("backend", __name__)
 
 
+def authenticate_user_by_ldap(identity: str, secret: str):
+    """ """
+
+    base_dn = "ou=Intranet,ou=Kennungen,o=lrz-muenchen,c=de"
+    user_dn = f"cn={identity},ou=Intranet,ou=Kennungen,o=lrz-muenchen,c=de"
+    search_filter = f"(&(cn={identity})(mwnLRZAbteilung=QCT))"
+    attr_list = [
+        "cn",
+        "mwnAuthUserKontaktEmail",
+        "mwnSn",
+    ]
+
+    try:
+        connect = ldap.initialize(LRZ_LDAP_SERVER)
+        connect.protocol_version = ldap.VERSION3
+        connect.set_option(ldap.OPT_REFERRALS, 0)
+        auth_user = connect.simple_bind_s(user_dn, secret)
+        if auth_user is None:
+            raise UnknownIdentityError
+
+        ldap_user = connect.search_s(
+            base_dn, ldap.SCOPE_SUBTREE, search_filter, attr_list
+        )
+
+    except ldap.INVALID_CREDENTIALS:
+        raise IncorrectSecretError
+
+    finally:
+        connect.unbind_s()
+
+
 @backend.post("/login")
 def login_user():
     request_data = request.get_json()
@@ -38,21 +77,29 @@ def login_user():
     identity = request_data["identity"]
     secret = request_data["secret"]
 
-    # TODO authenticate against LDAP
-
     try:
-        if not database.users.authenticate(identity, secret):
-            raise RuntimeError("failed to authenticate")
-
         user = database.users.fetch_user_by_identity(identity)
 
         if user.blocked:
-            # TODO handle through actual exception
-            raise RuntimeError("user is blocked")
+            raise BlockedIdentityError
 
-    except Exception as error:
+        if user.association == "LDAP":
+            authenticate_user_by_ldap(identity, secret)
+
+        else:
+            database.users.authenticate(identity, secret)
+
+    except (UnknownIdentityError, IncorrectSecretError):
         # TODO log error
+        return {
+            "error_message": "The identity/password is not valid. Please try again!",
+        }, HTTPStatus.UNAUTHORIZED
 
+    except BlockedIdentityError:
+        # TODO log error
+        # NOTE should we tell them they are blocked? this would leak information
+        #      confirming a user account exists
+        #      otherwise merge with above
         return {
             "error_message": "The identity/password is not valid. Please try again!",
         }, HTTPStatus.UNAUTHORIZED
@@ -142,9 +189,6 @@ def get_all_tokens():
         }
         for token in tokens
     ]
-
-
-    # print("tokens: ", sanitized_tokens)
 
 
     return {
@@ -238,3 +282,6 @@ def fetch_all_resources():
 
 
 
+
+=======
+>>>>>>> 010f8e5234a458ad0586ed4504354d970f7b55a7

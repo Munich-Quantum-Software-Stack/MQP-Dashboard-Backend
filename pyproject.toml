@@ -7,13 +7,14 @@ authors = [
 ]
 dependencies = [
     "flask>=2.3.2",
-    "bqp-database-access>=0.2",
+    "bqp-database-access>=0.2.19",
     "pony>=0.7.16",
     "flask-jwt-extended>=4.5.2",
     "gunicorn>=21.2.0",
     "flask-cors>=4.0.0",
+    "python-ldap>=3.4.3",
 ]
-requires-python = ">=3.10,<3.11"
+requires-python = ">=3.10,<3.12"
 readme = "README.md"
 license = {text = "MIT"}
 
@@ -31,3 +32,10 @@ env = [
     "QUANTUM_DB_PASS=",
     "QUANTUM_DB_HOST="
 ]
+pythonpath = ["."]
+
+
+[[tool.pdm.source]]
+name = "lrz_pypi"
+url = "http://pypi.quantum.lrz.de:8080/"
+verify_ssl = false
