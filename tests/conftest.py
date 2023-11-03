@@ -11,6 +11,8 @@ from datetime import datetime
 from http import HTTPStatus
 from werkzeug.datastructures import Headers
 
+from ldap_test import LdapServer
+
 
 @pytest.fixture(scope="module")
 def app():
@@ -23,12 +25,31 @@ def app():
 
     # other setup can go here
     create_local_database()
+    server = create_ldap_server()
 
     yield app
 
     # clean up / reset resources here
 
     delete_local_database()
+    server.stop()
+
+
+def create_ldap_server():
+    properties = {
+        "port": 8888,
+        "bind_dn": "cn=ldap_test_user,ou=Intranet,ou=Kennungen,o=lrz-muenchen,c=de",
+        "password": "ldap_test_password",
+        "base": {
+            "objectclass": ["domain"],
+            "dn": "c=de",
+            "attributes": {"dc": "zoldar"},
+        },
+    }
+
+    server = LdapServer(properties, java_delay=0.5)
+
+    server.start()
 
 
 def create_local_database():
@@ -58,6 +79,10 @@ def create_local_database():
                 "test@lrz.de",
                 "LRZ",
                 "quantum",
+            )
+
+            database_access.users.create_new_ldap_user(
+                "ldap_test_user", "BASIC", "ldaptest@lrz.de", "LRZ", "LDAP"
             )
 
             quantum_db = open_database()

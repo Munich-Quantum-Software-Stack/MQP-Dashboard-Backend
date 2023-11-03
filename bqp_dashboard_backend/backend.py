@@ -27,7 +27,20 @@ from bqp_database_access.tokens import (
 )
 
 
-LRZ_LDAP_SERVER = "ldaps://auth.sim.lrz.de:636"
+# TODO remove this, should live in environment variable
+# LRZ_LDAP_SERVER = "ldaps://auth.sim.lrz.de:636"
+
+
+class AuthenticationError(Exception):
+    pass
+
+
+class AuthenticationMechanismUnknownError(AuthenticationError):
+    pass
+
+
+class UnauthorizedUser(Exception):
+    pass
 
 
 def generate_token() -> str:
@@ -42,26 +55,23 @@ backend = Blueprint("backend", __name__)
 def authenticate_user_by_ldap(identity: str, secret: str):
     """ """
 
-    base_dn = "ou=Intranet,ou=Kennungen,o=lrz-muenchen,c=de"
-    user_dn = f"cn={identity},ou=Intranet,ou=Kennungen,o=lrz-muenchen,c=de"
-    search_filter = f"(&(cn={identity})(mwnLRZAbteilung=QCT))"
-    attr_list = [
-        "cn",
-        "mwnAuthUserKontaktEmail",
-        "mwnSn",
-    ]
-
     try:
-        connect = ldap.initialize(LRZ_LDAP_SERVER)
+        connect = ldap.initialize(os.environ.get("QUANTUM_DS_HOST"))
         connect.protocol_version = ldap.VERSION3
         connect.set_option(ldap.OPT_REFERRALS, 0)
-        auth_user = connect.simple_bind_s(user_dn, secret)
-        if auth_user is None:
+
+        # authenticate user
+        user_dn = f"cn={identity},ou=Intranet,ou=Kennungen,o=lrz-muenchen,c=de"
+        if auth_user := connect.simple_bind_s(user_dn, secret) is None:
             raise UnknownIdentityError
 
-        ldap_user = connect.search_s(
-            base_dn, ldap.SCOPE_SUBTREE, search_filter, attr_list
+        # check if part of ou=quantumcomputing
+        search_filter = f"(&(objectClass=user))"
+        search_dn = (
+            f"cn={identity},ou=quantumcomputing,ou=Kennungen,o=lrz-muenchen,c=de"
         )
+        if not connect.search_s(search_dn, ldap.SCOPE_SUBTREE, search_filter):
+            raise UnauthorizedUser
 
     except ldap.INVALID_CREDENTIALS:
         raise IncorrectSecretError
@@ -86,8 +96,11 @@ def login_user():
         if user.association == "LDAP":
             authenticate_user_by_ldap(identity, secret)
 
-        else:
+        elif user.association == "quantum":
             database.users.authenticate(identity, secret)
+
+        else:
+            raise AuthenticationMechanismUnknownError
 
     except (UnknownIdentityError, IncorrectSecretError):
         # TODO log error
