@@ -13,6 +13,7 @@ from werkzeug.datastructures import Headers
 
 from socketserver import ThreadingTCPServer
 import ldapserver
+from threading import Thread
 
 
 @pytest.fixture(scope="module")
@@ -26,7 +27,7 @@ def app():
 
     # other setup can go here
     create_local_database()
-    server = create_ldap_server()
+    server, thread = create_ldap_server()
 
     yield app
 
@@ -34,20 +35,26 @@ def app():
 
     delete_local_database()
     server.shutdown()
-    server.server_close()
+    thread.join()
 
 
-class RequestHandler(ldapserver.LDAPRequestHandler):
+class LDAPRequestHandler(ldapserver.LDAPRequestHandler):
     subschema = ldapserver.SubschemaSubentry(
         ldapserver.schema.RFC2307BIS_SCHEMA, "cn=Subschema"
     )
 
     def do_search(self, basedn, scope, filterobj):
-        pass
+        # TODO this needs to match LRZ LDAP Setup
+        return []
 
 
-def create_ldap_server() -> ThreadingTCPServer:
-    return ThreadingTCPServer(("localhost", "5555"), RequestHandler).serve_forever()
+def create_ldap_server():
+    server = ThreadingTCPServer(("localhost", 7777), LDAPRequestHandler)
+    server_thread = Thread(target=server.serve_forever)
+    server_thread.daemon = True
+    server_thread.start()
+
+    return server, server_thread
 
 
 def create_local_database():
