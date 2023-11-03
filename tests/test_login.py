@@ -1,6 +1,22 @@
 from http import HTTPStatus
+import ldap
 
 import os
+
+
+def test_ldap_access() -> None:
+    """Test whether the LDAP server is reachable."""
+
+    user_dn = f"cn=ldap_test_user,ou=Intranet,ou=Kennungen,o=lrz-muenchen,c=de"
+    secret = "ldap_test_password"
+
+    connection = ldap.initialize("ldap://127.0.0.1:7777")
+    connection.protocol_version = ldap.VERSION3
+    connection.set_option(ldap.OPT_REFERRALS, 0)
+
+    auth_user = connection.simple_bind_s(user_dn, secret)
+
+    connection.unbind_s()
 
 
 def test_correct_login(inactive_client) -> None:

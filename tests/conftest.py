@@ -39,6 +39,7 @@ def app():
 
 
 class LDAPRequestHandler(ldapserver.LDAPRequestHandler):
+    # TODO somehow we need to add the ldap_test_user:ldap_test_password entry here to match the LRZ schema
     subschema = ldapserver.SubschemaSubentry(
         ldapserver.schema.RFC2307BIS_SCHEMA, "cn=Subschema"
     )
@@ -49,7 +50,7 @@ class LDAPRequestHandler(ldapserver.LDAPRequestHandler):
 
 
 def create_ldap_server():
-    server = ThreadingTCPServer(("localhost", 7777), LDAPRequestHandler)
+    server = ThreadingTCPServer(("127.0.0.1", 7777), LDAPRequestHandler)
     server_thread = Thread(target=server.serve_forever)
     server_thread.daemon = True
     server_thread.start()
