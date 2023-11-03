@@ -37,7 +37,7 @@ def app():
 
 def create_ldap_server():
     properties = {
-        "port": 7777,
+        "port": 8888,
         "bind_dn": "cn=ldap_test_user,ou=Intranet,ou=Kennungen,o=lrz-muenchen,c=de",
         "password": "ldap_test_password",
         "base": {
