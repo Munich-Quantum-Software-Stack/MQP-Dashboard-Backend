@@ -11,6 +11,9 @@ from datetime import datetime
 from http import HTTPStatus
 from werkzeug.datastructures import Headers
 
+from socketserver import ThreadingTCPServer
+import ldapserver
+
 
 @pytest.fixture(scope="module")
 def app():
@@ -23,12 +26,28 @@ def app():
 
     # other setup can go here
     create_local_database()
+    server = create_ldap_server()
 
     yield app
 
     # clean up / reset resources here
 
     delete_local_database()
+    server.shutdown()
+    server.server_close()
+
+
+class RequestHandler(ldapserver.LDAPRequestHandler):
+    subschema = ldapserver.SubschemaSubentry(
+        ldapserver.schema.RFC2307BIS_SCHEMA, "cn=Subschema"
+    )
+
+    def do_search(self, basedn, scope, filterobj):
+        pass
+
+
+def create_ldap_server() -> ThreadingTCPServer:
+    return ThreadingTCPServer(("localhost", "5555"), RequestHandler).serve_forever()
 
 
 def create_local_database():
@@ -58,6 +77,10 @@ def create_local_database():
                 "test@lrz.de",
                 "LRZ",
                 "quantum",
+            )
+
+            database_access.users.create_new_ldap_user(
+                "ldap_test_user", "BASIC", "ldaptest@lrz.de", "LRZ", "LDAP"
             )
 
             quantum_db = open_database()

@@ -5,7 +5,7 @@
 groups = ["default", "test"]
 strategy = ["cross_platform"]
 lock_version = "4.4"
-content_hash = "sha256:c737c00a9b0fe247a309e142b383305012b50c112d6f49dfaf58b78148dff048"
+content_hash = "sha256:01bc943dd04c4d28e479d58ac37b15531b86b3bec2d433e17bc7660450a3b467"
 
 [[package]]
 name = "bcrypt"
@@ -48,7 +48,7 @@ files = [
 
 [[package]]
 name = "bqp-database-access"
-version = "0.2.19"
+version = "0.2.20"
 requires_python = "<3.12,>=3.10"
 summary = ""
 dependencies = [
@@ -57,8 +57,8 @@ dependencies = [
     "psycopg2-binary>=2.9",
 ]
 files = [
-    {file = "bqp_database_access-0.2.19-py3-none-any.whl", hash = "sha256:0037cb69aada28dc10ab59216e85d5b2fc26c9f434d7102a1f4723e65776d01a"},
-    {file = "bqp_database_access-0.2.19.tar.gz", hash = "sha256:66e0032391aa9745b6699425db69cdb0b518c11ed809963cfb7e96a91af20937"},
+    {file = "bqp_database_access-0.2.20-py3-none-any.whl", hash = "sha256:856b0852aae4f922e0173840bea87418263163f922eecc777cd3278eeec93ecb"},
+    {file = "bqp_database_access-0.2.20.tar.gz", hash = "sha256:720e95edcbb1fec732ed211dbbcdaeba0304b7a8a51b0d38623b480e9c983e92"},
 ]
 
 [[package]]
@@ -182,6 +182,16 @@ dependencies = [
 files = [
     {file = "Jinja2-3.1.2-py3-none-any.whl", hash = "sha256:6088930bfe239f0e6710546ab9c19c9ef35e29792895fed6e6e31a023a182a61"},
     {file = "Jinja2-3.1.2.tar.gz", hash = "sha256:31351a702a408a9e7595a8fc6150fc3f43bb6bf7e319770cbc0db9df9437e852"},
+]
+
+[[package]]
+name = "ldapserver"
+version = "0.1.2"
+requires_python = ">=3.7"
+summary = "Library to implement special-purpose LDAP servers"
+files = [
+    {file = "ldapserver-0.1.2-py3-none-any.whl", hash = "sha256:9a6af517f89111cd0b02abf93db6525ef9d3108747437df6d54c8dcc3745c7e4"},
+    {file = "ldapserver-0.1.2.tar.gz", hash = "sha256:6e1b30a02bfc9477085d96c2f34b9124284b027f4b1304d6a6ca2cdee60c3125"},
 ]
 
 [[package]]

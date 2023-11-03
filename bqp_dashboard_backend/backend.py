@@ -27,7 +27,16 @@ from bqp_database_access.tokens import (
 )
 
 
-LRZ_LDAP_SERVER = "ldaps://auth.sim.lrz.de:636"
+# TODO remove this, should live in environment variable
+# LRZ_LDAP_SERVER = "ldaps://auth.sim.lrz.de:636"
+
+
+class AuthenticationError(Exception):
+    pass
+
+
+class AuthenticationMechanismUnknownError(AuthenticationError):
+    pass
 
 
 def generate_token() -> str:
@@ -52,7 +61,7 @@ def authenticate_user_by_ldap(identity: str, secret: str):
     ]
 
     try:
-        connect = ldap.initialize(LRZ_LDAP_SERVER)
+        connect = ldap.initialize(os.environ.get("QUANTUM_DS_HOST"))
         connect.protocol_version = ldap.VERSION3
         connect.set_option(ldap.OPT_REFERRALS, 0)
         auth_user = connect.simple_bind_s(user_dn, secret)
@@ -86,8 +95,11 @@ def login_user():
         if user.association == "LDAP":
             authenticate_user_by_ldap(identity, secret)
 
-        else:
+        elif user.association == "quantum":
             database.users.authenticate(identity, secret)
+
+        else:
+            raise AuthenticationMechanismUnknownError
 
     except (UnknownIdentityError, IncorrectSecretError):
         # TODO log error

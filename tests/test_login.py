@@ -45,3 +45,17 @@ def test_login_with_blocked_user(inactive_client) -> None:
     response = inactive_client.post("/login", json=user_data)
 
     assert response.status_code == HTTPStatus.UNAUTHORIZED
+
+
+def test_login_with_ldap_user(inactive_client):
+    """Test whether a LDAP marked user can log in."""
+
+    user_data = {"identity": "ldap_test_user", "secret": "ldap_test_password"}
+
+    response = inactive_client.post("/login", json=user_data)
+
+    assert (
+        response.status_code == HTTPStatus.OK
+        and response.json["access_token"] is not None
+        and response.json["force_secret_reset"] is not None
+    )
