@@ -75,7 +75,6 @@ def create_ldap_server():
     }
 
     server = LdapServer(properties, java_delay=0.5)
-
     server.start()
 
     return server

@@ -3,7 +3,9 @@ from pony.flask import Pony
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 
-from . import backend
+from . import login
+from . import tokens
+from . import jobs
 
 
 def create_app():
@@ -14,6 +16,8 @@ def create_app():
     JWTManager(app)
     Pony(app)
 
-    app.register_blueprint(backend.backend)
+    app.register_blueprint(login.blueprint)
+    app.register_blueprint(tokens.blueprint)
+    app.register_blueprint(jobs.blueprint)
 
     return app
