@@ -11,6 +11,8 @@ from datetime import datetime
 from http import HTTPStatus
 from werkzeug.datastructures import Headers
 
+from ldap_test import LdapServer
+
 
 @pytest.fixture(scope="module")
 def app():
@@ -23,12 +25,60 @@ def app():
 
     # other setup can go here
     create_local_database()
+    server = create_ldap_server()
 
     yield app
 
     # clean up / reset resources here
 
     delete_local_database()
+    server.stop()
+
+
+def create_ldap_server():
+    properties = {
+        "port": 8888,
+        "bind_dn": "cn=ldap_test_user,ou=Intranet,ou=Kennungen,o=lrz-muenchen,c=de",
+        "password": "ldap_test_password",
+        "base": {
+            "objectclass": ["country"],
+            "dn": "c=de",
+            "attributes": {"o": "lrz-muenchen"},
+        },
+        "entries": [
+            {
+                "objectclass": ["organization"],
+                "dn": "o=lrz-muenchen,c=de",
+                "attributes": {"o": "lrz-muenchen"},
+            },
+            {
+                "objectclass": ["organizationalunit"],
+                "dn": "ou=Kennungen,o=lrz-muenchen,c=de",
+                "attributes": {"ou": "Kennungen"},
+            },
+            {
+                "objectclass": ["organizationalunit"],
+                "dn": "ou=Intranet,ou=Kennungen,o=lrz-muenchen,c=de",
+                "attributes": {"ou": "Intranet"},
+            },
+            {
+                "objectclass": ["organizationalunit"],
+                "dn": "ou=quantumcomputing,ou=Kennungen,o=lrz-muenchen,c=de",
+                "attributes": {"ou": "quantumcomputing"},
+            },
+            {
+                "objectclass": ["user"],
+                "dn": "cn=ldap_test_user,ou=quantumcomputing,ou=Kennungen,o=lrz-muenchen,c=de",
+                "attributes": {"cn": "ldap_test_user"},
+            },
+        ],
+    }
+
+    server = LdapServer(properties, java_delay=0.5)
+
+    server.start()
+
+    return server
 
 
 def create_local_database():
@@ -58,6 +108,10 @@ def create_local_database():
                 "test@lrz.de",
                 "LRZ",
                 "quantum",
+            )
+
+            database_access.users.create_new_ldap_user(
+                "ldap_test_user", "BASIC", "ldaptest@lrz.de", "LRZ", "LDAP"
             )
 
             quantum_db = open_database()

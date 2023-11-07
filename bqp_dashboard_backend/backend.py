@@ -9,10 +9,15 @@ from datetime import datetime, timedelta
 
 from flask import current_app, Blueprint, request, json
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+import ldap
 
 
 import bqp_database_access as database
-from bqp_database_access.users import UnknownIdentityError
+from bqp_database_access.users import (
+    UnknownIdentityError,
+    BlockedIdentityError,
+    IncorrectSecretError,
+)
 from bqp_database_access.tokens import (
     TooManyTokensError,
     TokenExistsError,
@@ -20,6 +25,22 @@ from bqp_database_access.tokens import (
     TokenNotFound,
     TokenExpirationAfterMaximum,
 )
+
+
+# TODO remove this, should live in environment variable
+# LRZ_LDAP_SERVER = "ldaps://auth.sim.lrz.de:636"
+
+
+class AuthenticationError(Exception):
+    pass
+
+
+class AuthenticationMechanismUnknownError(AuthenticationError):
+    pass
+
+
+class UnauthorizedUser(Exception):
+    pass
 
 
 def generate_token() -> str:
@@ -31,6 +52,34 @@ def generate_token() -> str:
 backend = Blueprint("backend", __name__)
 
 
+def authenticate_user_by_ldap(identity: str, secret: str):
+    """ """
+
+    try:
+        connect = ldap.initialize(os.environ.get("QUANTUM_DS_HOST"))
+        connect.protocol_version = ldap.VERSION3
+        connect.set_option(ldap.OPT_REFERRALS, 0)
+
+        # authenticate user
+        user_dn = f"cn={identity},ou=Intranet,ou=Kennungen,o=lrz-muenchen,c=de"
+        if auth_user := connect.simple_bind_s(user_dn, secret) is None:
+            raise UnknownIdentityError
+
+        # check if part of ou=quantumcomputing
+        search_filter = f"(&(objectClass=user))"
+        search_dn = (
+            f"cn={identity},ou=quantumcomputing,ou=Kennungen,o=lrz-muenchen,c=de"
+        )
+        if not connect.search_s(search_dn, ldap.SCOPE_SUBTREE, search_filter):
+            raise UnauthorizedUser
+
+    except ldap.INVALID_CREDENTIALS:
+        raise IncorrectSecretError
+
+    finally:
+        connect.unbind_s()
+
+
 @backend.post("/login")
 def login_user():
     request_data = request.get_json()
@@ -38,21 +87,32 @@ def login_user():
     identity = request_data["identity"]
     secret = request_data["secret"]
 
-    # TODO authenticate against LDAP
-
     try:
-        if not database.users.authenticate(identity, secret):
-            raise RuntimeError("failed to authenticate")
-
         user = database.users.fetch_user_by_identity(identity)
 
         if user.blocked:
-            # TODO handle through actual exception
-            raise RuntimeError("user is blocked")
+            raise BlockedIdentityError
 
-    except Exception as error:
+        if user.association == "LDAP":
+            authenticate_user_by_ldap(identity, secret)
+
+        elif user.association == "quantum":
+            database.users.authenticate(identity, secret)
+
+        else:
+            raise AuthenticationMechanismUnknownError
+
+    except (UnknownIdentityError, IncorrectSecretError):
         # TODO log error
+        return {
+            "error_message": "The identity/password is not valid. Please try again!",
+        }, HTTPStatus.UNAUTHORIZED
 
+    except BlockedIdentityError:
+        # TODO log error
+        # NOTE should we tell them they are blocked? this would leak information
+        #      confirming a user account exists
+        #      otherwise merge with above
         return {
             "error_message": "The identity/password is not valid. Please try again!",
         }, HTTPStatus.UNAUTHORIZED

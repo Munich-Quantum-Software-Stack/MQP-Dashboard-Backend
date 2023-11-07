@@ -7,11 +7,12 @@ authors = [
 ]
 dependencies = [
     "flask>=2.3.2",
-    "bqp-database-access>=0.2",
+    "bqp-database-access>=0.2.20",
     "pony>=0.7.16",
     "flask-jwt-extended>=4.5.2",
     "gunicorn>=21.2.0",
     "flask-cors>=4.0.0",
+    "python-ldap>=3.4.3",
 ]
 requires-python = ">=3.10,<3.12"
 readme = "README.md"
@@ -21,12 +22,14 @@ license = {text = "MIT"}
 test = [
     "pytest>=7.4.0",
     "pytest-env>=0.8.2",
+    "python-ldap-test>=0.3.1",
 ]
 
 [tool.pytest.ini_options]
 env = [
     "QUANTUM_DB_TESTING=TRUE",
     "QUANTUM_DB_FILENAME=test_db.sqlite",
+    "QUANTUM_DS_HOST=ldap://localhost:8888",
     "QUANTUM_DB_USER=",
     "QUANTUM_DB_PASS=",
     "QUANTUM_DB_HOST="

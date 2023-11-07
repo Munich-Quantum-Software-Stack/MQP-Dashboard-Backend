@@ -3,10 +3,9 @@
 
 [metadata]
 groups = ["default", "test"]
-cross_platform = true
-static_urls = false
-lock_version = "4.3"
-content_hash = "sha256:99df9b227030a9f4c19e0cb094b36b9e4d1ffd2aeb99d7d4c9283b6d988fd185"
+strategy = ["cross_platform"]
+lock_version = "4.4"
+content_hash = "sha256:b869ad09e4fcde02c3b23d7bbcfb347b9cb293ed7a29bb75b4d8a9e75b01a7b1"
 
 [[package]]
 name = "bcrypt"
@@ -39,18 +38,18 @@ files = [
 
 [[package]]
 name = "blinker"
-version = "1.6.3"
-requires_python = ">=3.7"
+version = "1.7.0"
+requires_python = ">=3.8"
 summary = "Fast, simple object-to-object and broadcast signaling"
 files = [
-    {file = "blinker-1.6.3-py3-none-any.whl", hash = "sha256:296320d6c28b006eb5e32d4712202dbcdcbf5dc482da298c2f44881c43884aaa"},
-    {file = "blinker-1.6.3.tar.gz", hash = "sha256:152090d27c1c5c722ee7e48504b02d76502811ce02e1523553b4cf8c8b3d3a8d"},
+    {file = "blinker-1.7.0-py3-none-any.whl", hash = "sha256:c3f865d4d54db7abc53758a01601cf343fe55b84c1de4e3fa910e420b438d5b9"},
+    {file = "blinker-1.7.0.tar.gz", hash = "sha256:e6820ff6fa4e4d1d8e2747c2283749c3f547e4fee112b98555cdcdae32996182"},
 ]
 
 [[package]]
 name = "bqp-database-access"
-version = "0.2.17"
-requires_python = ">=3.10"
+version = "0.2.20"
+requires_python = "<3.12,>=3.10"
 summary = ""
 dependencies = [
     "bcrypt>=4.0",
@@ -58,8 +57,8 @@ dependencies = [
     "psycopg2-binary>=2.9",
 ]
 files = [
-    {file = "bqp_database_access-0.2.17-py3-none-any.whl", hash = "sha256:88a27a4f5957a7f30f01d1e8cb122c0d871e1a99fc8da88c16d88875bbd5f345"},
-    {file = "bqp_database_access-0.2.17.tar.gz", hash = "sha256:a3042ab4f345591e40233ab629a718d8c5ba81cdaa4bb9233044fc0d7c2af7c6"},
+    {file = "bqp_database_access-0.2.20-py3-none-any.whl", hash = "sha256:856b0852aae4f922e0173840bea87418263163f922eecc777cd3278eeec93ecb"},
+    {file = "bqp_database_access-0.2.20.tar.gz", hash = "sha256:720e95edcbb1fec732ed211dbbcdaeba0304b7a8a51b0d38623b480e9c983e92"},
 ]
 
 [[package]]
@@ -277,6 +276,38 @@ files = [
 ]
 
 [[package]]
+name = "py4j"
+version = "0.10.9.7"
+summary = "Enables Python programs to dynamically access arbitrary Java objects"
+files = [
+    {file = "py4j-0.10.9.7-py2.py3-none-any.whl", hash = "sha256:85defdfd2b2376eb3abf5ca6474b51ab7e0de341c75a02f46dc9b5976f5a5c1b"},
+    {file = "py4j-0.10.9.7.tar.gz", hash = "sha256:0b6e5315bb3ada5cf62ac651d107bb2ebc02def3dee9d9548e3baac644ea8dbb"},
+]
+
+[[package]]
+name = "pyasn1"
+version = "0.5.0"
+requires_python = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,>=2.7"
+summary = "Pure-Python implementation of ASN.1 types and DER/BER/CER codecs (X.208)"
+files = [
+    {file = "pyasn1-0.5.0-py2.py3-none-any.whl", hash = "sha256:87a2121042a1ac9358cabcaf1d07680ff97ee6404333bacca15f76aa8ad01a57"},
+    {file = "pyasn1-0.5.0.tar.gz", hash = "sha256:97b7290ca68e62a832558ec3976f15cbf911bf5d7c7039d8b861c2a0ece69fde"},
+]
+
+[[package]]
+name = "pyasn1-modules"
+version = "0.3.0"
+requires_python = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,>=2.7"
+summary = "A collection of ASN.1-based protocols modules"
+dependencies = [
+    "pyasn1<0.6.0,>=0.4.6",
+]
+files = [
+    {file = "pyasn1_modules-0.3.0-py2.py3-none-any.whl", hash = "sha256:d3ccd6ed470d9ffbc716be08bd90efbd44d0734bc9303818f7336070984a162d"},
+    {file = "pyasn1_modules-0.3.0.tar.gz", hash = "sha256:5bd01446b736eb9d31512a30d46c1ac3395d676c6f3cafa4c03eb54b9925631c"},
+]
+
+[[package]]
 name = "pyjwt"
 version = "2.8.0"
 requires_python = ">=3.7"
@@ -316,6 +347,30 @@ dependencies = [
 files = [
     {file = "pytest_env-1.1.1-py3-none-any.whl", hash = "sha256:2b71b37c6810f28bec790a7b373c777af87352b3a359b3de0edb9d24df5cf8b3"},
     {file = "pytest_env-1.1.1.tar.gz", hash = "sha256:1efb8acce1f6431196150f3b30673443ff05a6fabff64539a9495cd2248adf9e"},
+]
+
+[[package]]
+name = "python-ldap"
+version = "3.4.3"
+requires_python = ">=3.6"
+summary = "Python modules for implementing LDAP clients"
+dependencies = [
+    "pyasn1-modules>=0.1.5",
+    "pyasn1>=0.3.7",
+]
+files = [
+    {file = "python-ldap-3.4.3.tar.gz", hash = "sha256:ab26c519a0ef2a443a2a10391fa3c5cb52d7871323399db949ebfaa9f25ee2a0"},
+]
+
+[[package]]
+name = "python-ldap-test"
+version = "0.3.1"
+summary = "Tool for testing code speaking with LDAP server. Allows to easily configure and run an embedded, in-memory LDAP server. Uses UnboundID LDAP SDK through Py4J."
+dependencies = [
+    "py4j>=0.10.2.1",
+]
+files = [
+    {file = "python-ldap-test-0.3.1.tar.gz", hash = "sha256:8e676ff33f7a755c56bf262f85feba484316bd5af83e970eb78d2a66e9e809e2"},
 ]
 
 [[package]]
