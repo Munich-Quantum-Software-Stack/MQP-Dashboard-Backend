@@ -41,16 +41,43 @@ def create_ldap_server():
         "bind_dn": "cn=ldap_test_user,ou=Intranet,ou=Kennungen,o=lrz-muenchen,c=de",
         "password": "ldap_test_password",
         "base": {
-            "objectclass": ["domain"],
+            "objectclass": ["country"],
             "dn": "c=de",
-            "attributes": {"dc": "zoldar"},
+            "attributes": {"o": "lrz-muenchen"},
         },
+        "entries": [
+            {
+                "objectclass": ["organization"],
+                "dn": "o=lrz-muenchen,c=de",
+                "attributes": {"o": "lrz-muenchen"},
+            },
+            {
+                "objectclass": ["organizationalunit"],
+                "dn": "ou=Kennungen,o=lrz-muenchen,c=de",
+                "attributes": {"ou": "Kennungen"},
+            },
+            {
+                "objectclass": ["organizationalunit"],
+                "dn": "ou=Intranet,ou=Kennungen,o=lrz-muenchen,c=de",
+                "attributes": {"ou": "Intranet"},
+            },
+            {
+                "objectclass": ["organizationalunit"],
+                "dn": "ou=quantumcomputing,ou=Kennungen,o=lrz-muenchen,c=de",
+                "attributes": {"ou": "quantumcomputing"},
+            },
+            {
+                "objectclass": ["user"],
+                "dn": "cn=ldap_test_user,ou=quantumcomputing,ou=Kennungen,o=lrz-muenchen,c=de",
+                "attributes": {"cn": "ldap_test_user"},
+            },
+        ],
     }
 
     server = LdapServer(properties, java_delay=0.5)
-
     server.start()
 
+    return server
 
 def create_local_database():
     db = open_database(create_tables=True)

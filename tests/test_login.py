@@ -3,8 +3,7 @@ import ldap
 
 import os
 
-
-def test_ldap_access() -> None:
+def test_ldap_access(app) -> None:
     """Test whether the LDAP server is reachable."""
 
     user_dn = f"cn=ldap_test_user,ou=Intranet,ou=Kennungen,o=lrz-muenchen,c=de"
@@ -19,7 +18,6 @@ def test_ldap_access() -> None:
     assert auth_user
 
     connection.unbind_s()
-
 
 def test_correct_login(inactive_client) -> None:
     """Test whether a normal login works."""
@@ -65,7 +63,7 @@ def test_login_with_blocked_user(inactive_client) -> None:
     assert response.status_code == HTTPStatus.UNAUTHORIZED
 
 
-def test_login_with_ldap_user(inactive_client):
+def test_ldap_login_user(inactive_client):
     """Test whether a LDAP marked user can log in."""
 
     user_data = {"identity": "ldap_test_user", "secret": "ldap_test_password"}
