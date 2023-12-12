@@ -69,7 +69,7 @@ def login_user():
         if user.association == "LDAP":
             authenticate_user_by_ldap(identity, secret)
 
-        elif user.association == "quantum":
+        elif user.association == "QUANTUM":
             database.users.authenticate(identity, secret)
 
         else:
