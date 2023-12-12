@@ -3,13 +3,15 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from http import HTTPStatus
 import bqp_database_access as database
+from eliot import log_call
 
 
-blueprint = Blueprint("jobs", __name__)
+BLUEPRINT = Blueprint("jobs", __name__)
 
 
-@blueprint.get("/jobs")
+@BLUEPRINT.get("/jobs")
 @jwt_required()
+@log_call
 def fetch_all_jobs():
     """Fetch all jobs belonging to a user."""
 
@@ -21,8 +23,9 @@ def fetch_all_jobs():
     return {"jobs": sanitized_jobs}, HTTPStatus.OK
 
 
-@blueprint.get("/jobs/<id>")
+@BLUEPRINT.get("/jobs/<id>")
 @jwt_required()
+@log_call
 def fetch_job(id=0):
     """Fetch all jobs belonging to a user."""
     identity = get_jwt_identity()

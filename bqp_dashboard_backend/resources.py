@@ -1,16 +1,18 @@
 from flask import Blueprint
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from http import HTTPStatus
+from eliot import log_call
 
 
 import bqp_database_access as database
 
 
-blueprint = Blueprint("resources", __name__)
+BLUEPRINT = Blueprint("resources", __name__)
 
 
-@blueprint.get("/resources")
+@BLUEPRINT.get("/resources")
 @jwt_required()
+@log_call
 def fetch_all_resources():
     """Fetch all jobs belonging to a user."""
 
