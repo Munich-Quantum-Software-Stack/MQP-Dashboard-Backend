@@ -2,10 +2,16 @@ from flask import Flask
 from pony.flask import Pony
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
+from eliot import add_destinations
+from eliot.journald import JournaldDestination
 
 from . import login
 from . import tokens
 from . import jobs
+from . import resources
+
+
+add_destinations(JournaldDestination())
 
 
 def create_app():
@@ -16,8 +22,9 @@ def create_app():
     JWTManager(app)
     Pony(app)
 
-    app.register_blueprint(login.blueprint)
-    app.register_blueprint(tokens.blueprint)
-    app.register_blueprint(jobs.blueprint)
+    app.register_blueprint(login.BLUEPRINT)
+    app.register_blueprint(tokens.BLUEPRINT)
+    app.register_blueprint(jobs.BLUEPRINT)
+    app.register_blueprint(resources.BLUEPRINT)
 
     return app

@@ -13,8 +13,10 @@ from bqp_database_access.tokens import (
 )
 from flask import Blueprint, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
+from eliot import log_call
 
-blueprint = Blueprint("tokens", __name__)
+
+BLUEPRINT = Blueprint("tokens", __name__)
 
 
 def generate_token() -> str:
@@ -23,8 +25,9 @@ def generate_token() -> str:
     )
 
 
-@blueprint.post("/tokens")
+@BLUEPRINT.post("/tokens")
 @jwt_required()
+@log_call
 def create_token():
     """Create a token with given token data."""
 
@@ -78,8 +81,9 @@ def create_token():
         }
 
 
-@blueprint.get("/tokens")
+@BLUEPRINT.get("/tokens")
 @jwt_required()
+@log_call
 def get_all_tokens():
     """Get all tokens that belong to user."""
 
@@ -103,8 +107,9 @@ def get_all_tokens():
     }, HTTPStatus.OK
 
 
-@blueprint.get("/tokens/user_limits")
+@BLUEPRINT.get("/tokens/user_limits")
 @jwt_required()
+@log_call
 def get_user_token_creation_limits():
     """Fetch the user security level limits."""
 
@@ -121,8 +126,9 @@ def get_user_token_creation_limits():
     }
 
 
-@blueprint.delete("/tokens")
+@BLUEPRINT.delete("/tokens")
 @jwt_required()
+@log_call
 def revoke_token():
     """Revoke given token and owner combination."""
 

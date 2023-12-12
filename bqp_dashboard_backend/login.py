@@ -4,13 +4,16 @@ from http import HTTPStatus
 
 import bqp_database_access as database
 import ldap
-from bqp_database_access.users import (BlockedIdentityError,
-                                       IncorrectSecretError,
-                                       UnknownIdentityError)
+from bqp_database_access.users import (
+    BlockedIdentityError,
+    IncorrectSecretError,
+    UnknownIdentityError,
+)
+from eliot import log_call
 from flask import Blueprint, request
 from flask_jwt_extended import create_access_token
 
-blueprint = Blueprint("login", __name__)
+BLUEPRINT = Blueprint("login", __name__)
 
 
 class AuthenticationError(Exception):
@@ -25,6 +28,7 @@ class UnauthorizedUser(Exception):
     pass
 
 
+@log_call(include_args=["identity"])
 def authenticate_user_by_ldap(identity: str, secret: str):
     """ """
 
@@ -53,7 +57,8 @@ def authenticate_user_by_ldap(identity: str, secret: str):
         connect.unbind_s()
 
 
-@blueprint.post("/login")
+@BLUEPRINT.post("/login")
+@log_call(action_type="login_attempt")
 def login_user():
     request_data = request.get_json()
 
