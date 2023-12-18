@@ -28,7 +28,7 @@ def create_app():
 
     CORS(app)
     jwt = JWTManager(app)
-    jwt.unauthorized_loader()
+    jwt.unauthorized_loader(on_no_jwt_provided)
     Pony(app)
 
     app.register_blueprint(login.BLUEPRINT)
