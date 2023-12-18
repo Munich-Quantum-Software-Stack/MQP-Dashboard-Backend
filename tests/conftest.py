@@ -97,7 +97,7 @@ def create_local_database():
                 login_max_interval=365,
             )
             database_access.users.create_new_user_with_secret(
-                "test_user", "test_password", "BASIC", "test@lrz.de", "LRZ", "quantum"
+                "test_user", "test_password", "BASIC", "test@lrz.de", "LRZ", "QUANTUM"
             )
 
             database_access.users.create_new_user_with_secret(
@@ -106,7 +106,7 @@ def create_local_database():
                 "BASIC",
                 "test@lrz.de",
                 "LRZ",
-                "quantum",
+                "QUANTUM",
             )
 
             database_access.users.create_new_ldap_user(

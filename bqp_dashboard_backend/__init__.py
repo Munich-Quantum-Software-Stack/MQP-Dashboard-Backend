@@ -4,7 +4,10 @@ from pony.flask import Pony
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from eliot import add_destinations, log_message
-from eliot.journald import JournaldDestination
+import os
+
+if os.getenv("QUANTUM_DB_TESTING") is None:
+    from eliot.journald import JournaldDestination
 import http
 
 from . import login
@@ -13,11 +16,12 @@ from . import jobs
 from . import resources
 
 
-add_destinations(JournaldDestination())
+if os.getenv("QUANTUM_DB_TESTING") is None:
+    add_destinations(JournaldDestination())
 
 
 def on_no_jwt_provided(message: str):
-    log_message("attempt without JWT - " + message)
+    log_message(message)
 
     return Response(status=http.HTTPStatus.UNAUTHORIZED)
 
@@ -29,6 +33,7 @@ def create_app():
     CORS(app)
     jwt = JWTManager(app)
     jwt.unauthorized_loader(on_no_jwt_provided)
+    jwt.invalid_token_loader(on_no_jwt_provided)
     Pony(app)
 
     app.register_blueprint(login.BLUEPRINT)
