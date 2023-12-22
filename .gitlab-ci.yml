@@ -5,7 +5,7 @@
 
 # Official language image. Look for the different tagged releases at:
 # https://hub.docker.com/r/library/python/tags/
-image: dockerhub-lrz.duckdns.org/python-gcc-jre
+image: dockerhub.quantum.lrz.de/python-gcc-jre
 
 
 # Change pip's cache directory to be inside the project directory since we can
