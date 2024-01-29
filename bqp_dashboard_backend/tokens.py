@@ -21,7 +21,7 @@ def generate_token() -> str:
         secrets.choice(string.ascii_letters + string.digits) for _ in range(64)
     )
 
-@blueprint.post("/tokens")
+@blueprint.post("/tokens/new")
 @jwt_required()
 def create_token():
     """Create a token with given token data."""
@@ -94,10 +94,10 @@ def get_all_tokens():
         for token in tokens
     ]
 
-    # print("tokens: ", sanitized_tokens)
+    sortedTokens = sorted(sanitized_tokens, key=lambda x:x['token_name'], reverse=True)
 
     return {
-        "tokens": sanitized_tokens,
+        "tokens": sortedTokens,
     }, HTTPStatus.OK
 
 
