@@ -17,8 +17,8 @@ def fetch_all_jobs():
     jobs = database.jobs.fetch_by_identity(identity)
 
     sanitized_jobs = [job.to_dict() for job in jobs]
-
-    return {"jobs": sanitized_jobs}, HTTPStatus.OK
+    sorted_jobs_by_id = sorted(sanitized_jobs, key=lambda x: x[1], reverse=True)
+    return {"jobs": sorted_jobs_by_id}, HTTPStatus.OK
 
 
 @blueprint.get("/jobs/<id>")
@@ -34,6 +34,6 @@ def fetch_job(id=0):
     for jobItem in sanitized_jobs:
         if jobItem.get("id") == int(id):
             job = jobItem
-    print("Found job: \n", job)
+
 
     return {"job": job}, HTTPStatus.OK
