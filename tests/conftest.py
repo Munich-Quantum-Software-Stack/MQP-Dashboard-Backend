@@ -79,7 +79,6 @@ def create_ldap_server():
 
     return server
 
-
 def create_local_database():
     db = open_database(create_tables=True)
     db.disconnect()

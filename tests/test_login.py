@@ -3,7 +3,6 @@ import ldap
 
 import os
 
-
 def test_ldap_access(app) -> None:
     """Test whether the LDAP server is reachable."""
 
@@ -19,7 +18,6 @@ def test_ldap_access(app) -> None:
     assert auth_user
 
     connection.unbind_s()
-
 
 def test_correct_login(inactive_client) -> None:
     """Test whether a normal login works."""
