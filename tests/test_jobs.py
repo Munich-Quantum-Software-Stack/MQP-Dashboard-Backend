@@ -6,4 +6,18 @@ def test_fetch_all_jobs(active_client) -> None:
 
     response = active_client.get("/jobs", headers=active_client.headers)
 
-    assert response.status_code == HTTPStatus.OK and not response.json["jobs"]
+    assert response.status_code == HTTPStatus.OK and response.json["jobs"]
+
+
+def test_fetch_job_by_id(active_client) -> None:
+    """Test if a job can be fetched by a job id."""
+
+    response = active_client.get("/jobs/0", headers=active_client.headers)
+
+    assert response.status_code == HTTPStatus.OK
+
+
+def test_fetching_job_with_invalid_id(active_client) -> None:
+    """Test that fetching correctly fails with invalid id."""
+
+    raise NotImplementedError
