@@ -19,8 +19,10 @@ def fetch_all_jobs():
     jobs = database.jobs.fetch_by_identity(identity)
 
     sanitized_jobs = [job.to_dict() for job in jobs]
-    sorted_jobs_by_id = sorted(sanitized_jobs, key=lambda x: x[1], reverse=True)
+    sorted_jobs_by_id = sorted(sanitized_jobs, key=lambda x: x["id"], reverse=True)
     return {"jobs": sorted_jobs_by_id}, HTTPStatus.OK
+
+    
 
 
 @BLUEPRINT.get("/jobs/<id>")
