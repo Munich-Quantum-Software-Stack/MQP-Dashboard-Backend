@@ -24,8 +24,7 @@ def generate_token() -> str:
     )
 
 
-#@BLUEPRINT.post("/tokens")
-@blueprint.post("/tokens/new")
+@BLUEPRINT.post("/tokens/new")
 @jwt_required()
 @log_call
 def create_token():
