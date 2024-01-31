@@ -38,7 +38,7 @@ def authenticate_user_by_ldap(identity: str, secret: str):
         connect.set_option(ldap.OPT_REFERRALS, 0)
 
         # authenticate user
-        user_dn = f"cn={identity},ou=Intranet,ou=Kennungen,o=lrz-muenchen,c=de"
+        user_dn = f"cn={identity},ou=QuantumComputing,ou=Kennungen,o=lrz-muenchen,c=de"
         if auth_user := connect.simple_bind_s(user_dn, secret) is None:
             raise UnknownIdentityError
 
