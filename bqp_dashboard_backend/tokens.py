@@ -77,7 +77,7 @@ def create_token():
     except TokenExistsError as error:
         return {
             "error_message": f"Token {request_data['token_name']} already exists.",
-        }
+        }, HTTPStatus.FORBIDDEN
 
 
 @BLUEPRINT.get("/tokens")
