@@ -1,9 +1,9 @@
 [project]
-name = ""
-version = ""
+name = "BQP-Dashboard"
+version = "0.1.1"
 description = ""
 authors = [
-    {name = "Martin Ruefenacht", email = "martin.ruefenacht@lrz.de"},
+    {name = "Nitish Kumar", email = "nitish.kumar@lrz.de"},
 ]
 dependencies = [
     "flask>=2.3.2",
