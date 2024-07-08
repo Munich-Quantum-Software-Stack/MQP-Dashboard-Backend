@@ -1,19 +1,20 @@
 [project]
 name = "BQP-Dashboard"
-version = "0.1.1"
+version = "0.1.6"
 description = ""
 authors = [
     {name = "Nitish Kumar", email = "nitish.kumar@lrz.de"},
 ]
 dependencies = [
     "flask>=2.3.2",
-    "bqp-database-access>=0.2.20",
+    "bqp-database-access==0.2.34",
     "pony>=0.7.16",
     "flask-jwt-extended>=4.5.2",
     "gunicorn>=21.2.0",
     "flask-cors>=4.0.0",
     "python-ldap>=3.4.3",
     "eliot[journald]>=1.15.0",
+    "flask-mail>=0.10.0",
 ]
 requires-python = ">=3.10,<3.12"
 readme = "README.md"
