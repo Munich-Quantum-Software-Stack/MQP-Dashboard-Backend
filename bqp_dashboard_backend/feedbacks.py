@@ -8,6 +8,7 @@ from . import config
 import bqp_database_access as database
 import logging
 import json
+import os
 
 BLUEPRINT = Blueprint("feedbacks", __name__)
 mail = config.mail
@@ -40,9 +41,10 @@ def new_feedback():
         
 
         # send email to administrator
+        message_recipients = [r for r in os.getenv("FEEDBACK_RECIPIENTS", "mqp-admin@lrz.de,Laura.Schulz@lrz.de").split(",")]
         sender = "noreply-mqp@lrz.de"        
         message = Message(subject="New feedback", sender=("MQP-Dashboard", sender))
-        message.recipients=["mqp-admin@lrz.de", "Laura.Schulz@lrz.de"]
+        message.recipients=message_recipients
         message.html = "<p>Hello Admin,<br/>you received a feedback from user. Please see the content below.</p>"
         message.html += "<table><tbody>"
         message.html += "<tr><th align='left'>Rating: </th><td>" + str(request_data["rate"]) + "</td></tr>"
