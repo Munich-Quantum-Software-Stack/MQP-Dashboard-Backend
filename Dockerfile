@@ -11,10 +11,9 @@ ARG QUANTUM_DS_HOST
 RUN apt update && apt install -y git
 RUN apt-get install -y build-essential libldap2-dev libsasl2-dev slapd ldap-utils libldap-common sssd-ldap tox lcov valgrind
 
-RUN mkdir -p /bqp-dashboard-backend-server/bqp_dashboard_backend
-COPY bqp_dashboard_backend /bqp-dashboard-backend-server/bqp_dashboard_backend/
+RUN mkdir -p /bqp-dashboard-backend-server
 COPY gunicorn.conf.py /bqp-dashboard-backend-server/
-COPY pyproject.toml /bqp-dashboard-backend-server/
+COPY pyproject.bqp-dashboard-backend.toml /bqp-dashboard-backend-server/pyproject.toml
 WORKDIR /bqp-dashboard-backend-server
 
 RUN pip install pdm
