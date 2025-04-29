@@ -42,7 +42,7 @@ def authenticate_user_by_ldap(identity: str, secret: str):
         if auth_user := connect.simple_bind_s(user_dn, secret) is None:
             raise UnknownIdentityError
 
-        # check if part of ou=quantumcomputing
+        # check if part of ou=QuantumComputing
         search_filter = f"(&(objectClass=user))"
         search_dn = (
             f"cn={identity},ou=quantumcomputing,ou=Kennungen,o=lrz-muenchen,c=de"
@@ -54,7 +54,10 @@ def authenticate_user_by_ldap(identity: str, secret: str):
         raise IncorrectSecretError
 
     finally:
-        connect.unbind_s()
+        try: 
+            connect.unbind_s()
+        except:
+            pass
 
 
 @BLUEPRINT.post("/login")
@@ -67,7 +70,6 @@ def login_user():
 
     try:
         user = database.users.fetch_user_by_identity(identity)
-
         if user.blocked:
             raise BlockedIdentityError
 

@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from http import HTTPStatus
 
 import bqp_database_access as database
+from bqp_database_access._database import open_database
 from bqp_database_access.tokens import (
     TokenExistsError,
     TokenExpirationAfterMaximum,
@@ -42,23 +43,46 @@ def create_token():
 
     token = generate_token()
 
-    try:
-        database.tokens.add_new_token(
-            remember_name,
-            user_token,
-            token,
-            expiration,
-            request_data["max_nb_jobs"],
-            request_data["max_budget"],
-        )
 
-        return {
-            "token_data": {
-                "token_value": token,
-                "token_name": remember_name,
-                "token_expiration": expiration.isoformat(),
-            }
-        }, HTTPStatus.OK
+    quantum_db=open_database()
+    user = quantum_db.User.get(identity=user_token)
+    _user_group_names = [user_group.name.upper() for user_group in user.user_groups]
+
+
+    try:
+        if "MQP_EDU" in _user_group_names:
+            database.tokens.add_new_token(
+                remember_name,
+                user_token,
+                token,
+                expiration,
+                request_data["max_nb_jobs"],
+                request_data["max_budget"],
+            )
+            return {
+                "token_data": {
+                    "token_value": "ThisIsAnEducationalTokenItCannotBeUsedToSubmitJobsThisIsAnEducat",
+                    "token_name": remember_name,
+                    "token_expiration": expiration.isoformat(),
+                }
+            }, HTTPStatus.OK
+        else:
+            database.tokens.add_new_token(
+                remember_name,
+                user_token,
+                token,
+                expiration,
+                request_data["max_nb_jobs"],
+                request_data["max_budget"],
+            )
+
+            return {
+                "token_data": {
+                    "token_value": token,
+                    "token_name": remember_name,
+                    "token_expiration": expiration.isoformat(),
+                }
+            }, HTTPStatus.OK
 
     except TooManyTokensError as error:
         return {

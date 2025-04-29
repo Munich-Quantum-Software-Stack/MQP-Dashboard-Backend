@@ -5,15 +5,18 @@
 
 # Official language image. Look for the different tagged releases at:
 # https://hub.docker.com/r/library/python/tags/
-image: dockerhub.quantum.lrz.de/python-gcc-jre:3.11-12.2
+image: dockerhub.quantum.lrz.de/python-gcc-jre:3.11_12.1_17.0.14
 
 
 # Change pip's cache directory to be inside the project directory since we can
 # only cache local items.
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-  PIP_EXTRA_INDEX_URL: "http://pypi.quantum.lrz.de:8080"
+  PIP_EXTRA_INDEX_URL: "https://pypi.quantum.lrz.de/"
   PIP_TRUSTED_HOST: "pypi.quantum.lrz.de"
+  QUANTUM_DS_HOST: "ldap://localhost:25334"
+  QUANTUM_DB_FILENAME: "test_db.db"
+  QUANTUM_DB_TESTING: "1"
 
 
 # https://pip.pypa.io/en/stable/topics/caching/
