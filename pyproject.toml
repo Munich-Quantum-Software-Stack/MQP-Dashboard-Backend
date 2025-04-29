@@ -1,5 +1,5 @@
 [project]
-name = "BQP-Dashboard"
+name = "bqp-dashboard-backend"
 version = "0.1.10"
 description = ""
 authors = [
@@ -41,7 +41,7 @@ pythonpath = ["."]
 
 [[tool.pdm.source]]
 name = "lrz_pypi"
-url = "http://pypi.quantum.lrz.de:8080/"
+url = "https://pypi.quantum.lrz.de"
 verify_ssl = false
 
 [tool.isort]
