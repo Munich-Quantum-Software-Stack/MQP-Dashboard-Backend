@@ -31,13 +31,37 @@ def test_token_creation(active_client) -> None:
     }
 
     response = active_client.post(
-        "/tokens", json=token_data, headers=active_client.headers
+        "/tokens/new", json=token_data, headers=active_client.headers
     )
-
     assert (
         response.status_code == HTTPStatus.OK
         and response.json["token_data"]["token_value"] is not None
         and response.json["token_data"]["token_name"] == "test_remember_name_1"
+        and response.json["token_data"]["token_expiration"] == expected_expiration
+    )
+
+def test_mqp_edu_token_creation(active_client_mqp_edu) -> None:
+    """Test if token creation for MQP_EDU user is working."""
+
+    expected_expiration = datetime.combine(
+        datetime.now() + timedelta(days=7), datetime.max.time()
+    ).isoformat()
+
+    token_data = {
+        "token_name": "test_remember_name_2",
+        "validity": 7,
+        "max_nb_jobs": 5,
+        "max_budget": 1000,
+    }
+
+    response = active_client_mqp_edu.post(
+        "/tokens/new", json=token_data, headers=active_client_mqp_edu.headers
+    )
+
+    assert (
+        response.status_code == HTTPStatus.OK
+        and response.json["token_data"]["token_value"] == "ThisIsAnEducationalTokenItCannotBeUsedToSubmitJobsThisIsAnEducat"
+        and response.json["token_data"]["token_name"] == "test_remember_name_2"
         and response.json["token_data"]["token_expiration"] == expected_expiration
     )
 
@@ -53,9 +77,8 @@ def test_token_creation_with_too_many_alive(active_client) -> None:
     }
 
     response = active_client.post(
-        "/tokens", json=token_data, headers=active_client.headers
+        "/tokens/new", json=token_data, headers=active_client.headers
     )
-
     assert (
         response.status_code == HTTPStatus.FORBIDDEN
         and response.json["error_message"] == "Too many tokens alive."
@@ -71,7 +94,7 @@ def test_token_creation_after_valid_range(active_client) -> None:
     }
 
     response = active_client.post(
-        "/tokens", json=token_data, headers=active_client.headers
+        "/tokens/new", json=token_data, headers=active_client.headers
     )
 
     assert (
@@ -89,7 +112,7 @@ def test_token_creation_with_expiration_before_now(active_client) -> None:
     }
 
     response = active_client.post(
-        "/tokens", json=token_data, headers=active_client.headers
+        "/tokens/new", json=token_data, headers=active_client.headers
     )
 
     assert (

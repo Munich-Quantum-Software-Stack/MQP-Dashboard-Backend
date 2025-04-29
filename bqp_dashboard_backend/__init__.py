@@ -14,7 +14,6 @@ from . import resources
 from . import feedbacks
 from . import request_access
 
-
 if os.getenv("QUANTUM_DB_TESTING") is None:
     add_destinations(JournaldDestination())
 
@@ -22,10 +21,13 @@ if os.getenv("QUANTUM_DB_TESTING") is None:
 
 def create_app():
     app = config.app
-    app.register_blueprint(login.BLUEPRINT)
-    app.register_blueprint(tokens.BLUEPRINT)
-    app.register_blueprint(jobs.BLUEPRINT)
-    app.register_blueprint(resources.BLUEPRINT)
-    app.register_blueprint(feedbacks.BLUEPRINT)
-    app.register_blueprint(request_access.BLUEPRINT)
+    try:
+        app.register_blueprint(login.BLUEPRINT)
+        app.register_blueprint(tokens.BLUEPRINT)
+        app.register_blueprint(jobs.BLUEPRINT)
+        app.register_blueprint(resources.BLUEPRINT)
+        app.register_blueprint(feedbacks.BLUEPRINT)
+        app.register_blueprint(request_access.BLUEPRINT)
+    except:
+        pass
     return app
