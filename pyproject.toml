@@ -42,7 +42,6 @@ pythonpath = ["."]
 [[tool.pdm.source]]
 name = "lrz_pypi"
 url = "https://pypi.quantum.lrz.de"
-verify_ssl = false
 
 [tool.isort]
 profile = "black"
