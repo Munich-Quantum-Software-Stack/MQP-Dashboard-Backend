@@ -1,6 +1,5 @@
-from flask import Blueprint
+from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
-
 from http import HTTPStatus
 import bqp_database_access as database
 from eliot import log_call
@@ -8,21 +7,27 @@ from eliot import log_call
 
 BLUEPRINT = Blueprint("jobs", __name__)
 
-
 @BLUEPRINT.get("/jobs")
 @jwt_required()
 @log_call
 def fetch_all_jobs():
-    """Fetch all jobs belonging to a user."""
-
+    """Fetch all jobs belonging to a user and return range [jpp*p:(jpp+1)*p] ob jobs and number of total jobs."""
+    page_nr=request.args.get('p')
+    jpp=request.args.get('jpp')
+    if not page_nr:
+        page_nr=0
+    else:
+        page_nr=int(page_nr)
+    if not jpp:
+        jpp=20
+    else:
+        jpp=int(jpp)
     identity = get_jwt_identity()
-    jobs = database.jobs.fetch_by_identity(identity)
-
+    jobs = database.jobs.fetch_by_identity_pages(identity=identity, page=page_nr, jobs_per_page=jpp)
+    totaljob_nr = database.jobs.fetch_by_identity_total_job_nr(identity)
     sanitized_jobs = [job.to_dict() for job in jobs]
     sorted_jobs_by_id = sorted(sanitized_jobs, key=lambda x: x["id"], reverse=True)
-    return {"jobs": sorted_jobs_by_id}, HTTPStatus.OK
-
-    
+    return {"jobs": sorted_jobs_by_id, "totaljob_nr": totaljob_nr}, HTTPStatus.OK
 
 
 @BLUEPRINT.get("/jobs/<id>")
