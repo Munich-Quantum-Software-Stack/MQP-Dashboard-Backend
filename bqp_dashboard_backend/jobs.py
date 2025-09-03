@@ -19,6 +19,7 @@ def fetch_all_jobs():
         jobs_per_page (int): Number of jobs per page.
         order (str): Sort order, "ASC" or "DESC".
         order_by (str): Field to order by. "ID", "STATUS" or "DATE", where the latter is timestamp_submitted. 
+        filter (str): String of the filter to be applied (setting CANELLED will yield only jobs with the CANCELLED status)
 
     Returns:
         dict: Jobs in the requested range and total number of jobs.
