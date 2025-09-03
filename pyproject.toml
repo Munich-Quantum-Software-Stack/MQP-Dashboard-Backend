@@ -1,13 +1,13 @@
 [project]
 name = "bqp-dashboard-backend"
-version = "0.1.27"
+version = "0.1.29"
 description = ""
 authors = [
     {name = "Tobias Bauer", email = "tobias.bauer@lrz.de"},
 ]
 dependencies = [
     "flask>=2.3.2",
-    "bqp-database-access==0.3.13",
+    "bqp-database-access==0.3.17",
     "pony>=0.7.16",
     "flask-jwt-extended>=4.5.2",
     "gunicorn>=21.2.0",
