@@ -1,6 +1,6 @@
 [project]
 name = "bqp-dashboard-backend"
-version = "0.1.30"
+version = "0.1.31"
 description = ""
 authors = [
     {name = "Tobias Bauer", email = "tobias.bauer@lrz.de"},
