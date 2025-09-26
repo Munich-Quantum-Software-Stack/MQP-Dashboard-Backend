@@ -50,8 +50,7 @@ def fetch_all_jobs():
     query = database.jobs.fetch_by_identity_pages(identity=identity, page=page_nr, jobs_per_page=jpp, order=order, order_by=order_by, filter_query=filter_query)
     jobs, totaljob_nr = query["jobs"], query["totaljob_nr"]
     sanitized_jobs = [job.to_dict() for job in jobs]
-    sorted_jobs_by_id = sorted(sanitized_jobs, key=lambda x: x["id"], reverse=True)
-    return {"jobs": sorted_jobs_by_id, "totaljob_nr": totaljob_nr}, HTTPStatus.OK
+    return {"jobs": sanitized_jobs, "totaljob_nr": totaljob_nr}, HTTPStatus.OK
 
 
 @BLUEPRINT.get("/jobs/<id>")
