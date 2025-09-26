@@ -18,7 +18,7 @@ def fetch_all_jobs():
         page (int): Page number of results.
         jobs_per_page (int): Number of jobs per page.
         order (str): Sort order, "ASC" or "DESC".
-        order_by (str): Field to order by. "ID", "STATUS" or "DATE", where the latter is timestamp_submitted. 
+        order_by (str): Field to order by. "ID" or any field name form the quantum database, e.g. timestamp_submitted. 
         filter (str): String of the filter to be applied (setting CANELLED will yield only jobs with the CANCELLED status)
 
     Returns:
@@ -40,7 +40,9 @@ def fetch_all_jobs():
     if not order:
         order="ASC"
 
+
     order_by=request.args.get('order_by')
+
     if not order_by:
         order_by = "ID"
 
