@@ -40,7 +40,8 @@ jobs:
       - name: Install tooling
         run: |
           python -m pip install --upgrade pip setuptools wheel
-          python -m pip install pdm
+          python -m pip install --disable-pip-version-check --no-input "pdm>=2.17,<3"
+          python -m pdm --version
 
       - name: Adjust pyproject.toml for GitHub CI
         run: |
@@ -67,8 +68,11 @@ jobs:
         run: |
           grep -n "bqp-database-access\|tool.pdm.source\|lrz_pypi" pyproject.toml || true
 
+      - name: Regenerate lockfile for GitHub CI
+        run: python -m pdm lock --dev -v
+
       - name: Install dependencies
-        run: python -m pdm install --dev -v
+        run: python -m pdm install --dev --frozen-lockfile --no-self -v
 
       - name: Install coverage plugin
         run: python -m pdm run python -m pip install pytest-cov
