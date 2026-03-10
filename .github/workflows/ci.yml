@@ -33,7 +33,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             build-essential \
-            default-jdk \
             libldap2-dev \
             libsasl2-dev \
             libssl-dev
