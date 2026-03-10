@@ -45,7 +45,7 @@ jobs:
           python -m pip install --upgrade pip setuptools wheel
           python -m pip install pdm
       
-            - name: Remove private PDM source for GitHub CI
+      - name: Remove private PDM source for GitHub CI
         run: |
           python - <<'PY'
           from pathlib import Path
