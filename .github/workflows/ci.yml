@@ -64,7 +64,7 @@ jobs:
           PY
 
       - name: Install dependencies
-        run: python -m pdm install --dev -vv
+        run: python -m pdm install --dev -v
 
       - name: Install coverage plugin
         run: python -m pdm run python -m pip install pytest-cov
