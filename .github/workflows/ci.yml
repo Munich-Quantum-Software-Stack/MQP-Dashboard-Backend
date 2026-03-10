@@ -40,8 +40,6 @@ jobs:
       - name: Install tooling
         run: |
           python -m pip install --upgrade pip setuptools wheel
-          python -m pip install --disable-pip-version-check --no-input "pdm>=2.17,<3"
-          python -m pdm --version
 
       - name: Adjust pyproject.toml for GitHub CI
         run: |
@@ -68,17 +66,29 @@ jobs:
         run: |
           grep -n "bqp-database-access\|tool.pdm.source\|lrz_pypi" pyproject.toml || true
 
-      - name: Regenerate lockfile for GitHub CI
-        run: python -m pdm lock --dev -v
+      - name: Install dependencies for CI
+        run: |
+          python - <<'PY'
+          import subprocess
+          from pathlib import Path
 
-      - name: Install dependencies
-        run: python -m pdm install --dev --frozen-lockfile --no-self -v
+          try:
+              import tomllib
+          except ModuleNotFoundError:  # Python <3.11
+              import tomli as tomllib
 
-      - name: Install coverage plugin
-        run: python -m pdm run python -m pip install pytest-cov
+          data = tomllib.loads(Path("pyproject.toml").read_text())
+          project_deps = data.get("project", {}).get("dependencies", [])
+          test_deps = data.get("tool", {}).get("pdm", {}).get("dev-dependencies", {}).get("test", [])
+          deps = [d for d in [*project_deps, *test_deps, "pytest-cov"] if "bqp-database-access" not in d]
+
+          cmd = ["python", "-m", "pip", "install", "--disable-pip-version-check", "--no-input", *deps]
+          print("Installing:", " ".join(deps))
+          subprocess.check_call(cmd)
+          PY
 
       - name: Run pytest with coverage
-        run: python -m pdm run pytest -q --cov=. --cov-report=term-missing --cov-report=xml
+        run: python -m pytest -q --cov=. --cov-report=term-missing --cov-report=xml
 
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
