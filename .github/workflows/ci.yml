@@ -40,7 +40,7 @@ jobs:
       - name: Install tooling
         run: |
           python -m pip install --upgrade pip setuptools wheel
-          python -m pip install pdm --dev -v
+          python -m pip install pdm
 
       - name: Adjust pyproject.toml for GitHub CI
         run: |
@@ -68,7 +68,7 @@ jobs:
           grep -n "bqp-database-access\|tool.pdm.source\|lrz_pypi" pyproject.toml || true
 
       - name: Install dependencies
-        run: python -m pdm install --dev
+        run: python -m pdm install --dev -v
 
       - name: Install coverage plugin
         run: python -m pdm run python -m pip install pytest-cov
