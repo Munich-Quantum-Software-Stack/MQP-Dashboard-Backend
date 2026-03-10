@@ -5,7 +5,7 @@
 
 # Official language image. Look for the different tagged releases at:
 # https://hub.docker.com/r/library/python/tags/
-iimage: dockerhub.quantum.lrz.de/python-gcc-jre:3.11_12.1_17.0.14
+image: dockerhub.quantum.lrz.de/python-gcc-jre:3.11_12.1_17.0.14
 
 stages:
   - test
@@ -54,5 +54,12 @@ before_script:
 
 pytest:
   stage: test
+  coverage: '/TOTAL\s+\d+\s+\d+\s+(\d+%)/'
   script:
-    - pdm run pytest -q
+    - pdm run pytest -q --cov=. --cov-report=term-missing --cov-report=xml
+  artifacts:
+    when: always
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
