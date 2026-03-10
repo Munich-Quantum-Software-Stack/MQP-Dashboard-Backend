@@ -12,8 +12,8 @@ jobs:
     env:
       PDM_IGNORE_SAVED_PYTHON: "1"
       PDM_CHECK_UPDATE: "0"
-      PIP_EXTRA_INDEX_URL: "https://pypi.quantum.lrz.de/"
-      PIP_TRUSTED_HOST: "pypi.quantum.lrz.de"
+      # PIP_EXTRA_INDEX_URL: "https://pypi.quantum.lrz.de/"
+      # PIP_TRUSTED_HOST: "pypi.quantum.lrz.de"
       QUANTUM_DS_HOST: "ldap://localhost:8888"
       QUANTUM_DB_FILENAME: "test_db.sqlite"
       QUANTUM_DB_TESTING: "TRUE"
