@@ -51,10 +51,7 @@ jobs:
           path = Path("pyproject.toml")
           text = path.read_text()
 
-          source_block = '''[[tool.pdm.source]]
-          name = "lrz_pypi"
-          url = "https://pypi.quantum.lrz.de"
-          '''
+          source_block = '[[tool.pdm.source]\nname = "lrz_pypi"\nurl = "https://pypi.quantum.lrz.de"\n'
           text = text.replace(source_block, "")
 
           lines = text.splitlines()
