@@ -13,6 +13,7 @@ from . import jobs
 from . import resources
 from . import feedbacks
 from . import request_access
+from . import admin
 
 if os.getenv("QUANTUM_DB_TESTING") is None:
     add_destinations(JournaldDestination())
@@ -28,6 +29,7 @@ def create_app():
         app.register_blueprint(resources.BLUEPRINT)
         app.register_blueprint(feedbacks.BLUEPRINT)
         app.register_blueprint(request_access.BLUEPRINT)
+        app.register_blueprint(admin.BLUEPRINT)
     except:
         pass
     return app
