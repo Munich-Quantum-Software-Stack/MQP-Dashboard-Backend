@@ -44,6 +44,24 @@ jobs:
         run: |
           python -m pip install --upgrade pip setuptools wheel
           python -m pip install pdm
+      
+            - name: Remove private PDM source for GitHub CI
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path("pyproject.toml")
+          text = path.read_text()
+
+          block = '[[tool.pdm.source]]\nname = "lrz_pypi"\nurl = "https://pypi.quantum.lrz.de"\n'
+
+          if block in text:
+              text = text.replace(block, "")
+              path.write_text(text)
+              print("Removed private PDM source from pyproject.toml for GitHub CI.")
+          else:
+              print("Private PDM source block not found; nothing to remove.")
+          PY
 
       - name: Install dependencies
         run: python -m pdm install --dev -vv
