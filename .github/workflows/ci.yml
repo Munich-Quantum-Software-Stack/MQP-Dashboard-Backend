@@ -9,8 +9,15 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11"]
+
     env:
-      QUANTUM_DS_HOST: "ldap://localhost:8888"
+      PDM_IGNORE_SAVED_PYTHON: "1"
+      PDM_CHECK_UPDATE: "0"
+      QUANTUM_DS_HOST: ${{ secrets.QUANTUM_DS_HOST }}
       QUANTUM_DB_FILENAME: "test_db.sqlite"
       QUANTUM_DB_TESTING: "TRUE"
       QUANTUM_DB_USER: "postgres"
@@ -24,7 +31,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: ${{ matrix.python-version }}
 
       - name: Install system dependencies
         run: |
@@ -38,86 +45,42 @@ jobs:
       - name: Install tooling
         run: |
           python -m pip install --upgrade pip setuptools wheel
+          python -m pip install pdm
 
-      - name: Adjust pyproject.toml for GitHub CI
+      - name: Cache PDM
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pdm
+            ~/.local/share/pdm
+          key: ${{ runner.os }}-pdm-${{ matrix.python-version }}-${{ hashFiles('pdm.lock', 'pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-pdm-${{ matrix.python-version }}-
+
+      - name: Verify project uses private package setup
         run: |
-          python - <<'PY'
-          from pathlib import Path
+          grep -n 'bqp-database-access==0.3.25' pyproject.toml
+          grep -n '^\[\[tool\.pdm\.source\]\]' pyproject.toml
+          grep -n 'name = "lrz_pypi"' pyproject.toml
 
-          path = Path("pyproject.toml")
-          text = path.read_text()
-
-
-          lines = text.splitlines()
-          filtered = [
-              line for line in lines
-              if "bqp-database-access==0.3.25" not in line
-          ]
-
-          path.write_text("\n".join(filtered) + "\n")
-          print("Adjusted pyproject.toml for GitHub CI.")
-          PY
-
-      - name: Verify GitHub CI adjustments
+      - name: Verify secret is present
         run: |
-          grep -n "bqp-database-access" pyproject.toml || true
-
-      - name: Install dependencies for CI
-        run: |
-          python - <<'PY'
-          import subprocess
-          from pathlib import Path
-          import tomllib
-
-          data = tomllib.loads(Path("pyproject.toml").read_text())
-          project_deps = data.get("project", {}).get("dependencies", [])
-          test_deps = data.get("tool", {}).get("pdm", {}).get("dev-dependencies", {}).get("test", [])
-          deps = [d for d in [*project_deps, *test_deps, "pytest-cov"] if "bqp-database-access" not in d]
-
-          cmd = [
-              "python", "-m", "pip", "install",
-              "--disable-pip-version-check",
-              "--no-input",
-              "--prefer-binary",
-              *deps,
-          ]
-          print("Installing:", " ".join(deps))
-          subprocess.check_call(cmd)
-          PY
-
-      - name: Check bqp_database_access availability
-        id: bqpdb
-        run: |
-          if python - <<'PY'
-          import importlib.util
-          import sys
-          sys.exit(0 if importlib.util.find_spec("bqp_database_access") else 1)
-          PY
-          then
-            echo "available=true" >> "$GITHUB_OUTPUT"
+          if [ -n "$QUANTUM_DS_HOST" ]; then
+            echo "QUANTUM_DS_HOST is set"
           else
-            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "QUANTUM_DS_HOST is NOT set"
+            exit 1
           fi
 
-      - name: Run pytest with coverage
-        if: steps.bqpdb.outputs.available == 'true'
-        run: python -m pytest -q --cov=. --cov-report=term-missing --cov-report=xml
+      - name: Install dependencies with PDM
+        run: python -m pdm install --dev -vv
 
-      - name: Create placeholder coverage when bqp_database_access is unavailable
-        if: steps.bqpdb.outputs.available != 'true'
-        run: |
-          cat > coverage.xml <<'XML'
-          <?xml version="1.0" ?>
-          <coverage version="0.0" timestamp="0" lines-valid="0" lines-covered="0" line-rate="0" branches-valid="0" branches-covered="0" branch-rate="0" complexity="0">
-            <sources><source>.</source></sources>
-            <packages/>
-          </coverage>
-          XML
-          echo "Skipped pytest because bqp_database_access is unavailable in this CI environment."
+      - name: Run pytest with coverage
+        run: python -m pdm run pytest -q --cov=. --cov-report=term-missing --cov-report=xml
 
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-xml
+          name: coverage-xml-${{ matrix.python-version }}
           path: coverage.xml
           if-no-files-found: error
