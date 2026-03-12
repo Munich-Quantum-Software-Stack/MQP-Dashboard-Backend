@@ -73,7 +73,7 @@ jobs:
           fi
 
       - name: Install dependencies with PDM
-        run: python -m pdm install --dev -vv
+        run: python -m pdm install --dev -v
 
       - name: Run pytest with coverage
         run: python -m pdm run pytest -q --cov=. --cov-report=term-missing --cov-report=xml
