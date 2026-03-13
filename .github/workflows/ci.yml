@@ -6,23 +6,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
+  ci-public:
     runs-on: ubuntu-latest
-
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.10", "3.11"]
-
-    env:
-      PDM_IGNORE_SAVED_PYTHON: "1"
-      PDM_CHECK_UPDATE: "0"
-      QUANTUM_DS_HOST: ${{ secrets.QUANTUM_DS_HOST }}
-      QUANTUM_DB_FILENAME: "test_db.sqlite"
-      QUANTUM_DB_TESTING: "TRUE"
-      QUANTUM_DB_USER: "postgres"
-      QUANTUM_DB_PASS: "example"
-      QUANTUM_DB_HOST: "localhost:5432"
 
     steps:
       - name: Check out repository
@@ -31,56 +16,17 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.11"
 
-      - name: Install system dependencies
+      - name: Install test tooling
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            build-essential \
-            libldap2-dev \
-            libsasl2-dev \
-            libssl-dev
+          python -m pip install --upgrade pip
+          python -m pip install pytest
 
-      - name: Install tooling
+      - name: Run public CI test subset
+        run: python -m pytest -q ci_tests
+
+      - name: CI scope note
         run: |
-          python -m pip install --upgrade pip setuptools wheel
-          python -m pip install pdm
-
-      - name: Cache PDM
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/pdm
-            ~/.local/share/pdm
-          key: ${{ runner.os }}-pdm-${{ matrix.python-version }}-${{ hashFiles('pdm.lock', 'pyproject.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-pdm-${{ matrix.python-version }}-
-
-      - name: Verify project uses private package setup
-        run: |
-          grep -n 'bqp-database-access==0.3.25' pyproject.toml
-          grep -n '^\[\[tool\.pdm\.source\]\]' pyproject.toml
-          grep -n 'name = "lrz_pypi"' pyproject.toml
-
-      - name: Verify secret is present
-        run: |
-          if [ -n "$QUANTUM_DS_HOST" ]; then
-            echo "QUANTUM_DS_HOST is set"
-          else
-            echo "QUANTUM_DS_HOST is NOT set"
-            exit 1
-          fi
-
-      - name: Install dependencies with PDM
-        run: python -m pdm install --dev -v
-
-      - name: Run pytest with coverage
-        run: python -m pdm run pytest -q --cov=. --cov-report=term-missing --cov-report=xml
-
-      - name: Upload coverage artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-xml-${{ matrix.python-version }}
-          path: coverage.xml
-          if-no-files-found: error
+          echo "This CI run intentionally covers only tests that do not require private PyPI or DB-backed components."
+          echo "Run the full integration test suite locally in an environment with private dependencies and DB access."
