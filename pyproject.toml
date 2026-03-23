@@ -4,6 +4,7 @@ version = "0.1.32"
 description = ""
 authors = [
     {name = "Tobias Bauer", email = "tobias.bauer@lrz.de"},
+    {name = "Ege Özmeral", email = "Nazim.Oezmeral@lrz.de" }
 ]
 dependencies = [
     "flask>=2.3.2",
@@ -20,13 +21,6 @@ requires-python = ">=3.10,<3.12"
 readme = "README.md"
 license = {text = "MIT"}
 
-[tool.pdm.dev-dependencies]
-test = [
-    "pytest>=7.4.0",
-    "pytest-env>=0.8.2",
-    "python-ldap-test>=0.3.1",
-]
-
 [tool.pytest.ini_options]
 env = [
     "QUANTUM_DB_TESTING=TRUE",
@@ -38,10 +32,13 @@ env = [
 ]
 pythonpath = ["."]
 
-
-[[tool.pdm.source]]
-name = "lrz_pypi"
-url = "https://pypi.quantum.lrz.de"
-
 [tool.isort]
 profile = "black"
+
+[dependency-groups]
+dev = [
+    "nox",
+    "pytest>=7.4.0",
+    "pytest-env>=0.8.2",
+    "python-ldap-test>=0.3.1",
+]
