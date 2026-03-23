@@ -36,7 +36,7 @@ jobs:
       - name: Run pre-commit
         run: |
           pip install pre-commit
-          python -m pre_commit run --all-files --exclude-hook mypy
+          SKIP=mypy python -m pre_commit run --all-files
 
       - name: Run public Continuous Integration test subset
         run: |
