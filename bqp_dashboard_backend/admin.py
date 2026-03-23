@@ -1,10 +1,14 @@
 from http import HTTPStatus
 import os
 import psycopg2
+import sqlite3
 import bqp_database_access as database
-from bqp_database_access.users import UnknownIdentityError
-from flask import Blueprint
+from bqp_database_access._database import open_database
+from bqp_database_access.users import IncorrectSecretError, UnknownIdentityError
+from flask import Blueprint, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
+
+from .login import authenticate_user_by_ldap, UnauthorizedUser
 
 BLUEPRINT = Blueprint("admin", __name__)
 
@@ -13,6 +17,16 @@ ADMIN_USER_GROUP = "Editor"
 
 def is_user_in_admin_group(identity: str) -> bool:
     """Check if user identity exists in the Admin user group."""
+
+    # Use in-memory test DB when running tests
+    if os.getenv("QUANTUM_DB_TESTING") is not None:
+        quantum_db = open_database()
+        user = quantum_db.User.get(identity=identity)
+        if user is None:
+            return False
+        group_names = {group.name for group in user.user_groups}
+        return ADMIN_USER_GROUP in group_names
+
     conn = psycopg2.connect(
         dbname="quantumdb",
         user=os.environ["QUANTUM_DB_USER"],
@@ -30,6 +44,64 @@ def is_user_in_admin_group(identity: str) -> bool:
         return result is not None
     finally:
         conn.close()
+
+
+def fetch_user_group(identity: str) -> str | None:
+    """Return the first group a user belongs to or None if none found."""
+    if os.getenv("QUANTUM_DB_TESTING") is not None:
+        db_filename = os.getenv("QUANTUM_DB_FILENAME", "test_db.sqlite")
+        db_path = os.path.join(os.getcwd(), db_filename)
+        conn = sqlite3.connect(db_path)
+        try:
+            cur = conn.cursor()
+            cur.execute(
+                'SELECT usergroup FROM users_in_user_groups WHERE "user" = ? ORDER BY usergroup LIMIT 1;',
+                (identity,),
+            )
+            result = cur.fetchone()
+            return result[0] if result else None
+        finally:
+            conn.close()
+
+    conn = psycopg2.connect(
+        dbname="quantumdb",
+        user=os.environ["QUANTUM_DB_USER"],
+        password=os.environ["QUANTUM_DB_PASS"],
+        host=os.environ["QUANTUM_DB_HOST"],
+    )
+    try:
+        cur = conn.cursor()
+        cur.execute(
+            'SELECT usergroup FROM users_in_user_groups WHERE "user" = %s ORDER BY usergroup LIMIT 1;',
+            (identity,),
+        )
+        result = cur.fetchone()
+        cur.close()
+        return result[0] if result else None
+    finally:
+        conn.close()
+
+
+@BLUEPRINT.post("/admin/group")
+def resolve_user_group():
+    request_data = request.get_json() or {}
+
+    identity = request_data.get("identity")
+    secret = request_data.get("secret")
+
+    if not identity or not secret:
+        return {}, HTTPStatus.BAD_REQUEST
+
+    try:
+        authenticate_user_by_ldap(identity, secret)
+    except (UnknownIdentityError, IncorrectSecretError, UnauthorizedUser):
+        return {}, HTTPStatus.UNAUTHORIZED
+
+    group = fetch_user_group(identity)
+    if group is None:
+        return {}, HTTPStatus.FORBIDDEN
+
+    return {"group": group}, HTTPStatus.OK
 
 
 @BLUEPRINT.get("/admin/panel")
@@ -50,7 +122,8 @@ def admin_panel():
         return {"error_message": "Unauthorized."}, HTTPStatus.UNAUTHORIZED
 
     # Check if user is in the Admin user group
-    if not is_user_in_admin_group(identity):
+    is_superuser = user.superuser_level is not None
+    if not (is_superuser or is_user_in_admin_group(identity)):
         return {"error_message": "Admin access required."}, HTTPStatus.FORBIDDEN
 
     # Grant access
@@ -58,5 +131,6 @@ def admin_panel():
         "message": "Admin access granted.",
         "redirect_to": "/admin/panel",
         "identity": identity,
+        "superuser_level": user.superuser_level.name if is_superuser else None,
     }, HTTPStatus.OK
     
