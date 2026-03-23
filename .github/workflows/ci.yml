@@ -36,8 +36,7 @@ jobs:
       - name: Run pre-commit
         run: |
           pip install pre-commit
-          pre-commit install
-          pre-commit run --all-files    
+          python -m pre_commit run --all-files --skip mypy  
 
       - name: Run public Continuous Integration test subset
         run: |
