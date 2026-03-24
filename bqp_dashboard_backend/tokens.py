@@ -19,6 +19,7 @@ from eliot import log_call
 
 BLUEPRINT = Blueprint("tokens", __name__)
 
+
 def generate_token() -> str:
     return "".join(
         secrets.choice(string.ascii_letters + string.digits) for _ in range(64)
@@ -43,11 +44,9 @@ def create_token():
 
     token = generate_token()
 
-
-    quantum_db=open_database()
+    quantum_db = open_database()
     user = quantum_db.User.get(identity=user_token)
     _user_group_names = [user_group.name.upper() for user_group in user.user_groups]
-
 
     try:
         if "MQP_EDU" in _user_group_names:
@@ -84,21 +83,21 @@ def create_token():
                 }
             }, HTTPStatus.OK
 
-    except TooManyTokensError as error:
+    except TooManyTokensError:
         return {
             "error_message": "Too many tokens alive.",
         }, HTTPStatus.FORBIDDEN
 
-    except TokenExpirationBeforeNow as error:
+    except TokenExpirationBeforeNow:
         return {
             "error_message": "Token expiration before now.",
         }, HTTPStatus.FORBIDDEN
 
-    except TokenExpirationAfterMaximum as error:
+    except TokenExpirationAfterMaximum:
         return {
             "error_message": "Token expiration beyond user limit.",
         }, HTTPStatus.FORBIDDEN
-    except TokenExistsError as error:
+    except TokenExistsError:
         return {
             "error_message": f"Token {request_data['token_name']} already exists.",
         }, HTTPStatus.FORBIDDEN
@@ -123,7 +122,7 @@ def get_all_tokens():
         for token in tokens
     ]
 
-    sortedTokens = sorted(sanitized_tokens, key=lambda x:x['token_name'], reverse=True)
+    sortedTokens = sorted(sanitized_tokens, key=lambda x: x["token_name"], reverse=True)
 
     return {
         "tokens": sortedTokens,
@@ -165,5 +164,5 @@ def revoke_token():
 
         return {"message": f"Revoked {request_data['token_name']}."}, HTTPStatus.OK
 
-    except TokenNotFound as error:
+    except TokenNotFound:
         return {"error_message": "Token not found."}, HTTPStatus.BAD_REQUEST

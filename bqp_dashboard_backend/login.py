@@ -43,7 +43,7 @@ def authenticate_user_by_ldap(identity: str, secret: str):
             raise UnknownIdentityError
 
         # check if part of ou=QuantumComputing
-        search_filter = f"(&(objectClass=user))"
+        search_filter = "(&(objectClass=user))"
         search_dn = (
             f"cn={identity},ou=quantumcomputing,ou=Kennungen,o=lrz-muenchen,c=de"
         )
@@ -54,7 +54,7 @@ def authenticate_user_by_ldap(identity: str, secret: str):
         raise IncorrectSecretError
 
     finally:
-        try: 
+        try:
             connect.unbind_s()
         except:
             pass
