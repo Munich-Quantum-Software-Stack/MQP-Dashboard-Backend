@@ -24,7 +24,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
-      
+
       - name: Install test tooling
         run: |
           python -m pip install --upgrade pip
@@ -33,8 +33,7 @@ jobs:
 
       - name: Run pre-commit
         run: |
-          UV_PROJECT=ci UV_PROJECT_ENVIRONMENT=.venv-ci uv run pre-commit install
-          SKIP=mypy UV_PROJECT=ci UV_PROJECT_ENVIRONMENT=.venv-ci uv run pre-commit run --all-files
+          UV_PROJECT=ci UV_PROJECT_ENVIRONMENT=.venv-ci uv run pre-commit run --all-files --config .pre-commit-config-ci.yaml
 
       - name: Run public Continuous Integration test subset
         run: |
