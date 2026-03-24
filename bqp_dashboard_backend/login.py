@@ -39,7 +39,7 @@ def authenticate_user_by_ldap(identity: str, secret: str):
 
         # authenticate user
         user_dn = f"cn={identity},ou=QuantumComputing,ou=Kennungen,o=lrz-muenchen,c=de"
-        if auth_user := connect.simple_bind_s(user_dn, secret) is None:
+        if connect.simple_bind_s(user_dn, secret) is None:
             raise UnknownIdentityError
 
         # check if part of ou=QuantumComputing
