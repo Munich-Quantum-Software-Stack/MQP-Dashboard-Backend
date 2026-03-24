@@ -64,14 +64,14 @@ repos:
     hooks:
       - id: isort
         name: isort
-        entry: uv run isort mqss/ test/
+        entry: python -m isort bqp_dashboard_backend tests ci_tests
         language: system
         always_run: true
         pass_filenames: false
 
       - id: mypy
         name: mypy
-        entry: uv run python -m mypy mqss/ test/
+        entry: python -m mypy bqp_dashboard_backend tests ci_tests
         language: system
         always_run: true
         pass_filenames: false
