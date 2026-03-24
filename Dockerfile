@@ -22,4 +22,4 @@ RUN pdm update
 ENV PYTHONPATH=.
 
 # Run the server
-ENTRYPOINT [".venv/bin/gunicorn", "-c","gunicorn.conf.py"] 
+ENTRYPOINT [".venv/bin/gunicorn", "-c","gunicorn.conf.py"]

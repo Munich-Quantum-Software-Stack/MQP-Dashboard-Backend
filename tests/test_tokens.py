@@ -5,7 +5,6 @@ The sequence of tests in this module is important.
 
 from http import HTTPStatus
 from datetime import datetime, timedelta
-import pytest
 
 
 def test_token_endpoint_inactive(inactive_client) -> None:
@@ -40,6 +39,7 @@ def test_token_creation(active_client) -> None:
         and response.json["token_data"]["token_expiration"] == expected_expiration
     )
 
+
 def test_mqp_edu_token_creation(active_client_mqp_edu) -> None:
     """Test if token creation for MQP_EDU user is working."""
 
@@ -60,7 +60,8 @@ def test_mqp_edu_token_creation(active_client_mqp_edu) -> None:
 
     assert (
         response.status_code == HTTPStatus.OK
-        and response.json["token_data"]["token_value"] == "ThisIsAnEducationalTokenItCannotBeUsedToSubmitJobsThisIsAnEducat"
+        and response.json["token_data"]["token_value"]
+        == "ThisIsAnEducationalTokenItCannotBeUsedToSubmitJobsThisIsAnEducat"
         and response.json["token_data"]["token_name"] == "test_remember_name_2"
         and response.json["token_data"]["token_expiration"] == expected_expiration
     )

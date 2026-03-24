@@ -1,4 +1,3 @@
-
 from eliot import add_destinations
 import os
 from . import config
@@ -16,7 +15,6 @@ from . import request_access
 
 if os.getenv("QUANTUM_DB_TESTING") is None:
     add_destinations(JournaldDestination())
-
 
 
 def create_app():

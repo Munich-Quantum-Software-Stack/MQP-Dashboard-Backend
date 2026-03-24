@@ -1,12 +1,11 @@
 from http import HTTPStatus
 import ldap
 
-import os
 
 def test_ldap_access(app) -> None:
     """Test whether the LDAP server is reachable."""
 
-    user_dn = f"cn=ldap_test_user,ou=QuantumComputing,ou=Kennungen,o=lrz-muenchen,c=de"
+    user_dn = "cn=ldap_test_user,ou=QuantumComputing,ou=Kennungen,o=lrz-muenchen,c=de"
     secret = "ldap_test_password"
 
     connection = ldap.initialize("ldap://localhost:8888")
@@ -18,6 +17,7 @@ def test_ldap_access(app) -> None:
     assert auth_user
 
     connection.unbind_s()
+
 
 def test_correct_login(inactive_client) -> None:
     """Test whether a normal login works."""
