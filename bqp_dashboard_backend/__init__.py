@@ -26,6 +26,6 @@ def create_app():
         app.register_blueprint(resources.BLUEPRINT)
         app.register_blueprint(feedbacks.BLUEPRINT)
         app.register_blueprint(request_access.BLUEPRINT)
-    except:
+    except Exception:
         pass
     return app

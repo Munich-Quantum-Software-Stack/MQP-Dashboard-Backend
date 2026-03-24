@@ -56,7 +56,7 @@ def authenticate_user_by_ldap(identity: str, secret: str):
     finally:
         try:
             connect.unbind_s()
-        except:
+        except Exception:
             pass
 
 
