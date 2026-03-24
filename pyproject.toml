@@ -38,6 +38,7 @@ profile = "black"
 [dependency-groups]
 dev = [
     "nox",
+    "pre-commit",
     "pytest>=7.4.0",
     "pytest-env>=0.8.2",
     "python-ldap-test>=0.3.1",
