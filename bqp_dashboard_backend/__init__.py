@@ -19,13 +19,17 @@ if os.getenv("QUANTUM_DB_TESTING") is None:
 
 def create_app():
     app = config.app
-    try:
-        app.register_blueprint(login.BLUEPRINT)
-        app.register_blueprint(tokens.BLUEPRINT)
-        app.register_blueprint(jobs.BLUEPRINT)
-        app.register_blueprint(resources.BLUEPRINT)
-        app.register_blueprint(feedbacks.BLUEPRINT)
-        app.register_blueprint(request_access.BLUEPRINT)
-    except Exception:
-        pass
+    blueprints = [
+        login.BLUEPRINT,
+        tokens.BLUEPRINT,
+        jobs.BLUEPRINT,
+        resources.BLUEPRINT,
+        feedbacks.BLUEPRINT,
+        request_access.BLUEPRINT,
+    ]
+
+    for blueprint in blueprints:
+        if blueprint.name not in app.blueprints:
+            app.register_blueprint(blueprint)
+
     return app
