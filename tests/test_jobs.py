@@ -68,8 +68,8 @@ def test_fetch_job_by_id(active_client) -> None:
     assert response.status_code == HTTPStatus.OK
 
 
-### TODO this feature is not implemented yet, we will test for it once it is.
-# def test_fetching_job_with_invalid_id(active_client) -> None:
-#    """Test that fetching correctly fails with invalid id."""
-#
-#    raise NotImplementedError
+@pytest.mark.skip(reason="Feature not implemented yet")
+def test_fetching_job_with_invalid_id(active_client) -> None:
+    """Test that fetching correctly fails with invalid id."""
+
+    raise NotImplementedError
