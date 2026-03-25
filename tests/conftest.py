@@ -41,37 +41,37 @@ def app():
 def create_ldap_server():
     properties = {
         "port": 8888,
-        "bind_dn": "cn=ldap_test_user,ou=QuantumComputing,ou=Kennungen,o=lrz-muenchen,c=de",
+        "bind_dn": "cn=ldap_test_user,ou=QuantumComputing,ou=Kennungen,o=example-org,c=de",
         "password": "ldap_test_password",
         "base": {
             "objectclass": ["country"],
             "dn": "c=de",
-            "attributes": {"o": "lrz-muenchen"},
+            "attributes": {"o": "example-org"},
         },
         "entries": [
             {
                 "objectclass": ["organization"],
-                "dn": "o=lrz-muenchen,c=de",
-                "attributes": {"o": "lrz-muenchen"},
+                "dn": "o=example-org,c=de",
+                "attributes": {"o": "example-org"},
             },
             {
                 "objectclass": ["organizationalunit"],
-                "dn": "ou=Kennungen,o=lrz-muenchen,c=de",
+                "dn": "ou=Kennungen,o=example-org,c=de",
                 "attributes": {"ou": "Kennungen"},
             },
             {
                 "objectclass": ["organizationalunit"],
-                "dn": "ou=Intranet,ou=Kennungen,o=lrz-muenchen,c=de",
+                "dn": "ou=Intranet,ou=Kennungen,o=example-org,c=de",
                 "attributes": {"ou": "Intranet"},
             },
             {
                 "objectclass": ["organizationalunit"],
-                "dn": "ou=QuantumComputing,ou=Kennungen,o=lrz-muenchen,c=de",
+                "dn": "ou=QuantumComputing,ou=Kennungen,o=example-org,c=de",
                 "attributes": {"ou": "QuantumComputing"},
             },
             {
                 "objectclass": ["user"],
-                "dn": "cn=ldap_test_user,ou=QuantumComputing,ou=Kennungen,o=lrz-muenchen,c=de",
+                "dn": "cn=ldap_test_user,ou=QuantumComputing,ou=Kennungen,o=example-org,c=de",
                 "attributes": {"cn": "ldap_test_user"},
             },
         ],
