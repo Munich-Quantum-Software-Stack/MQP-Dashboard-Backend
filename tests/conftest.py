@@ -99,7 +99,12 @@ def create_local_database():
             )
 
             database_access.users.create_new_user_with_secret(
-                "test_user", "test_password", "BASIC", "test@test.mail", "TEST_HPC_CENTER", "QUANTUM"
+                "test_user",
+                "test_password",
+                "BASIC",
+                "test@test.mail",
+                "TEST_HPC_CENTER",
+                "QUANTUM",
             )
 
             database_access.users.create_new_user_with_secret(
@@ -238,7 +243,11 @@ def create_local_database():
             )
 
             database_access.users.create_new_ldap_user(
-                "ldap_test_user", "BASIC", "ldaptest@test.mail", "TEST_HPC_CENTER", "LDAP"
+                "ldap_test_user",
+                "BASIC",
+                "ldaptest@test.mail",
+                "TEST_HPC_CENTER",
+                "LDAP",
             )
 
     except TransactionError:
