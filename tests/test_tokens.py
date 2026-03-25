@@ -60,7 +60,8 @@ def test_mqp_edu_token_creation(active_client_mqp_edu) -> None:
 
     assert (
         response.status_code == HTTPStatus.OK
-        and response.json["token_data"]["token_value"] == "ThisIsAnEducationalTokenItCannotBeUsedToSubmitJobsThisIsAnEducat"
+        and response.json["token_data"]["token_value"]
+        == "ThisIsAnEducationalTokenItCannotBeUsedToSubmitJobsThisIsAnEducat"
         and response.json["token_data"]["token_name"] == "test_remember_name_2"
         and response.json["token_data"]["token_expiration"] == expected_expiration
     )
