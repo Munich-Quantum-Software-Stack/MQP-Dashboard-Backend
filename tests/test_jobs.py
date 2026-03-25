@@ -1,4 +1,5 @@
 from http import HTTPStatus
+import pytest
 
 
 def test_fetch_all_jobs(active_client) -> None:
