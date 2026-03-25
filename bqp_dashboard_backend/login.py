@@ -33,7 +33,9 @@ def authenticate_user_by_ldap(identity: str, secret: str):
     """ """
 
     connect = None
-    ldap_base_dn = os.getenv("LDAP_BASE_DN", "ou=QuantumComputing,ou=People,o=example,c=de")
+    ldap_base_dn = os.getenv(
+        "LDAP_BASE_DN", "ou=QuantumComputing,ou=People,o=example,c=de"
+    )
 
     try:
         connect = ldap.initialize(os.environ.get("QUANTUM_DS_HOST"))
