@@ -1,5 +1,7 @@
+import json
 import pytest
 import os
+from pathlib import Path
 from bqp_dashboard_backend import create_app
 from bqp_database_access._database import open_database
 import bqp_database_access as database_access
@@ -8,6 +10,11 @@ from pony.orm import TransactionError
 from http import HTTPStatus
 from werkzeug.datastructures import Headers
 from ldap_test import LdapServer
+
+
+TEST_SEED_CONFIG_PATH = Path(__file__).parent / "config" / "test_seed_data.json"
+with TEST_SEED_CONFIG_PATH.open(encoding="utf-8") as config_file:
+    TEST_SEED_CONFIG = json.load(config_file)
 
 
 @pytest.fixture(scope="module")
@@ -92,15 +99,15 @@ def create_local_database():
             )
 
             database_access.users.create_new_user_with_secret(
-                "test_user", "test_password", "BASIC", "test@lrz.de", "LRZ", "QUANTUM"
+                "test_user", "test_password", "BASIC", "test@test.mail", "TEST_HPC_CENTER", "QUANTUM"
             )
 
             database_access.users.create_new_user_with_secret(
-                "mqp_edu_test_user",
+                "test_user",
                 "test_password",
                 "BASIC",
-                "mqp_edu_test@lrz.de",
-                "LRZ",
+                "test@test.mail",
+                "TEST_HPC_CENTER",
                 "QUANTUM",
             )
 
@@ -211,40 +218,27 @@ def create_local_database():
             quantum_db.UserGroup(
                 name="MQP_EDU",
                 note="MQP_EDU group for testing purposes",
-                owner="mqp_edu_test_user",
+                owner="test_user",
                 cost_modifier=1,
             )
 
             quantum_db.insert(
-                "users_in_user_groups", user="mqp_edu_test_user", usergroup="MQP_EDU"
+                "users_in_user_groups", user="test_user", usergroup="MQP_EDU"
             )
 
-            quantum_db.insert(
-                "user",
-                identity="blocked_test_user",
-                note=" ",
-                email="test@lrz.de",
-                affiliation="LRZ",
-                association="LDAP",
-                security_level="BASIC",
-                blocked=True,
-                block_reason="Testing blocked user",
-                secret_hash="testing",
-                force_secret_reset=True,
-            )
-            quantum_db.commit()
+            quantum_db.insert("user", **TEST_SEED_CONFIG["blocked_user"])
 
             database_access.users.create_new_user_with_secret(
                 "ldap_test_user",
                 "test_password",
                 "BASIC",
-                "test@lrz.de",
-                "LRZ",
+                "test@test.mail",
+                "TEST_HPC_CENTER",
                 "LDAP",
             )
 
             database_access.users.create_new_ldap_user(
-                "ldap_test_user", "BASIC", "ldaptest@lrz.de", "LRZ", "LDAP"
+                "ldap_test_user", "BASIC", "ldaptest@test.mail", "TEST_HPC_CENTER", "LDAP"
             )
 
     except TransactionError:
@@ -291,7 +285,7 @@ def active_client(app):
 def active_client_mqp_edu(app):
     client = app.test_client()
 
-    user_data = {"identity": "mqp_edu_test_user", "secret": "test_password"}
+    user_data = {"identity": "test_user", "secret": "test_password"}
     login_response = client.post("/login", json=user_data)
 
     assert (
