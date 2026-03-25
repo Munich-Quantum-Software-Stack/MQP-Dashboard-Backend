@@ -15,12 +15,12 @@ def request_access():
     """
     if request.method == "POST":
         request_data = request.get_json()
-        sender = "noreply-mqp@lrz.de"
+        sender = "noreply-mqp@mail.de"
         message = Message(
             subject="New Request Access", sender=("MQP-Dashboard", sender)
         )
-        message.recipients = ["mqp-admin@lrz.de", "Laura.Schulz@lrz.de"]
-        # message.add_recipient("Laura.Schulz@lrz.de")
+        message.recipients = ["mqp-admin@mail.de", "someone@mail.de"]
+        # message.add_recipient("someone@mail.de")
         message.html = "<p>Hello Admin,<br/>a new request access has been submitted. Please see the content below.<br/><br/>"
         message.html += "<table><tbody>"
         message.html += (

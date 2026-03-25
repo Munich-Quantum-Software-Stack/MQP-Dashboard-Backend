@@ -40,10 +40,10 @@ def new_feedback():
         message_recipients = [
             r
             for r in os.getenv(
-                "FEEDBACK_RECIPIENTS", "mqp-admin@lrz.de,Laura.Schulz@lrz.de"
+                "FEEDBACK_RECIPIENTS", "mqp-admin@mail.de, someone@mail.de"
             ).split(",")
         ]
-        sender = "noreply-mqp@lrz.de"
+        sender = "noreply-mqp@mail.de"
         message = Message(subject="New feedback", sender=("MQP-Dashboard", sender))
         message.recipients = message_recipients
         message.html = "<p>Hello Admin,<br/>you received a feedback from user. Please see the content below.</p>"
