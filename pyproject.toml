@@ -1,13 +1,14 @@
 [project]
 name = "bqp-dashboard-backend"
-version = "0.1.32"
+version = "0.1.33"
 description = ""
 authors = [
     {name = "Tobias Bauer", email = "tobias.bauer@lrz.de"},
+    {name = "Trang Huynh", email = "Trang.Huynh@lrz.de"},
 ]
 dependencies = [
     "flask>=2.3.2",
-    "bqp-database-access==0.3.25",
+    "bqp-database-access==0.3.27",
     "pony>=0.7.16",
     "flask-jwt-extended>=4.5.2",
     "gunicorn>=21.2.0",
@@ -15,6 +16,7 @@ dependencies = [
     "python-ldap>=3.4.3",
     "eliot[journald]>=1.15.0",
     "flask-mail>=0.10.0",
+    "influxdb>=5.3.2"
 ]
 requires-python = ">=3.10,<3.12"
 readme = "README.md"

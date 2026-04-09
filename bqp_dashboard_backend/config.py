@@ -22,10 +22,9 @@ app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USE_SSL'] = False
 app.config['MAIL_USERNAME'] = os.getenv("MQP_MAIL_USERNAME")
 app.config['MAIL_PASSWORD'] = os.getenv("MQP_MAIL_PWD")
-app.config['MAIL_DEFAULT_SENDER'] = 'noreply-mqp@lrz.de'
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv("MQP_MAIL_DEFAULT_SENDER")
 
 mail = Mail(app)
-
 CORS(app)
 jwt = JWTManager(app)
 jwt.unauthorized_loader(on_no_jwt_provided)

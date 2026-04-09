@@ -4,6 +4,7 @@ from http import HTTPStatus
 from . import config
 import json
 import logging
+import os
 
 
 BLUEPRINT = Blueprint("request_access", __name__)
@@ -15,11 +16,11 @@ def request_access():
     - Send email to admin
     """
     if request.method == 'POST':
-        request_data = request.get_json()
-        sender = "noreply-mqp@lrz.de"        
+        request_data = request.get_json()      
+        sender = os.getenv("MQP_MAIL_DEFAULT_SENDER")
         message = Message(subject="New Request Access", sender=("MQP-Dashboard", sender))
-        message.recipients=["mqp-admin@lrz.de", "Laura.Schulz@lrz.de"]
-        #message.add_recipient("Laura.Schulz@lrz.de")
+        message.recipients=[os.getenv("MQP_MAIL_ADMIN")]
+        #message.add_recipient("")
         message.html = "<p>Hello Admin,<br/>a new request access has been submitted. Please see the content below.<br/><br/>"
         message.html += "<table><tbody>"
         message.html += "<tr><th align='left'>Name: </th><td>" + request_data["title"] + "&nbsp;" + request_data["name"] + "</td></tr>"
