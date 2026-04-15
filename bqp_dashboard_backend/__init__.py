@@ -29,7 +29,7 @@ def create_app():
         app.register_blueprint(resources.BLUEPRINT)
         app.register_blueprint(feedbacks.BLUEPRINT)
         app.register_blueprint(request_access.BLUEPRINT)
-        app.register_blueprint(telemetry.BLUEPRINT)
+        #app.register_blueprint(telemetry.BLUEPRINT)
     except:
         pass
     return app
