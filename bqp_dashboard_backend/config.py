@@ -17,11 +17,13 @@ def on_no_jwt_provided(message: str):
 
     return Response(status=http.HTTPStatus.UNAUTHORIZED)
 
+
 ENV_PATTERN = re.compile(r"\$\{([A-Za-z_][A-Za-z0-9_]*)\}")
 STATIC_DEFAULTS = {
     "MAIL_SERVER": "localhost",
     "MAIL_DEFAULT_SENDER": "noreply@example.com",
 }
+
 
 def resolve_env_placeholders(value):
     if isinstance(value, dict):
