@@ -4,6 +4,7 @@ version = "0.1.32"
 description = ""
 authors = [
     {name = "Tobias Bauer", email = "tobias.bauer@lrz.de"},
+    {name = "Trang Huynh", email = "Trang.Huynh@lrz.de"},
     {name = "Ege Özmeral", email = "Nazim.Oezmeral@lrz.de" }
 ]
 dependencies = [

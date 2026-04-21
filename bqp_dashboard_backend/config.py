@@ -37,6 +37,7 @@ def resolve_env_placeholders(value):
 
 def load_mail_config():
     config_path = Path(__file__).with_name("config.json")
+    config_path = Path(__file__).resolve().parent.parent / "config.json"
     with config_path.open("r", encoding="utf-8") as config_file:
         config_data = json.load(config_file)
 
