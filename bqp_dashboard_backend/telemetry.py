@@ -22,8 +22,12 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 CHUNK_SIZE = 1024 * 1024
 EXPIRY_TIME = 3600  # seconds
 DELAY_TIME = 60  # seconds
-SENSOR_MAP_CACHE = {"data": [], "timestamp": 0}
+SENSOR_MAP_CACHE = {"data": None, "timestamp": 0}
 CACHE_TTL = 300  # seconds
+
+
+class TelemetryError(Exception):
+    """Telemetry module-specific exception."""
 
 
 # Open connection to InfluxDB
@@ -38,7 +42,7 @@ def _open_influxdb():
         )
         return client
     except TypeError as err:
-        return {str(err)}, HTTPStatus.INTERNAL_SERVER_ERROR
+        raise TelemetryError(str(err)) from err
 
 
 # -------------------------------------------------------------------
@@ -50,13 +54,23 @@ def _open_influxdb():
 @jwt_required()
 @log_call
 def get_available_sensors():
+    try:
+        return _get_available_sensors_cached()
+    except TelemetryError as error:
+        return {"error": str(error)}, HTTPStatus.INTERNAL_SERVER_ERROR
+
+
+def _get_available_sensors_cached():
     global SENSOR_MAP_CACHE
     now = time.time()
 
     if SENSOR_MAP_CACHE["data"] is None or (
         now - SENSOR_MAP_CACHE["timestamp"] > CACHE_TTL
     ):
-        SENSOR_MAP_CACHE["data"] = build_sensor_map()
+        try:
+            SENSOR_MAP_CACHE["data"] = build_sensor_map()
+        except TelemetryError as error:
+            return {"error": str(error)}, HTTPStatus.INTERNAL_SERVER_ERROR
         SENSOR_MAP_CACHE["timestamp"] = now
 
     return SENSOR_MAP_CACHE["data"]
@@ -84,8 +98,8 @@ def build_sensor_map():
     ]
     """
     sensor_map = []  # list()
+    client = _open_influxdb()
     try:
-        client = _open_influxdb()
         measurements_list = get_measurements(client)
         for item in measurements_list:
             measurement_name = item.get("name")
@@ -96,10 +110,11 @@ def build_sensor_map():
             sensor_map.append(
                 {"measurement": measurement_name, "sensors": measurement_sensors}
             )
-        client.close()
         return sensor_map
     except TypeError as error:
         return {"error": str(error)}, HTTPStatus.INTERNAL_SERVER_ERROR
+    finally:
+        client.close()
 
 
 # -------------------------------------------------------------------
@@ -119,13 +134,20 @@ def get_telemetry_data():
     to_timestamp = data.get("to_timestamp")
     request_interval = data.get("group_by")
 
-    client = _open_influxdb()
+    try:
+        client = _open_influxdb()
+    except TelemetryError as error:
+        return {"error": str(error)}, HTTPStatus.INTERNAL_SERVER_ERROR
     if not measurements:
         measurements = get_measurements(client)
 
     # Get matched request sensors with available sensors
     matched_sensors = []
-    available_sensors = get_available_sensors()
+    try:
+        available_sensors = _get_available_sensors_cached()
+    except TelemetryError as error:
+        client.close()
+        return {"error": str(error)}, HTTPStatus.INTERNAL_SERVER_ERROR
     if not sensors:
         matched_sensors = available_sensors
     else:
@@ -166,7 +188,9 @@ def get_telemetry_data():
                     record = dict(zip(columns, row))
                     points.append(record)
             telemetry_data[measurement_name] = points
+
     client.close()
+
     if len(telemetry_data) == 0:
         telemetry_data = "No data."
 
@@ -180,7 +204,7 @@ def get_telemetry_data():
 
 # Internal API: get_interval
 def get_default_interval(start, end):
-    duration = end - start
+    duration = (end - start) / 1000
     if duration > (7 * 24 * 3600):
         return "1h"
     elif duration > (24 * 3600):
