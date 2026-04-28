@@ -36,11 +36,11 @@ CACHE_TTL = 300 # seconds
 def _open_influxdb():
     try:
         client = InfluxDBClient(
-            host = os.getenv("INFLUX_HOST"),
-            port = os.getenv("INFLUX_PORT"),
-            database = os.getenv("INFLUX_DATABASE"),
-            username = os.getenv("INFLUX_USERNAME"),
-            password = os.getenv("INFLUX_PASSWORD"),
+            host = os.getenv("PROXY_DB_HOST"),
+            port = os.getenv("PROXY_DB_PORT"),
+            database = os.getenv("PROXY_DB"),
+            username = os.getenv("PROXY_DB_USER"),
+            password = os.getenv("PROXY_DB_PASS"),
         )
         return client
     except TypeError as err:
