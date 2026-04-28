@@ -14,7 +14,7 @@ def on_no_jwt_provided(message: str):
     return Response(status=http.HTTPStatus.UNAUTHORIZED)
 
 app = Flask(__name__)
-app.config["JWT_SECRET_KEY"] = "7nFVM3TwqmCZeC7goIwM1DtEAQKfAmWF"
+app.config["JWT_SECRET_KEY"] = os.getenv("APP_KEY")
 
 app.config['MAIL_SERVER'] = 'postout.lrz.de'
 app.config['MAIL_PORT'] = 587
