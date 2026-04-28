@@ -2,6 +2,7 @@ from flask import Blueprint, request
 from flask_mail import Message
 from http import HTTPStatus
 from . import config
+import os
 
 
 BLUEPRINT = Blueprint("request_access", __name__)
@@ -15,12 +16,12 @@ def request_access():
     """
     if request.method == "POST":
         request_data = request.get_json()
-        sender = "noreply-mqp@mail.de"
+        sender = os.getenv("MQP_MAIL_DEFAULT_SENDER")
         message = Message(
             subject="New Request Access", sender=("MQP-Dashboard", sender)
         )
-        message.recipients = ["mqp-admin@mail.de", "someone@mail.de"]
-        # message.add_recipient("someone@mail.de")
+        message.recipients = [os.getenv("MQP_MAIL_ADMIN")]
+        # message.add_recipient("")
         message.html = "<p>Hello Admin,<br/>a new request access has been submitted. Please see the content below.<br/><br/>"
         message.html += "<table><tbody>"
         message.html += (

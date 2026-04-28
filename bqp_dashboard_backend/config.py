@@ -62,7 +62,6 @@ app.config["MAIL_PASSWORD"] = mail_config["MAIL_PASSWORD"]
 app.config["MAIL_DEFAULT_SENDER"] = mail_config["MAIL_DEFAULT_SENDER"]
 
 mail = Mail(app)
-
 CORS(app)
 jwt = JWTManager(app)
 jwt.unauthorized_loader(on_no_jwt_provided)
