@@ -1,4 +1,3 @@
-
 from eliot import add_destinations
 import os
 from . import config
@@ -19,7 +18,6 @@ if os.getenv("QUANTUM_DB_TESTING") is None:
     add_destinations(JournaldDestination())
 
 
-
 def create_app():
     app = config.app
     try:
@@ -30,6 +28,6 @@ def create_app():
         app.register_blueprint(feedbacks.BLUEPRINT)
         app.register_blueprint(request_access.BLUEPRINT)
         app.register_blueprint(telemetry.BLUEPRINT)
-    except:
+    except Exception:
         pass
     return app

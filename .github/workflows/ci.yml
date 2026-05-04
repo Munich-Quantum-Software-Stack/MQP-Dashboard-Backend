@@ -1,0 +1,45 @@
+name: Continuous Integration
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ci-public:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.11"]
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install test tooling
+        run: |
+          python -m pip install --upgrade pip
+          pip install uv
+          UV_PROJECT=ci UV_PROJECT_ENVIRONMENT=.venv-ci uv sync --only-group dev
+
+      - name: Run pre-commit
+        run: |
+          UV_PROJECT=ci UV_PROJECT_ENVIRONMENT=.venv-ci uv run pre-commit run --all-files --config .pre-commit-config-ci.yaml
+
+      - name: Run public Continuous Integration test subset
+        run: |
+          UV_PROJECT=ci UV_PROJECT_ENVIRONMENT=.venv-ci uv run nox --session ci_tests
+
+      - name: Continuous Integration scope note
+        run: |
+          echo "This Continuous Integration run intentionally covers only tests that do not require private PyPI or DB-backed components."
+          echo "Run the full integration test suite locally in an environment with private dependencies and DB access."
