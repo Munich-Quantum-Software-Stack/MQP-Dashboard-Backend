@@ -26,10 +26,16 @@ class _DummyBlueprint:
 sys.modules.setdefault(
     "flask",
     types.SimpleNamespace(
-        Blueprint=_DummyBlueprint, request=None, Response=object, stream_with_context=lambda x: x
+        Blueprint=_DummyBlueprint,
+        request=None,
+        Response=object,
+        stream_with_context=lambda x: x,
     ),
 )
-sys.modules.setdefault("flask_jwt_extended", types.SimpleNamespace(jwt_required=lambda *a, **k: (lambda f: f)))
+sys.modules.setdefault(
+    "flask_jwt_extended",
+    types.SimpleNamespace(jwt_required=lambda *a, **k: (lambda f: f)),
+)
 sys.modules.setdefault("eliot", types.SimpleNamespace(log_call=lambda f: f))
 sys.modules.setdefault("influxdb", types.SimpleNamespace(InfluxDBClient=object))
 
