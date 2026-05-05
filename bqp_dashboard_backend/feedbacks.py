@@ -35,8 +35,10 @@ def new_feedback():
         )
 
         # send email to administrator
-        sender = os.getenv("MQP_MAIL_DEFAULT_SENDER") 
-        message_recipients = [r for r in os.getenv("MQP_MAIL_ADMIN", "MQP_MAIL_RECIPIENTS").split(",")]
+        sender = os.getenv("MQP_MAIL_DEFAULT_SENDER")
+        message_recipients = [
+            r for r in os.getenv("MQP_MAIL_ADMIN", "MQP_MAIL_RECIPIENTS").split(",")
+        ]
         message = Message(subject="New feedback", sender=("MQP-Dashboard", sender))
         message.recipients = message_recipients
         message.html = "<p>Hello Admin,<br/>you received a feedback from user. Please see the content below.</p>"

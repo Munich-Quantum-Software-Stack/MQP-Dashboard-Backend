@@ -5,8 +5,8 @@ workers = 4
 wsgi_app = "bqp_dashboard_backend:create_app()"
 
 if os.getenv("ENV") == "production":
-    certfile = '/etc/bqp-certs/portal-test_quantum_lrz_de.crt.pem'
-    keyfile = '/etc/bqp-certs/portal-test-sec-key-ohnepass.pem'
+    certfile = "/etc/bqp-certs/portal-test_quantum_lrz_de.crt.pem"
+    keyfile = "/etc/bqp-certs/portal-test-sec-key-ohnepass.pem"
 else:
     certfile = None
     keyfile = None

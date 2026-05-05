@@ -18,7 +18,7 @@ BLUEPRINT = Blueprint("telemetry", __name__)
 BASE_DIR = os.getcwd()
 UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-CHUNK_FILE_SIZE = 1024 * 1024 # 1GB
+CHUNK_FILE_SIZE = 1024 * 1024  # 1GB
 EXPIRY_TIME = 3600  # seconds
 DELAY_TIME = 60  # seconds
 SENSOR_CACHE_TTL = 300  # seconds
@@ -33,11 +33,11 @@ class TelemetryError(Exception):
 def _open_influxdb():
     try:
         client = InfluxDBClient(
-            host = os.getenv("PROXY_DB_HOST"),
-            port = os.getenv("PROXY_DB_PORT"),
-            database = os.getenv("PROXY_DB"),
-            username = os.getenv("PROXY_DB_USER"),
-            password = os.getenv("PROXY_DB_PASS")
+            host=os.getenv("PROXY_DB_HOST"),
+            port=os.getenv("PROXY_DB_PORT"),
+            database=os.getenv("PROXY_DB"),
+            username=os.getenv("PROXY_DB_USER"),
+            password=os.getenv("PROXY_DB_PASS"),
         )
         return client
     except TypeError as err:
@@ -168,7 +168,9 @@ def get_telemetry_data():
         #     query_result = client.query(query)
         #     print("query_result:")
         #     print(query_result)
-        query = build_telemetry_query(measurement_name, sensors, from_timestamp, to_timestamp, interval)
+        query = build_telemetry_query(
+            measurement_name, sensors, from_timestamp, to_timestamp, interval
+        )
 
         if not query:
             continue
@@ -194,10 +196,7 @@ def get_telemetry_data():
     file_path = os.path.join(UPLOAD_FOLDER, filename)
     file_path = create_compressed_file(telemetry_data, file_path)
     filesize = os.path.getsize(file_path)
-    return {
-        "filesize": filesize, 
-        "filename": filename
-        }, HTTPStatus.OK
+    return {"filesize": filesize, "filename": filename}, HTTPStatus.OK
 
 
 # Internal API: get_interval
