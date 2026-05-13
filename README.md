@@ -24,5 +24,4 @@ To run the project locally, you need to configure your environment variables:
     1. Locate the .env.example file in the project root
     2. Create a copy of this file and rename it to .env
     3. Open the .env file and update the configuration values to match your local setup.
-    4. Make sure all values are correctly set and run this file inside container before starting the application by command: source .env
-    5. Command to start the local application with Debug mode: pdm run flask --app bqp_dashboard_backend --debug run
+    4. The application runs inside a container. To make these environment variables affect to the app, run this command: $make run-image
