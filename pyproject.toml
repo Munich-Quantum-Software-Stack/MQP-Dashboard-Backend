@@ -1,6 +1,6 @@
 [project]
 name = "bqp-dashboard-backend"
-version = "0.2.0"
+version = "0.2.1"
 description = "MQP Dashboard Backend"
 authors = [
     {name = "Tobias Bauer", email = "tobias.bauer@lrz.de"},
