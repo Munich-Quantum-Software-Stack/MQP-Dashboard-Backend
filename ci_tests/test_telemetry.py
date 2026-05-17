@@ -23,15 +23,28 @@ class _DummyBlueprint:
         return decorator
 
 
-sys.modules.setdefault(
-    "flask",
-    types.SimpleNamespace(
-        Blueprint=_DummyBlueprint,
-        request=None,
-        Response=object,
-        stream_with_context=lambda x: x,
-    ),
+def _dummy_send_file(*args, **kwargs):
+    return None
+
+
+def _dummy_send_from_directory(*args, **kwargs):
+    return None
+
+
+def _dummy_after_this_request(func):
+    return func
+
+
+sys.modules["flask"] = types.SimpleNamespace(
+    Blueprint=_DummyBlueprint,
+    request=None,
+    Response=object,
+    stream_with_context=lambda value: value,
+    send_file=_dummy_send_file,
+    send_from_directory=_dummy_send_from_directory,
+    after_this_request=_dummy_after_this_request,
 )
+
 sys.modules.setdefault(
     "flask_jwt_extended",
     types.SimpleNamespace(jwt_required=lambda *a, **k: (lambda f: f)),

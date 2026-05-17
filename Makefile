@@ -12,16 +12,27 @@ $(eval VERSION=$(shell grep -m 1 version pyproject.toml | tr -d '"' | cut -d' ' 
 DOCKER := /usr/local/bin/docker
 IMAGE_NAME = bqp-dashboard-backend
 
-.PHONY: build-image up down logs run-image tag-image push-image clean
+.PHONY: build up down logs run-image tag-image push-image clean
 
+build:
+	$(DOCKER) compose build --no-cache
 
-build-image:
-	$(DOCKER) build --no-cache \
-		-t $(IMAGE_NAME) \
-		-t $(IMAGE_NAME):${VERSION} .
+tag-image:
+	$(DOCKER) tag $(IMAGE_NAME):$(VERSION) $(IMAGE_NAME):latest
 
 up:
-	docker compose -f docker-compose.yaml up -d --build
+	$(DOCKER) compose up -d
+
+#build-image:
+#	$(DOCKER) build --no-cache \
+#		-t $(IMAGE_NAME) \
+#		-t $(IMAGE_NAME):${VERSION} . 
+
+run-image:
+	$(DOCKER) run --rm -it --detach \
+	-p 5000:5000 \
+	--env-file .env \
+	$(IMAGE_NAME):$(VERSION)
 
 down:
 	docker compose down
@@ -29,20 +40,11 @@ down:
 logs:
 	docker compose logs -f
 
-run-image:
-	$(DOCKER) run --rm -it \
-	-p 5000:5000 \
-	--env-file .env \
-	$(IMAGE_NAME):$(VERSION)
-
-tag-image:
-	$(DOCKER) tag $(IMAGE_NAME):$(VERSION) $(IMAGE_NAME):latest
-
 push-image:
 	docker tag $(IMAGE_NAME):${VERSION} ${DOCKERHUB}/$(IMAGE_NAME):${VERSION}
 	docker tag ${DOCKERHUB}/$(IMAGE_NAME):${VERSION} ${DOCKERHUB}/$(IMAGE_NAME):latest
 	docker push ${DOCKERHUB}/$(IMAGE_NAME):${VERSION}
-	docker push ${DOCKERHUB}/$(IMAGE_NAME):latest
+	docker push ${DOCKERHUB}/$(IMAGE_NAME):latest  
 
 clean:
 	$(DOCKER) rmi $(IMAGE_NAME):$(VERSION) || true
