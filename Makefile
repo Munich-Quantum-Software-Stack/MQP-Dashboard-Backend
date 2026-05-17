@@ -26,7 +26,7 @@ up:
 #build-image:
 #	$(DOCKER) build --no-cache \
 #		-t $(IMAGE_NAME) \
-#		-t $(IMAGE_NAME):${VERSION} . 
+#		-t $(IMAGE_NAME):${VERSION} .
 
 run-image:
 	$(DOCKER) run --rm -it --detach \
@@ -44,7 +44,7 @@ push-image:
 	docker tag $(IMAGE_NAME):${VERSION} ${DOCKERHUB}/$(IMAGE_NAME):${VERSION}
 	docker tag ${DOCKERHUB}/$(IMAGE_NAME):${VERSION} ${DOCKERHUB}/$(IMAGE_NAME):latest
 	docker push ${DOCKERHUB}/$(IMAGE_NAME):${VERSION}
-	docker push ${DOCKERHUB}/$(IMAGE_NAME):latest  
+	docker push ${DOCKERHUB}/$(IMAGE_NAME):latest
 
 clean:
 	$(DOCKER) rmi $(IMAGE_NAME):$(VERSION) || true
