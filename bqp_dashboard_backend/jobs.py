@@ -66,7 +66,15 @@ def fetch_all_jobs():
 @jwt_required()
 @log_call
 def fetch_job(id=0):
-    """Fetch all jobs belonging to a user."""
+    """
+    Fetch detail of a job.
+
+    Args:
+        id (int): id of job
+
+    Returns:
+        Job: job
+    """
     identity = get_jwt_identity()
     jobs = database.jobs.fetch_by_identity(identity)
 

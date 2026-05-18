@@ -1,5 +1,5 @@
-from eliot import add_destinations
 import os
+from eliot import add_destinations
 from . import config
 
 if os.getenv("QUANTUM_DB_TESTING") is None:

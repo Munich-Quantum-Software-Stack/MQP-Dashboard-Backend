@@ -14,7 +14,13 @@ BLUEPRINT = Blueprint("resources", __name__)
 @jwt_required()
 @log_call
 def fetch_all_resources():
-    """Fetch all jobs belonging to a user."""
+    """
+    Fetch all resources that are available to user
+
+    Returns:
+        dict: Resource list
+        dict: Available resources
+    """
 
     identity = get_jwt_identity()
     try:
