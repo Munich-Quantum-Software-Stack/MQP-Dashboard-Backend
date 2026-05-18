@@ -1,12 +1,11 @@
-from flask import Flask
-from flask import Response
+import http
+import os
+from flask import Flask, Response
 from flask_mail import Mail
 from pony.flask import Pony
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from eliot import log_message
-import http
-import os
 from dotenv import load_dotenv
 
 

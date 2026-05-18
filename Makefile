@@ -1,5 +1,4 @@
 
-export PATH := /usr/local/bin:$(PATH)
 # Load .env if present
 ifneq (,$(wildcard .env))
 	include .env

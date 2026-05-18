@@ -1,8 +1,8 @@
+import os
 from flask import Blueprint, request
 from flask_mail import Message
 from http import HTTPStatus
 from . import config
-import os
 
 
 BLUEPRINT = Blueprint("request_access", __name__)
@@ -12,7 +12,7 @@ mail = config.mail
 @BLUEPRINT.post("/request_access")
 def request_access():
     """
-    - Send email to admin
+    - Receive a request from user and notify to admin about it
     """
     if request.method == "POST":
         request_data = request.get_json()

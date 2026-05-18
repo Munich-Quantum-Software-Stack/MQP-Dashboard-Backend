@@ -1,3 +1,4 @@
+import os
 from flask import Blueprint, request
 from flask_mail import Message
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -5,7 +6,6 @@ from http import HTTPStatus
 from eliot import log_call
 from . import config
 import bqp_database_access as database
-import os
 
 BLUEPRINT = Blueprint("feedbacks", __name__)
 mail = config.mail
@@ -16,8 +16,10 @@ mail = config.mail
 @log_call
 def new_feedback():
     """
-    - Save a feedback to database
-    - Send email to admin
+    Save a feedback to database and notify to admin
+
+    Returns:
+        HTTPStatus.OK    
     """
     if request.method == "POST":
         request_data = request.get_json()

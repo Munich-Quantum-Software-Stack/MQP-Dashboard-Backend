@@ -1,9 +1,8 @@
 import os
+import ldap
 from datetime import timedelta
 from http import HTTPStatus
-
 import bqp_database_access as database
-import ldap
 from bqp_database_access.users import (
     BlockedIdentityError,
     IncorrectSecretError,
@@ -12,6 +11,7 @@ from bqp_database_access.users import (
 from eliot import log_call
 from flask import Blueprint, request
 from flask_jwt_extended import create_access_token
+
 
 BLUEPRINT = Blueprint("login", __name__)
 
@@ -64,6 +64,16 @@ def authenticate_user_by_ldap(identity: str, secret: str):
 @BLUEPRINT.post("/login")
 @log_call(action_type="login_attempt")
 def login_user():
+    """
+    Authentication of user via LDAP and Quantum database
+    Args:
+        identity: LDAP's ID of user
+        password: LDAP's password of user
+
+    Returns:
+        access_token (string): session token to access dashboard of portal
+        force_secret_reset (boolean): This value is used in case user account belongs to QuantumDB
+    """
     request_data = request.get_json()
 
     identity = request_data["identity"]
