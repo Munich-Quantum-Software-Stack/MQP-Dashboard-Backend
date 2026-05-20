@@ -14,6 +14,7 @@ from . import resources
 from . import feedbacks
 from . import request_access
 
+
 if os.getenv("QUANTUM_DB_TESTING") is None:
     add_destinations(JournaldDestination())
 
