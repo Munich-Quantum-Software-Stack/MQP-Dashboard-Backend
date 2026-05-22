@@ -1,6 +1,6 @@
 # MQP-Dashboard-Backend
 
-The Backend component of MQP Dashboard, and it is a part of MQSS
+The Backend component of MQP Dashboard, and it is a part of MQSS Client
 
 ## Features
 
@@ -79,11 +79,11 @@ black --check .
 
 ### Contributing
 
-See CONTRIBUTING.md.
+See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ### Code of Conduct
 
-See CODE_OF_CONDUCT.md.
+See [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md).
 
 ### License
 
@@ -138,4 +138,3 @@ Please include: \
 27-11-2024 In bqp_dashboard_backend/tokens.py, we hardcoded, that users in the user group MQP_EDU (table users_in_user_groups in the quantum database) are returned only
 "ThisIsAnEducationalTokenItCannotBeUsedToSubmitJobsThisIsAnEducat" as a token, which is not useable to submit jobs. \
 If this token is encountered by the frontend, it will display a banner "This is an educational token, it cannot be used to submit jobs".
-

@@ -1,6 +1,6 @@
 [project]
-name = "bqp-dashboard-backend"
-version = "0.2.1"
+name = "mqp-dashboard-backend"
+version = "0.1.0"
 description = "MQP Dashboard Backend"
 authors = [
     {name = "Tobias Bauer", email = "tobias.bauer@lrz.de"},
@@ -56,4 +56,4 @@ name = "lrz_pypi"
 url = "https://pypi.quantum.lrz.de"
 
 [tool.setuptools]
-packages = ["bqp_dashboard_backend"]
+packages = ["mqp_dashboard_backend"]

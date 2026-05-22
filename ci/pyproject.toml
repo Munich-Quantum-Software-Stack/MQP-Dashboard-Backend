@@ -1,5 +1,5 @@
 [project]
-name = "bqp-dashboard-backend-ci"
+name = "mqp-dashboard-backend-ci"
 version = "0.0.0"
 description = "CI-only tool environment"
 requires-python = ">=3.10,<3.12"

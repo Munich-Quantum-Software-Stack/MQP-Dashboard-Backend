@@ -1,15 +1,13 @@
-
-#FROM --platform=linux/amd64 python:3.11 AS base
-FROM python:3.11
+FROM python:3.11-slim
 
 ENV TZ="Europe/Berlin" \
     PYTHONUNBUFFERED=1 \
-    PYTHONPATH=/bqp-dashboard-backend-server \
-    PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+    PYTHONPATH=/mqp-dashboard-backend-server \
+    PATH="/mqp-dashboard-backend-server/.venv/bin:$PATH"
 
 # Set workdir
-RUN mkdir -p /bqp-dashboard-backend-server
-WORKDIR /bqp-dashboard-backend-server
+RUN mkdir -p /mqp-dashboard-backend-server
+WORKDIR /mqp-dashboard-backend-server
 
 # Install libraries
 RUN apt update && apt install -y \
@@ -25,25 +23,24 @@ RUN apt update && apt install -y \
     tox \
     lcov \
     valgrind \
-    python3-dev
+    python3-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install PDM
 RUN pip install --no-cache-dir pdm
 
+# Install Gunicorn
+RUN pip install gunicorn
+
 # Copy dependency files
-COPY gunicorn.conf.py /bqp-dashboard-backend-server/
-COPY pyproject.toml /bqp-dashboard-backend-server/pyproject.toml
-COPY pdm.lock /bqp-dashboard-backend-server/pdm.lock
+COPY gunicorn.conf.py pyproject.toml pdm.lock ./
+COPY mqp_dashboard_backend ./mqp_dashboard_backend
 
-# Install dependencies
-RUN pdm config python.use_venv false
-RUN pdm install --prod --no-self
-COPY . .
-
-# Install project
-RUN pdm install --prod
+RUN pdm config python.use_venv true
+# Install ALL dependencies + project into .venv
+RUN pdm sync --prod
+#RUN pdm update
 
 # Run the server
-#CMD ["python3", "-m", "pdm", "run", "gunicorn", "-c", "gunicorn.conf.py"]
-CMD ["/usr/local/bin/pdm", "run", "gunicorn", "-c","gunicorn.conf.py"]
+CMD ["gunicorn", "-c","gunicorn.conf.py"]
 #CMD [".venv/bin/gunicorn", "-c", "gunicorn.conf.py"]
