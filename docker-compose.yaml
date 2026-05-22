@@ -1,0 +1,16 @@
+services:
+  mqp-dashboard-backend-server:
+    image: mqp-dashboard-backend:0.1.0
+    build: .
+    container_name: mqp-dashboard
+    #volumes:
+    #  - .:/mqp-dashboard-backend-server
+    env_file:
+      - .env
+    #environment:
+    #  - ENV=development
+    ports:
+      - "5000:5000"
+    stdin_open: true
+    tty: true
+    restart: always
