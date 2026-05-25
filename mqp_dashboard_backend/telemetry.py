@@ -1,15 +1,33 @@
-"""
-This module provides the features to access proxy telemetry database via QDMI
-"""
+# ------------------------------------------------------------------------------
+# Copyright 2024 Munich Quantum Software Stack Project
+#
+# Licensed under the Apache License, Version 2.0 with LLVM Exceptions (the
+# "License"); you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# https://github.com/Munich-Quantum-Software-Stack/QDMI/blob/develop/LICENSE
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
+#
+# SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
+# ------------------------------------------------------------------------------
 
-from flask import Blueprint, request, Response, stream_with_context
-from flask_jwt_extended import jwt_required
-from http import HTTPStatus
-from eliot import log_call
+"""MQP Dashboard Telemetry Module"""
+
 import json
 import os
 import gzip
 import time
+
+from flask import Blueprint, stream_with_context, request, Response
+from flask_jwt_extended import jwt_required
+from http import HTTPStatus
+from eliot import log_call
+
 from influxdb import InfluxDBClient
 
 BLUEPRINT = Blueprint("telemetry", __name__)
@@ -53,6 +71,12 @@ def _open_influxdb():
 @jwt_required()
 @log_call
 def get_available_sensors():
+    """
+    API to get all available sensors, refresh every SENSOR_CACHE_TTL seconds
+
+    Returns:
+        dict: sensor list
+    """
     global SENSOR_MAP_CACHE
     now = time.time()
 
@@ -118,6 +142,21 @@ def build_sensor_map():
 @jwt_required()
 @log_call
 def get_telemetry_data():
+    """
+    API to get telemetry data accordings to user's input.
+    Temporary save data to a file on /uploads folder
+
+    Args:
+        measurements (list): requested measurements
+        sensors (list): requested sensors
+        from_timestamp (integer): start time of time window
+        to_timestamp (integer): end time of time window
+        group_by (string): group by value of user
+
+    Returns:
+        file_size (integer): size of saved file
+        file_name (string): name of saved file
+    """
     data = request.get_json()
     measurements = data.get("measurements", [])
     sensors = data.get("sensors", [])
@@ -151,8 +190,6 @@ def get_telemetry_data():
         # for sensor in sensors:
         #     query = 'SELECT mean("' + sensor + '") FROM "' + measurement_name + '" WHERE time >= ' + str(from_timestamp) + 'ms and time <= ' + str(to_timestamp) + 'ms GROUP BY time(' + interval + ') fill(null) ORDER BY time ASC'
         #     query_result = client.query(query)
-        #     print("query_result:")
-        #     print(query_result)
         query = build_telemetry_query(
             measurement_name, sensors, from_timestamp, to_timestamp, interval
         )
@@ -160,8 +197,6 @@ def get_telemetry_data():
         if not query:
             continue
         query_result = client.query(query)
-        # print("query_result:")
-        # print(query_result)
         if len(query_result) > 0:
             points = []
             for series in query_result.raw.get("series", []):
@@ -241,6 +276,15 @@ def create_compressed_file(data, output_path):
 # -------------------------------------------------------------------
 @BLUEPRINT.get("/telemetry/download")
 def download_telemetry_file():
+    """
+    Sending file and deleting it after finishing process
+
+    Args:
+        string: filename
+
+    Returns:
+        File: File object that matches given name
+    """
     filename = request.args.get("filename")
     file_path = os.path.join(UPLOAD_FOLDER, filename)
 

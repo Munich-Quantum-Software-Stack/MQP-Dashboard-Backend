@@ -53,7 +53,7 @@ sys.modules.setdefault("eliot", types.SimpleNamespace(log_call=lambda f: f))
 sys.modules.setdefault("influxdb", types.SimpleNamespace(InfluxDBClient=object))
 
 TELEMETRY_PATH = (
-    Path(__file__).resolve().parents[1] / "bqp_dashboard_backend" / "telemetry.py"
+    Path(__file__).resolve().parents[1] / "mqp_dashboard_backend" / "telemetry.py"
 )
 spec = importlib.util.spec_from_file_location("telemetry", TELEMETRY_PATH)
 telemetry = importlib.util.module_from_spec(spec)

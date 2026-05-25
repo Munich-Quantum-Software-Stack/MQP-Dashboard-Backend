@@ -1,5 +1,4 @@
 
-export PATH := /usr/local/bin:$(PATH)
 # Load .env if present
 ifneq (,$(wildcard .env))
 	include .env
@@ -10,12 +9,12 @@ endif
 $(eval VERSION=$(shell grep -m 1 version pyproject.toml | tr -d '"' | cut -d' ' -f3 | tr -s ' ' | tr -d "'" ) )
 
 DOCKER := /usr/local/bin/docker
-IMAGE_NAME = bqp-dashboard-backend
+IMAGE_NAME = mqp-dashboard-backend
 
 .PHONY: build up down logs run-image tag-image push-image clean
 
 build:
-	$(DOCKER) compose build --no-cache
+	$(DOCKER) compose -f docker-compose.yaml build --no-cache
 
 tag-image:
 	$(DOCKER) tag $(IMAGE_NAME):$(VERSION) $(IMAGE_NAME):latest

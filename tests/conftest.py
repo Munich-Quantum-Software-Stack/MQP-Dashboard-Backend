@@ -2,7 +2,7 @@ import json
 import pytest
 import os
 from pathlib import Path
-from bqp_dashboard_backend import create_app
+from mqp_dashboard_backend import create_app
 from bqp_database_access._database import open_database
 import bqp_database_access as database_access
 from pony.orm import db_session
