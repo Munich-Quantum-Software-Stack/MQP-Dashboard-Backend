@@ -19,6 +19,7 @@ def test_ldap_access(app) -> None:
     connection.unbind_s()
 
 
+# temporarily
 def test_correct_login(inactive_client) -> None:
     """Test whether a normal login works."""
 
