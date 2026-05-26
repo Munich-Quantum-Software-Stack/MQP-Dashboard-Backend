@@ -8,7 +8,7 @@ Please note that all participants are required to adhere to our [Code of Conduct
 
 ## ❓ How Can I Contribute?
 
-Using the following [Issue Tracker][issues] you can: \
+Using the following [Issue Tracker][issues] you can:
 
 - Report bugs in the project.
 - Propose new features or improvements.
@@ -18,7 +18,7 @@ Using the following [Issue Tracker][issues] you can: \
 
 ## 🐛 Submitting a Bug Report
 
-Before submitting, please search the issues to see if your bug has been reported. \
+Before submitting, please search the issues to see if your bug has been reported.
 
 - **Check Environment:** Note your OS and browser version.
 - **Provide Steps:** Describe the exact, minimal steps to reproduce the bug.
