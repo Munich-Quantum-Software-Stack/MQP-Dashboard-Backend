@@ -160,8 +160,8 @@ def get_telemetry_data():
     data = request.get_json()
     measurements = data.get("measurements", [])
     sensors = data.get("sensors", [])
-    from_timestamp = data.get("from_timestamp")
-    to_timestamp = data.get("to_timestamp")
+    from_timestamp = int(data.get("from_timestamp"))
+    to_timestamp = int(data.get("to_timestamp"))
     request_interval = data.get("group_by")
 
     client = _open_influxdb()
@@ -207,14 +207,16 @@ def get_telemetry_data():
             telemetry_data[measurement_name] = points
     client.close()
     if len(telemetry_data) == 0:
-        telemetry_data = "No data."
-
-    # Save data to file
-    filename = f"{int(time.time())}_telemetry.json.gz"
-    file_path = os.path.join(UPLOAD_FOLDER, filename)
-    file_path = create_compressed_file(telemetry_data, file_path)
-    filesize = os.path.getsize(file_path)
-    return {"filesize": filesize, "filename": filename}, HTTPStatus.OK
+        filename = ""
+        filesize = 0
+        return {"filesize": filesize, "filename": filename}, HTTPStatus.OK
+    else:
+        # Save data to file
+        filename = f"{int(time.time())}_telemetry.json.gz"
+        file_path = os.path.join(UPLOAD_FOLDER, filename)
+        file_path = create_compressed_file(telemetry_data, file_path)
+        filesize = os.path.getsize(file_path)
+        return {"filesize": filesize, "filename": filename}, HTTPStatus.OK
 
 
 # Internal API: get_interval
