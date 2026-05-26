@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:b6526d110fc6f01694befc352f48e56d7d48942e88325cbf320a18750b581f5e"
+content_hash = "sha256:45513af05b7849fa9058786ce9a6232c144fa2ef5217f9004dcdf6b42afb1c52"
 
 [[metadata.targets]]
 requires_python = ">=3.11,<3.12"
@@ -270,22 +270,6 @@ dependencies = [
     "orjson; implementation_name == \"cpython\"",
     "pyrsistent>=0.11.8",
     "zope-interface",
-]
-files = [
-    {file = "eliot-1.18.0-py3-none-any.whl", hash = "sha256:b5beb40bc84d040373694e8a9dba9c646ce2c25a21fd152ae8d0e3301fe94689"},
-    {file = "eliot-1.18.0.tar.gz", hash = "sha256:249ee78966da740b664301688982e2692d9b57ac92d065c7e2abf66bac06932d"},
-]
-
-[[package]]
-name = "eliot"
-version = "1.18.0"
-extras = ["journald"]
-requires_python = ">=3.10.0"
-summary = "Logging library that tells you why it happened"
-groups = ["default"]
-dependencies = [
-    "cffi>=1.1.2",
-    "eliot==1.18.0",
 ]
 files = [
     {file = "eliot-1.18.0-py3-none-any.whl", hash = "sha256:b5beb40bc84d040373694e8a9dba9c646ce2c25a21fd152ae8d0e3301fe94689"},

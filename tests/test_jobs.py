@@ -6,6 +6,7 @@ def test_fetch_all_jobs(active_client) -> None:
     """Test if all jobs are fetched associated with a user."""
 
     response = active_client.get("/jobs", headers=active_client.headers)
+
     assert response.status_code == HTTPStatus.OK
     assert response.json["jobs"]
     assert response.json["totaljob_nr"] == 3

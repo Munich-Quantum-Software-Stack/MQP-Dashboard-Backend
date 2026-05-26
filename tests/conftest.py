@@ -1,24 +1,16 @@
-import json
 import pytest
 import os
 from pathlib import Path
-
-# from mqp_dashboard_backend import create_app
 from bqp_database_access._database import open_database
 from pony.orm import db_session
 from http import HTTPStatus
 from werkzeug.datastructures import Headers
 from ldap_test import LdapServer
-import bcrypt
+import bqp_database_access as database_access
+import datetime
 
 
-def _hash_test_password(password: str = "test_password") -> str:
-    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
-
-
-TEST_SEED_CONFIG_PATH = Path(__file__).parent / "config" / "test_seed_data.json"
-with TEST_SEED_CONFIG_PATH.open(encoding="utf-8") as config_file:
-    TEST_SEED_CONFIG = json.load(config_file)
+NOW = datetime.datetime.now()
 
 
 @pytest.fixture(scope="module")
@@ -89,13 +81,13 @@ def create_ldap_server():
 def create_local_database():
     delete_local_database()
 
-    quantum_db = open_database(create_tables=True)
+    db = open_database(create_tables=True)
+    db.disconnect()
 
-    test_password_hash = _hash_test_password()
-
+    # Helper phase: helpers require db_session.
     with db_session:
-        basic_level = quantum_db.UserSecurityLevel(
-            name="BASIC",
+        database_access.users.create_new_security_level(
+            "BASIC",
             token_max_live_count=1,
             token_max_lifetime=30,
             token_min_creation_interval=1,
@@ -105,45 +97,55 @@ def create_local_database():
             login_max_interval=365,
         )
 
-        quantum_db.User(
-            identity="test_user",
-            email="test@test.mail",
-            affiliation="TEST_HPC_CENTER",
-            association="QUANTUM",
-            security_level=basic_level,
-            secret_hash=test_password_hash,
-            force_secret_reset=False,
+        database_access.users.create_new_user_with_secret(
+            "test_user",
+            "test_password",
+            "BASIC",
+            "test@test.mail",
+            "TEST_HPC_CENTER",
+            "QUANTUM",
         )
 
-        quantum_db.User(
-            identity="test_user2",
-            email="test@test.mail",
-            affiliation="TEST_HPC_CENTER",
-            association="QUANTUM",
-            security_level=basic_level,
-            secret_hash=test_password_hash,
-            force_secret_reset=False,
+        database_access.users.create_new_user_with_secret(
+            "test_user2",
+            "test_password",
+            "BASIC",
+            "test@test.mail",
+            "TEST_HPC_CENTER",
+            "QUANTUM",
         )
 
-        quantum_db.User(
-            identity="portal_test_user",
-            email="portal_test@test.mail",
-            affiliation="TEST_HPC_CENTER",
-            association="QUANTUM",
-            security_level=basic_level,
-            secret_hash=test_password_hash,
-            force_secret_reset=False,
+        database_access.users.create_new_user_with_secret(
+            "portal_test_user",
+            "test_password",
+            "BASIC",
+            "portal_test@test.mail",
+            "TEST_HPC_CENTER",
+            "QUANTUM",
         )
 
-        quantum_db.User(
-            identity="test_eqe_user",
-            email="test@test.mail",
-            affiliation="TEST_HPC_CENTER",
-            association="QUANTUM",
-            security_level=basic_level,
-            secret_hash=test_password_hash,
-            force_secret_reset=False,
+        database_access.users.create_new_user_with_secret(
+            "test_eqe_user",
+            "test_password",
+            "BASIC",
+            "test@test.mail",
+            "TEST_HPC_CENTER",
+            "QUANTUM",
         )
+
+        database_access.users.create_new_user_with_secret(
+            "blocked_test_user",
+            "test_password",
+            "BASIC",
+            "test@lrz.de",
+            "LRZ",
+            "LDAP",
+        )
+
+    quantum_db = open_database()
+
+    with db_session:
+        basic_level = quantum_db.UserSecurityLevel["BASIC"]
 
         quantum_db.User(
             identity="ldap_test_user",
@@ -154,22 +156,174 @@ def create_local_database():
             force_secret_reset=False,
         )
 
-        quantum_db.insert(
-            "user",
-            identity="blocked_test_user",
+        test_user = quantum_db.User["test_user"]
+        test_user2 = quantum_db.User["test_user2"]
+        portal_test_user = quantum_db.User["portal_test_user"]
+        eqe_user = quantum_db.User["test_eqe_user"]
+
+        temp_budget = quantum_db.Budget(
+            name="temp_budget",
             note=" ",
-            email="test@test.mail",
-            affiliation="TEST_HPC_CENTER",
-            association="LDAP",
-            security_level="BASIC",
-            blocked=True,
-            block_reason="Testing blocked user",
-            secret_hash=test_password_hash,
-            force_secret_reset=True,
+            owner=test_user,
+            credits=1000,
         )
 
-        # keep the rest of your existing quantum_db.insert(...)
-        # budget, groups, resources, target_specifications, jobs, etc.
+        test_group = quantum_db.UserGroup(
+            name="TEST_USER_GROUP",
+            note="Group granting test_user access to temp_budget",
+            owner=test_user,
+            cost_modifier=1.0,
+        )
+
+        eqe_group = quantum_db.UserGroup(
+            name="EQE",
+            note="Group granting eqe_user access to temp_budget",
+            owner=test_user,
+            cost_modifier=1.0,
+        )
+
+        mqp_edu_group = quantum_db.UserGroup(
+            name="MQP_EDU",
+            note="MQP_EDU group for testing purposes",
+            owner=portal_test_user,
+            cost_modifier=1.0,
+        )
+
+        test_user.user_groups.add(test_group)
+        test_user2.user_groups.add(test_group)
+        temp_budget.user_groups.add(test_group)
+
+        eqe_user.user_groups.add(eqe_group)
+        portal_test_user.user_groups.add(mqp_edu_group)
+
+        quantum_db.insert(
+            "resource_security_level",
+            name="BASIC",
+            note=" ",
+            job_min_interval=10,
+            budget_max_per_job=10,
+            unique_token_required=False,
+            token_max_lifetime=10,
+        )
+
+        quantum_db.insert(
+            "resource",
+            name="TEST_QPU_1",
+            note=" ",
+            maintenance=False,
+            qubits=5,
+            connectivity=" ",
+            instructions=" ",
+            quantum_technology=" ",
+            num_queued_jobs=1,
+            resource_cost_modifier=1,
+            security_level="BASIC",
+        )
+
+        quantum_db.insert(
+            "resource",
+            name="TEST_QPU_2",
+            note=" ",
+            maintenance=True,
+            qubits=5,
+            connectivity=" ",
+            instructions=" ",
+            quantum_technology=" ",
+            num_queued_jobs=1,
+            resource_cost_modifier=1,
+            security_level="BASIC",
+        )
+
+        quantum_db.insert(
+            "target_specification",
+            name="TS_TEST_QPU_1",
+            note=" ",
+            specification_type=" ",
+            minimum_qubits="1",
+            quantum_technology=" ",
+            resource_name="TEST_QPU_1",
+        )
+
+        quantum_db.insert(
+            "target_specification",
+            name="TS_TEST_QPU_2",
+            note=" ",
+            specification_type=" ",
+            minimum_qubits="1",
+            quantum_technology=" ",
+            resource_name="TEST_QPU_2",
+        )
+
+        quantum_db.insert(
+            "circuit_job",
+            id=201,
+            note="JOB_PENDING_QUEUED_TEST_QPU_1",
+            status="PENDING",
+            shots=1,
+            circuit="OPENQASM 2.0;",
+            circuit_format="qasm",
+            no_modify=True,
+            timestamp_submitted=NOW,
+            timestamp_scheduled=None,
+            timestamp_completed=None,
+            cost=0,
+            result='{"10": 76, "11": 425, "01": 91, "00": 408}',
+            owner="test_user2",
+            budget="temp_budget",
+            executed_resource="TEST_QPU_1",
+            target_specification="TS_TEST_QPU_1",
+            executed_circuit="OPENQASM 2.0;",
+            queued=True,
+        )
+
+        quantum_db.insert(
+            "circuit_job",
+            id=202,
+            note="JOB_PENDING_QUEUED_TEST_QPU_2",
+            status="PENDING",
+            shots=1,
+            circuit="OPENQASM 2.0;",
+            circuit_format="qasm",
+            no_modify=True,
+            timestamp_submitted=NOW,
+            timestamp_scheduled=None,
+            timestamp_completed=None,
+            cost=0,
+            result='{"10": 76, "11": 425, "01": 91, "00": 408}',
+            owner="test_user2",
+            budget="temp_budget",
+            executed_resource="TEST_QPU_2",
+            target_specification="TS_TEST_QPU_2",
+            executed_circuit="OPENQASM 2.0;",
+            queued=True,
+        )
+
+        for job_id, status, queued in [
+            (111, "PENDING", False),
+            (112, "CANCELLED", True),
+            (113, "COMPLETED", True),
+        ]:
+            quantum_db.insert(
+                "circuit_job",
+                id=job_id,
+                note=" ",
+                status=status,
+                shots=200,
+                circuit="OPENQASM 2.0;",
+                circuit_format="qasm",
+                no_modify=True,
+                timestamp_submitted=NOW,
+                timestamp_scheduled=None,
+                timestamp_completed="2024-07-17 11:17:32.397618",
+                cost=0,
+                result='{"10": 76, "11": 425, "01": 91, "00": 408}',
+                owner="test_user",
+                budget="temp_budget",
+                executed_resource="TEST_QPU_1",
+                target_specification="TS_TEST_QPU_1",
+                executed_circuit="OPENQASM 2.0;",
+                queued=queued,
+            )
 
         quantum_db.commit()
 
@@ -216,7 +370,7 @@ def active_client(app):
 def active_client_mqp_edu(app):
     client = app.test_client()
 
-    user_data = {"identity": "test_user", "secret": "test_password"}
+    user_data = {"identity": "portal_test_user", "secret": "test_password"}
     login_response = client.post("/login", json=user_data)
 
     assert (
