@@ -29,7 +29,7 @@ The Backend component of MQP Dashboard, and it is a part of MQSS Client
 ### Clone the Repository
 
 ```
-git clone https://github.com/Munich-Quantum-Software-Stack/MQP-Dashboard-Backend.git \
+git clone https://github.com/Munich-Quantum-Software-Stack/MQP-Dashboard-Backend.git
 cd MQP-Dashboard-Backend
 ````
 
