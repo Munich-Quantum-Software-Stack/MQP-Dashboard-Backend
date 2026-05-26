@@ -5,11 +5,15 @@ from pathlib import Path
 
 # from mqp_dashboard_backend import create_app
 from bqp_database_access._database import open_database
-import bqp_database_access as database_access
 from pony.orm import db_session
 from http import HTTPStatus
 from werkzeug.datastructures import Headers
 from ldap_test import LdapServer
+import bcrypt
+
+
+def _hash_test_password(password: str = "test_password") -> str:
+    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
 
 TEST_SEED_CONFIG_PATH = Path(__file__).parent / "config" / "test_seed_data.json"
@@ -87,9 +91,11 @@ def create_local_database():
 
     quantum_db = open_database(create_tables=True)
 
+    test_password_hash = _hash_test_password()
+
     with db_session:
-        database_access.users.create_new_security_level(
-            "BASIC",
+        basic_level = quantum_db.UserSecurityLevel(
+            name="BASIC",
             token_max_live_count=1,
             token_max_lifetime=30,
             token_min_creation_interval=1,
@@ -99,35 +105,75 @@ def create_local_database():
             login_max_interval=365,
         )
 
-        database_access.users.create_new_user_with_secret(
-            "test_user",
-            "test_password",
-            "BASIC",
-            "test@test.mail",
-            "TEST_HPC_CENTER",
-            "QUANTUM",
+        quantum_db.User(
+            identity="test_user",
+            email="test@test.mail",
+            affiliation="TEST_HPC_CENTER",
+            association="QUANTUM",
+            security_level=basic_level,
+            secret_hash=test_password_hash,
+            force_secret_reset=False,
         )
 
-        quantum_db.insert("users_in_user_groups", user="test_user", usergroup="MQP_EDU")
-
-        quantum_db.insert("user", **TEST_SEED_CONFIG["blocked_user"])
-
-        database_access.users.create_new_user_with_secret(
-            "ldap_test_user",
-            "test_password",
-            "BASIC",
-            "test@test.mail",
-            "TEST_HPC_CENTER",
-            "LDAP",
+        quantum_db.User(
+            identity="test_user2",
+            email="test@test.mail",
+            affiliation="TEST_HPC_CENTER",
+            association="QUANTUM",
+            security_level=basic_level,
+            secret_hash=test_password_hash,
+            force_secret_reset=False,
         )
 
-        database_access.users.create_new_ldap_user(
-            "ldap_test_user",
-            "BASIC",
-            "ldaptest@test.mail",
-            "TEST_HPC_CENTER",
-            "LDAP",
+        quantum_db.User(
+            identity="portal_test_user",
+            email="portal_test@test.mail",
+            affiliation="TEST_HPC_CENTER",
+            association="QUANTUM",
+            security_level=basic_level,
+            secret_hash=test_password_hash,
+            force_secret_reset=False,
         )
+
+        quantum_db.User(
+            identity="test_eqe_user",
+            email="test@test.mail",
+            affiliation="TEST_HPC_CENTER",
+            association="QUANTUM",
+            security_level=basic_level,
+            secret_hash=test_password_hash,
+            force_secret_reset=False,
+        )
+
+        quantum_db.User(
+            identity="ldap_test_user",
+            email="ldap_test@test.mail",
+            affiliation="TEST_HPC_CENTER",
+            association="LDAP",
+            security_level=basic_level,
+            force_secret_reset=False,
+        )
+
+        quantum_db.insert(
+            "user",
+            identity="blocked_test_user",
+            note=" ",
+            email="test@test.mail",
+            affiliation="TEST_HPC_CENTER",
+            association="LDAP",
+            security_level="BASIC",
+            blocked=True,
+            block_reason="Testing blocked user",
+            secret_hash=test_password_hash,
+            force_secret_reset=True,
+        )
+
+        # keep the rest of your existing quantum_db.insert(...)
+        # budget, groups, resources, target_specifications, jobs, etc.
+
+        quantum_db.commit()
+
+    quantum_db.disconnect()
 
 
 def delete_local_database() -> None:
