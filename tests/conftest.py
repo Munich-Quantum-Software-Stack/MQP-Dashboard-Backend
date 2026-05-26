@@ -82,6 +82,8 @@ def create_ldap_server():
 
 
 def create_local_database():
+    delete_local_database()
+
     db = open_database(create_tables=True)
     db.disconnect()
 
@@ -106,7 +108,7 @@ def create_local_database():
                 "TEST_HPC_CENTER",
                 "QUANTUM",
             )
-
+            """
             database_access.users.create_new_user_with_secret(
                 "test_user",
                 "test_password",
@@ -115,7 +117,7 @@ def create_local_database():
                 "TEST_HPC_CENTER",
                 "QUANTUM",
             )
-
+            """
             ### This code is to make the test_fetch_all_jobs pass by inserting dummies into the db
             quantum_db = open_database()
             quantum_db.insert(
@@ -249,16 +251,23 @@ def create_local_database():
                 "TEST_HPC_CENTER",
                 "LDAP",
             )
-
+    except TransactionError as error:
+        raise error
+    """
     except TransactionError:
         pass
+    """
+
+    # temporarily changed for debugging
 
 
 def delete_local_database() -> None:
     db = open_database()
     path = db.provider.pool.filename
     db.disconnect()
-    os.remove(path)
+
+    if os.path.exists(path):
+        os.remove(path)
 
 
 @pytest.fixture()
