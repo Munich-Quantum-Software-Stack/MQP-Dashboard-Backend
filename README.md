@@ -28,21 +28,24 @@ The Backend component of MQP Dashboard, and it is a part of MQSS Client
 
 ### Clone the Repository
 
-git clone https://github.com/Munich-Quantum-Software-Stack/MQP-Dashboard-Backend.git
+```
+git clone https://github.com/Munich-Quantum-Software-Stack/MQP-Dashboard-Backend.git \
 cd MQP-Dashboard-Backend
+````
 
 ### Environment Variables
 
-To run the project locally, you need to configure your environment variables:\
-    1. Locate the .env.example file in the project root \
-    2. Create a copy of this file and rename it to .env \
-    3. Open the .env file and update the configuration values to match your local setup. \
-    4. The application runs inside a container. To make these environment variables affected to the app, run this command: $make run-image
+To run the project locally, you need to configure your environment variables:
+1. Locate the .env.example file in the project root
+2. Create a copy of this file and rename it to .env
+3. Open the .env file and update the configuration values to match your local setup.
+4. The application runs inside a container. To make these environment variables affected to the app, run this command: $make run-image
 
 ### Run with Docker
 
 ```
-make run-image
+make build
+make up
 ```
 Application should be available at: http://localhost:5000
 
@@ -64,7 +67,6 @@ black --check .
 ```
 
 ### Development Workflow
-
 1. Create a feature branch
 2. Make changes
 3. Add/update tests
@@ -72,7 +74,6 @@ black --check .
 5. Submit a pull request
 
 ### Security
-
 - Do not commit secrets
 - Use environment variables for configuration
 - Review dependencies regularly
@@ -94,20 +95,20 @@ Licensed under the Apache License v2.0 with LLVM Exceptions.
 
 Examples:
 ```
-feat: add JWT authentication
-fix: resolve docker startup issue
-docs: update API documentation
+<short_author_name>/feat: add JWT authentication
+<short_author_name>/fix: resolve docker startup issue
+<short_author_name>/docs: update API documentation
 ```
 
 ### Pull Request Process
 
-Before submitting a PR: \
+Before submitting a PR:
 - Ensure tests pass
 - Ensure lint checks pass
 - Add tests for new functionality
 - Update documentation where needed
 
-PRs should include: \
+PRs should include:
 - Summary of changes
 - Related issue references
 - Screenshots/examples if applicable
@@ -127,7 +128,7 @@ PRs should include: \
 
 ### Reporting Issues
 
-Please include: \
+Please include:
 - Steps to reproduce
 - Expected behavior
 - Actual behavior
