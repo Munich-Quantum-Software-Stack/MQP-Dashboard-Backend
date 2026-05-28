@@ -4,8 +4,7 @@
   "name": "DashboardBE",
   // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
   //"image": "dockerhub.quantum.lrz.de/python-gcc-jre:3.11_12.1_17.0.14",
-  "image": "dockerhub.quantum.lrz.de/mqp-dashboard-backend:0.1.1",
-  //"image": "mqp-dashboard-backend:0.1.0",
+  "image": "dockerhub.quantum.lrz.de/mqp-dashboard-backend:0.1.3",
   "forwardPorts": [5000],
   "customizations": {
     // Configure properties specific to VS Code.

@@ -32,9 +32,7 @@ from eliot import log_call
 from flask import Blueprint, request
 from flask_jwt_extended import create_access_token
 
-
 BLUEPRINT = Blueprint("login", __name__)
-
 
 class AuthenticationError(Exception):
     pass
@@ -53,32 +51,30 @@ def authenticate_user_by_ldap(identity: str, secret: str):
     """ """
 
     connect = None
-    ldap_base_dn = os.getenv(
-        "LDAP_BASE_DN", "ou=QuantumComputing,ou=People,o=example,c=de"
-    )
-
     try:
         connect = ldap.initialize(os.environ.get("QUANTUM_DS_HOST"))
         connect.protocol_version = ldap.VERSION3
         connect.set_option(ldap.OPT_REFERRALS, 0)
 
         # authenticate user
-        user_dn = f"cn={identity},{ldap_base_dn}"
+        user_dn = f"cn={identity},ou=QuantumComputing,ou=Kennungen,o=lrz-muenchen,c=de"
         if connect.simple_bind_s(user_dn, secret) is None:
             raise UnknownIdentityError
 
         # check if part of ou=QuantumComputing
-        search_filter = "(&(objectClass=user))"
-        search_dn = user_dn
+        search_filter = f"(&(objectClass=user))"
+        search_dn = (f"cn={identity},ou=quantumcomputing,ou=Kennungen,o=lrz-muenchen,c=de")
         if not connect.search_s(search_dn, ldap.SCOPE_SUBTREE, search_filter):
             raise UnauthorizedUser
-
+        
     except ldap.INVALID_CREDENTIALS:
         raise IncorrectSecretError
 
     finally:
-        if connect is not None:
+        try: 
             connect.unbind_s()
+        except:
+            pass
 
 
 @BLUEPRINT.post("/login")
