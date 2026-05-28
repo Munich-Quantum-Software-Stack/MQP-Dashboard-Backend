@@ -34,6 +34,7 @@ from flask_jwt_extended import create_access_token
 
 BLUEPRINT = Blueprint("login", __name__)
 
+
 class AuthenticationError(Exception):
     pass
 
@@ -62,19 +63,19 @@ def authenticate_user_by_ldap(identity: str, secret: str):
             raise UnknownIdentityError
 
         # check if part of ou=QuantumComputing
-        search_filter = f"(&(objectClass=user))"
-        search_dn = (f"cn={identity},ou=quantumcomputing,ou=Kennungen,o=lrz-muenchen,c=de")
+        search_filter = "(&(objectClass=user))"
+        search_dn = (
+            f"cn={identity},ou=quantumcomputing,ou=Kennungen,o=lrz-muenchen,c=de"
+        )
         if not connect.search_s(search_dn, ldap.SCOPE_SUBTREE, search_filter):
             raise UnauthorizedUser
-        
+
     except ldap.INVALID_CREDENTIALS:
         raise IncorrectSecretError
 
     finally:
-        try: 
+        if connect is not None:
             connect.unbind_s()
-        except:
-            pass
 
 
 @BLUEPRINT.post("/login")
