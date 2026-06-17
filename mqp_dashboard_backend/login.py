@@ -51,24 +51,21 @@ class UnauthorizedUser(Exception):
 def authenticate_user_by_ldap(identity: str, secret: str):
     """ """
 
-    search_user_dn = os.environ.get("LDAP_USER_DN")
     connect = None
+    search_user_dn = os.environ.get("LDAP_USER_DN")
+    user_dn = f"cn={identity},{search_user_dn}"
     try:
         connect = ldap.initialize(os.environ.get("QUANTUM_DS_HOST"))
         connect.protocol_version = ldap.VERSION3
         connect.set_option(ldap.OPT_REFERRALS, 0)
 
         # authenticate user
-        user_dn = f"cn={identity},{search_user_dn}"
         if connect.simple_bind_s(user_dn, secret) is None:
             raise UnknownIdentityError
 
         # check if part of ou=QuantumComputing
         search_filter = "(&(objectClass=user))"
-        search_dn = (
-            f"cn={identity},{search_user_dn}"
-        )
-        if not connect.search_s(search_dn, ldap.SCOPE_SUBTREE, search_filter):
+        if not connect.search_s(user_dn, ldap.SCOPE_SUBTREE, search_filter):
             raise UnauthorizedUser
 
     except ldap.INVALID_CREDENTIALS:
