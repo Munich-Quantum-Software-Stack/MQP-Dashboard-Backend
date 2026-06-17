@@ -124,7 +124,7 @@ def test_build_telemetry_query_builds_expected_query_string():
     assert "GROUP BY time(5m) fill(null) ORDER BY time ASC" in query
 
 
-def test_create_compressed_file_writes_gzip_json_and_returns_output_path(tmp_path):
+def test_create_compressed_file_returns_output_path(tmp_path):
     data = {
         "measurement": [
             {"time": "2024-01-01T00:00:00Z", "temperature": 18.5},
@@ -136,7 +136,18 @@ def test_create_compressed_file_writes_gzip_json_and_returns_output_path(tmp_pat
     returned_path = telemetry.create_compressed_file(data, str(output_path))
 
     assert returned_path == str(output_path)
-    assert output_path.exists()
+
+
+def test_create_compressed_file_writes_expected_gzip_json(tmp_path):
+    data = {
+        "measurement": [
+            {"time": "2024-01-01T00:00:00Z", "temperature": 18.5},
+            {"time": "2024-01-01T00:01:00Z", "temperature": 18.7},
+        ]
+    }
+    output_path = tmp_path / "telemetry.json.gz"
+
+    telemetry.create_compressed_file(data, str(output_path))
 
     with gzip.open(output_path, "rt", encoding="utf-8") as f:
         content = json.load(f)
