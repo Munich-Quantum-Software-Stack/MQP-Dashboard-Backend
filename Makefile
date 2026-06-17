@@ -16,16 +16,14 @@ IMAGE_NAME = mqp-dashboard-backend
 build:
 	$(DOCKER) compose -f docker-compose.yaml build --no-cache
 
-tag-image:
-	$(DOCKER) tag $(IMAGE_NAME):$(VERSION) $(IMAGE_NAME):latest
-
 up:
 	$(DOCKER) compose up -d
 
-#build-image:
-#	$(DOCKER) build --no-cache \
-#		-t $(IMAGE_NAME) \
-#		-t $(IMAGE_NAME):${VERSION} .
+down:
+	docker compose down
+
+logs:
+	docker compose logs -f
 
 run-image:
 	$(DOCKER) run --rm -it --detach \
@@ -33,11 +31,8 @@ run-image:
 	--env-file .env \
 	$(IMAGE_NAME):$(VERSION)
 
-down:
-	docker compose down
-
-logs:
-	docker compose logs -f
+tag-image:
+	$(DOCKER) tag $(IMAGE_NAME):$(VERSION) $(IMAGE_NAME):latest
 
 push-image:
 	docker tag $(IMAGE_NAME):${VERSION} ${DOCKERHUB}/$(IMAGE_NAME):${VERSION}

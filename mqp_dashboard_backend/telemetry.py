@@ -50,14 +50,14 @@ class TelemetryError(Exception):
 # Open connection to InfluxDB
 def _open_influxdb():
     try:
-        client = InfluxDBClient(
+        db_client = InfluxDBClient(
             host=os.getenv("PROXY_DB_HOST"),
             port=os.getenv("PROXY_DB_PORT"),
             database=os.getenv("PROXY_DB"),
             username=os.getenv("PROXY_DB_USER"),
             password=os.getenv("PROXY_DB_PASS"),
         )
-        return client
+        return db_client
     except TypeError as err:
         raise TelemetryError(str(err)) from err
 
@@ -93,13 +93,13 @@ def get_available_sensors():
 
 
 # Internal API: get_measurements
-def get_measurements(client):
-    return client.get_list_measurements()
+def get_measurements(db_client):
+    return db_client.get_list_measurements()
 
 
 # Internal API: get_sensors_from_measurement()
-def get_sensors_from_measurement(client, measurement):
-    return client.query(f"SHOW FIELD KEYS FROM {measurement}")
+def get_sensors_from_measurement(db_client, measurement):
+    return db_client.query(f"SHOW FIELD KEYS FROM {measurement}")
 
 
 # Internal API: build_sensor_map
@@ -115,18 +115,18 @@ def build_sensor_map():
     """
     sensor_map = []  # list()
     try:
-        client = _open_influxdb()
-        measurements_list = get_measurements(client)
+        db_client = _open_influxdb()
+        measurements_list = get_measurements(db_client)
         for item in measurements_list:
             measurement_name = item.get("name")
-            sensors = get_sensors_from_measurement(client, measurement_name)
+            sensors = get_sensors_from_measurement(db_client, measurement_name)
             measurement_sensors = []
             for sensor in sensors.get_points():
                 measurement_sensors.append(sensor.get("fieldKey"))
             sensor_map.append(
                 {"measurement": measurement_name, "sensors": measurement_sensors}
             )
-        client.close()
+        db_client.close()
         return sensor_map
     except TypeError as error:
         return {"error": str(error)}, HTTPStatus.INTERNAL_SERVER_ERROR
@@ -164,9 +164,9 @@ def get_telemetry_data():
     to_timestamp = int(data.get("to_timestamp"))
     request_interval = data.get("group_by")
 
-    client = _open_influxdb()
+    db_client = _open_influxdb()
     if not measurements:
-        measurements = get_measurements(client)
+        measurements = get_measurements(db_client)
 
     # Get matched request sensors with available sensors
     matched_sensors = []
@@ -187,16 +187,13 @@ def get_telemetry_data():
     for measurement in matched_sensors:
         measurement_name = measurement.get("measurement")
         sensors = measurement.get("sensors")
-        # for sensor in sensors:
-        #     query = 'SELECT mean("' + sensor + '") FROM "' + measurement_name + '" WHERE time >= ' + str(from_timestamp) + 'ms and time <= ' + str(to_timestamp) + 'ms GROUP BY time(' + interval + ') fill(null) ORDER BY time ASC'
-        #     query_result = client.query(query)
         query = build_telemetry_query(
             measurement_name, sensors, from_timestamp, to_timestamp, interval
         )
 
         if not query:
             continue
-        query_result = client.query(query)
+        query_result = db_client.query(query)
         if len(query_result) > 0:
             points = []
             for series in query_result.raw.get("series", []):
@@ -205,7 +202,7 @@ def get_telemetry_data():
                     record = dict(zip(columns, row))
                     points.append(record)
             telemetry_data[measurement_name] = points
-    client.close()
+    db_client.close()
     if len(telemetry_data) == 0:
         filename = ""
         filesize = 0
@@ -234,9 +231,6 @@ def get_default_interval(start, end):
 def build_telemetry_query(measurement, sensors, start, end, interval):
     if sensors is None:
         return None
-
-    # for sensor in sensors:
-    #     query = 'SELECT mean("' + sensor + '") FROM "' + measurement_name + '" WHERE time >= ' + str(from_timestamp) + 'ms and time <= ' + str(to_timestamp) + 'ms GROUP BY time(' + group_by + ') fill(null) ORDER BY time ASC'
 
     sensor_expr = ", ".join([f'mean("{sensor}")' for sensor in sensors])
     query = f"""

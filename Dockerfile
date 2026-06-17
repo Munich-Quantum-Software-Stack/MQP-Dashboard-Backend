@@ -37,10 +37,9 @@ COPY gunicorn.conf.py pyproject.toml pdm.lock ./
 COPY mqp_dashboard_backend ./mqp_dashboard_backend
 
 RUN pdm config python.use_venv true
+
 # Install ALL dependencies + project into .venv
 RUN pdm sync --prod
-#RUN pdm update
 
 # Run the server
 CMD ["gunicorn", "-c","gunicorn.conf.py"]
-#CMD [".venv/bin/gunicorn", "-c", "gunicorn.conf.py"]
