@@ -301,6 +301,22 @@ files = [
 ]
 
 [[package]]
+name = "eliot"
+version = "1.18.0"
+extras = ["journald"]
+requires_python = ">=3.10.0"
+summary = "Logging library that tells you why it happened"
+groups = ["default"]
+dependencies = [
+    "cffi>=1.1.2",
+    "eliot==1.18.0",
+]
+files = [
+    {file = "eliot-1.18.0-py3-none-any.whl", hash = "sha256:b5beb40bc84d040373694e8a9dba9c646ce2c25a21fd152ae8d0e3301fe94689"},
+    {file = "eliot-1.18.0.tar.gz", hash = "sha256:249ee78966da740b664301688982e2692d9b57ac92d065c7e2abf66bac06932d"},
+]
+
+[[package]]
 name = "filelock"
 version = "3.29.4"
 requires_python = ">=3.10"
