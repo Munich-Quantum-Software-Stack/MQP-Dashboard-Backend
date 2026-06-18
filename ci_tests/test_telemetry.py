@@ -106,7 +106,7 @@ def telemetry_module(monkeypatch):
 
     telemetry = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(telemetry)
-    
+
     return telemetry
 
 
@@ -158,19 +158,14 @@ def test_build_matched_sensors_returns_empty_when_no_sensor_matches(telemetry_mo
     available_sensors = [{"measurement": "m1", "sensors": ["a", "b"]}]
 
     assert (
-        telemetry_module.build_matched_sensors(
-            requested_sensors, available_sensors
-        )
+        telemetry_module.build_matched_sensors(requested_sensors, available_sensors)
         == []
     )
 
 
 def test_build_telemetry_query_returns_none_when_sensors_is_none(telemetry_module):
     assert (
-        telemetry_module.build_telemetry_query(
-            "measurement", None, 1, 2, "1m"
-        )
-        is None
+        telemetry_module.build_telemetry_query("measurement", None, 1, 2, "1m") is None
     )
 
 
