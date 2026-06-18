@@ -15,10 +15,17 @@ dependencies = [
     "gunicorn>=21.2.0",
     "flask-cors>=4.0.0",
     "python-ldap>=3.4.3",
-    "eliot[journald]>=1.15.0",
     "flask-mail>=0.10.0",
     "influxdb>=5.3.2",
-    "python-dotenv>=1.2.2"
+    "python-dotenv>=1.2.2",
+    "eliot>=1.18.0"
+]
+[project.optional-dependencies]
+docs = [
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.6.2",
+    "mkdocstrings[python]>=0.26.1",
+    "mkdocs-autorefs>=1.2.0",
 ]
 requires-python = ">=3.11,<3.12"
 readme = "README.md"
@@ -45,6 +52,9 @@ dev = [
     "pytest>=7.4.0",
     "pytest-env>=0.8.2",
     "python-ldap-test>=0.3.1",
+    "mkdocs",
+    "mkdocs-material",
+    "mkdocstrings[python]",
 ]
 
 [tool.pdm]
@@ -57,3 +67,6 @@ url = "https://pypi.quantum.lrz.de"
 
 [tool.setuptools]
 packages = ["mqp_dashboard_backend"]
+
+
+

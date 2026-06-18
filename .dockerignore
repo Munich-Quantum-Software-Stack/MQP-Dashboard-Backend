@@ -19,5 +19,6 @@ coverage.xml
 tests
 test_db.sqlite
 docs
+uploads
 .idea
 *.pyc
