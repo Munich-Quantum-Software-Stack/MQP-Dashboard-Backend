@@ -1,82 +1,14 @@
 # MQP-Dashboard-Backend
 
-The Backend component of MQP Dashboard, and it is a part of MQSS Client
+The Backend component of Munich Quantum Portal Dashboard, and it is a part of MQSS Client. This repository implements interfaces API of Quantum database and connect to QDMI database.
 
 ## Features
 
-- Flask-based web application
-- Dockerized development and deployment workflow
-- REST API support
-- Configurable environment setup
+- LDAP Authentication
+- Manage Access Token
+- Query Jobs and Resources from Quantum database
+- Query Telemetry Data from QDMI proxy database
 - Automated testing and CI support
-
-## Tech Stack
-
-- Python 3.11
-- Flask
-- Docker / Docker Compose
-- Pytest
-- GitHub Actions
-
-## Getting Started
-
-### Prerequisites
-
-- Docker
-- Docker Compose
-- Python 3.11
-
-### Clone the Repository
-
-```
-git clone https://github.com/Munich-Quantum-Software-Stack/MQP-Dashboard-Backend.git
-cd MQP-Dashboard-Backend
-````
-
-### Environment Variables
-
-To run the project locally, you need to configure your environment variables:
-1. Locate the .env.example file in the project root
-2. Create a copy of this file and rename it to .env
-3. Open the .env file and update the configuration values to match your local setup.
-4. The application runs inside a container. To make these environment variables affected to the app, run this command: $make run-image
-
-### Run with Docker
-
-```
-make build
-make up
-```
-Application should be available at: http://localhost:5000
-
-### Unit testing with pytest
-
-In order for the unit-tests to run, following environment-variables need to be set (test_db.db can in principle be anything except already existing files):
-
-```
-export QUANTUM_DB_TESTING=1
-export QUANTUM_DB_FILENAME=test_db.db
-export QUANTUM_DS_HOST=ldap://localhost:8888
-```
-
-### Linting
-
-```
-ruff check .
-black --check .
-```
-
-### Development Workflow
-1. Create a feature branch
-2. Make changes
-3. Add/update tests
-4. Run linting and tests locally
-5. Submit a pull request
-
-### Security
-- Do not commit secrets
-- Use environment variables for configuration
-- Review dependencies regularly
 
 ### Contributing
 
@@ -94,7 +26,7 @@ Licensed under the Apache License v2.0 with LLVM Exceptions.
 ### Commit Message Guidelines
 
 Examples:
-```
+```sh
 <short_author_name>/feat: add JWT authentication
 <short_author_name>/fix: resolve docker startup issue
 <short_author_name>/docs: update API documentation

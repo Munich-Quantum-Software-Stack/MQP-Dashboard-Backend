@@ -8,6 +8,7 @@ __pycache__/
 test_db.sqlite
 mqp_dashboard_backend/__pycache__/
 uploads/
+.devcontainer/
 
 # C extensions
 *.so
@@ -56,6 +57,7 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 cover/
+.ruff_cache
 
 # Translations
 *.mo
