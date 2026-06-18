@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:45513af05b7849fa9058786ce9a6232c144fa2ef5217f9004dcdf6b42afb1c52"
+content_hash = "sha256:b6526d110fc6f01694befc352f48e56d7d48942e88325cbf320a18750b581f5e"
 
 [[metadata.targets]]
 requires_python = ">=3.11,<3.12"
@@ -277,6 +277,22 @@ files = [
 ]
 
 [[package]]
+name = "eliot"
+version = "1.18.0"
+extras = ["journald"]
+requires_python = ">=3.10.0"
+summary = "Logging library that tells you why it happened"
+groups = ["default"]
+dependencies = [
+    "cffi>=1.1.2",
+    "eliot==1.18.0",
+]
+files = [
+    {file = "eliot-1.18.0-py3-none-any.whl", hash = "sha256:b5beb40bc84d040373694e8a9dba9c646ce2c25a21fd152ae8d0e3301fe94689"},
+    {file = "eliot-1.18.0.tar.gz", hash = "sha256:249ee78966da740b664301688982e2692d9b57ac92d065c7e2abf66bac06932d"},
+]
+
+[[package]]
 name = "filelock"
 version = "3.29.0"
 requires_python = ">=3.10"
@@ -321,17 +337,18 @@ files = [
 
 [[package]]
 name = "flask-cors"
-version = "6.0.2"
+version = "6.0.5"
 requires_python = "<4.0,>=3.9"
 summary = "A Flask extension simplifying CORS support"
 groups = ["default"]
 dependencies = [
     "Werkzeug>=0.7",
     "flask>=0.9",
+    "typing-extensions>=4.6.0; python_version < \"3.11\"",
 ]
 files = [
-    {file = "flask_cors-6.0.2-py3-none-any.whl", hash = "sha256:e57544d415dfd7da89a9564e1e3a9e515042df76e12130641ca6f3f2f03b699a"},
-    {file = "flask_cors-6.0.2.tar.gz", hash = "sha256:6e118f3698249ae33e429760db98ce032a8bf9913638d085ca0f4c5534ad2423"},
+    {file = "flask_cors-6.0.5-py3-none-any.whl", hash = "sha256:68fcf75693e961f3af26683b23c4b9a8fb6b64de17d20d0c37b95e8de7ab2ed8"},
+    {file = "flask_cors-6.0.5.tar.gz", hash = "sha256:30c5031552cd59f620ac0c8211dac45b345d3b2df310e7721879e4f46ef9c601"},
 ]
 
 [[package]]
@@ -765,7 +782,7 @@ files = [
 
 [[package]]
 name = "pytest"
-version = "9.0.3"
+version = "9.1.0"
 requires_python = ">=3.10"
 summary = "pytest: simple powerful testing with Python"
 groups = ["dev"]
@@ -779,8 +796,8 @@ dependencies = [
     "tomli>=1; python_version < \"3.11\"",
 ]
 files = [
-    {file = "pytest-9.0.3-py3-none-any.whl", hash = "sha256:2c5efc453d45394fdd706ade797c0a81091eccd1d6e4bccfcd476e2b8e0ab5d9"},
-    {file = "pytest-9.0.3.tar.gz", hash = "sha256:b86ada508af81d19edeb213c681b1d48246c1a91d304c6c81a427674c17eb91c"},
+    {file = "pytest-9.1.0-py3-none-any.whl", hash = "sha256:8ebb0e7888bdf2bdfc602ec51f8f62d50200af37356c74e503c79a94f5c81f32"},
+    {file = "pytest-9.1.0.tar.gz", hash = "sha256:41dd9148c08072446394cefd3d79701701335a9f4cae69ba92e39f6c7f5c061c"},
 ]
 
 [[package]]
