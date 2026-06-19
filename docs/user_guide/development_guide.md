@@ -46,7 +46,7 @@ export QUANTUM_DS_HOST=ldap://localhost:8888
 
 To run the tests, use pytest:
 ```sh
-pdm run pytest tests
+pytest
 ```
 
 ### Linting

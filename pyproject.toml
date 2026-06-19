@@ -1,6 +1,6 @@
 [project]
 name = "mqp-dashboard-backend"
-version = "0.1.4"
+version = "0.1.5"
 description = "MQP Dashboard Backend"
 authors = [
     {name = "Tobias Bauer", email = "tobias.bauer@lrz.de"},
@@ -24,17 +24,6 @@ dependencies = [
 requires-python=">=3.11,<3.12"
 readme = "README.md"
 license = {text = "MIT"}
-
-[tool.pytest.ini_options]
-env = [
-    "QUANTUM_DB_TESTING=TRUE",
-    "QUANTUM_DB_FILENAME=test_db.sqlite",
-    "QUANTUM_DS_HOST=ldap://localhost:8888",
-    "QUANTUM_DB_USER=postgres",
-    "QUANTUM_DB_PASS=example",
-    "QUANTUM_DB_HOST=localhost:5432"
-]
-pythonpath = ["."]
 
 [tool.isort]
 profile = "black"
