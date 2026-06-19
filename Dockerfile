@@ -34,7 +34,7 @@ RUN pip install gunicorn
 
 # Copy dependency files
 COPY gunicorn.conf.py pyproject.toml pdm.lock ./
-COPY mqp_dashboard_backend ./mqp_dashboard_backend
+COPY . .
 
 RUN pdm config python.use_venv true
 

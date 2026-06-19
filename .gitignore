@@ -5,7 +5,6 @@ __pycache__/
 *$py.class
 .env
 .vscode/
-test_db.sqlite
 mqp_dashboard_backend/__pycache__/
 uploads/
 .devcontainer/
