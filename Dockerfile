@@ -1,25 +1,45 @@
-FROM python:3.10 as bqp-dashboard-backend-server
+FROM python:3.11-slim
 
-ENV TZ="Europe/Berlin"
+ENV TZ="Europe/Berlin" \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/mqp-dashboard-backend-server \
+    PATH="/mqp-dashboard-backend-server/.venv/bin:$PATH"
 
-ARG PYTHONUNBUFFERED
-ARG QUANTUM_DB_USER
-ARG QUANTUM_DB_PASS
-ARG QUANTUM_DB_HOST
-ARG QUANTUM_DS_HOST
+# Set workdir
+RUN mkdir -p /mqp-dashboard-backend-server
+WORKDIR /mqp-dashboard-backend-server
 
-RUN apt update && apt install -y git
-RUN apt-get install -y build-essential libldap2-dev libsasl2-dev slapd ldap-utils libldap-common sssd-ldap tox lcov valgrind
+# Install libraries
+RUN apt update && apt install -y \
+    git \
+    build-essential \
+    libldap2-dev \
+    libsasl2-dev \
+    slapd \
+    ldap-utils \
+    libldap-common \
+    libssl-dev \
+    sssd-ldap \
+    tox \
+    lcov \
+    valgrind \
+    python3-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN mkdir -p /bqp-dashboard-backend-server
-COPY gunicorn.conf.py /bqp-dashboard-backend-server/
-COPY pyproject.bqp-dashboard-backend.toml /bqp-dashboard-backend-server/pyproject.toml
-WORKDIR /bqp-dashboard-backend-server
+# Install PDM
+RUN pip install --no-cache-dir pdm
 
-RUN pip install pdm
-RUN pdm install
-RUN pdm update
-ENV PYTHONPATH=.
+# Install Gunicorn
+RUN pip install gunicorn
+
+# Copy dependency files
+COPY gunicorn.conf.py pyproject.toml pdm.lock ./
+COPY . .
+
+RUN pdm config python.use_venv true
+
+# Install ALL dependencies + project into .venv
+RUN pdm sync --prod
 
 # Run the server
-ENTRYPOINT [".venv/bin/gunicorn", "-c","gunicorn.conf.py"] 
+CMD ["gunicorn", "-c","gunicorn.conf.py"]

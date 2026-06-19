@@ -1,52 +1,60 @@
 [project]
-name = "bqp-dashboard-backend"
-version = "0.1.36"
-description = ""
+name = "mqp-dashboard-backend"
+version = "0.1.5"
+description = "MQP Dashboard Backend"
 authors = [
     {name = "Tobias Bauer", email = "tobias.bauer@lrz.de"},
     {name = "Trang Huynh", email = "Trang.Huynh@lrz.de"},
+    {name = "Ege Özmeral", email = "Nazim.Oezmeral@lrz.de" }
 ]
 dependencies = [
     "flask>=2.3.2",
-    "bqp-database-access==0.3.29",
+    "bqp-database-access>=0.3.29",
     "pony>=0.7.16",
     "flask-jwt-extended>=4.5.2",
     "gunicorn>=21.2.0",
     "flask-cors>=4.0.0",
     "python-ldap>=3.4.3",
-    "eliot[journald]>=1.15.0",
     "flask-mail>=0.10.0",
-    "influxdb>=5.3.2"
+    "influxdb>=5.3.2",
+    "python-dotenv>=1.2.2",
+    "eliot>=1.18.0"
 ]
-requires-python = ">=3.10,<3.12"
+
+requires-python=">=3.11,<3.12"
 readme = "README.md"
 license = {text = "MIT"}
 
-[tool.setuptools]
-packages = ["bqp_dashboard_backend"]
+[tool.isort]
+profile = "black"
 
-[tool.pdm.dev-dependencies]
-test = [
+[dependency-groups]
+dev = [
+    "nox",
+    "pre-commit",
     "pytest>=7.4.0",
     "pytest-env>=0.8.2",
     "python-ldap-test>=0.3.1",
+    "mkdocs",
+    "mkdocs-material",
+    "mkdocstrings[python]",
 ]
 
-[tool.pytest.ini_options]
-env = [
-    "QUANTUM_DB_TESTING=TRUE",
-    "QUANTUM_DB_FILENAME=test_db.sqlite",
-    "QUANTUM_DS_HOST=ldap://localhost:8888",
-    "QUANTUM_DB_USER=postgres",
-    "QUANTUM_DB_PASS=example",
-    "QUANTUM_DB_HOST=localhost:5432"
+[project.optional-dependencies]
+docs = [
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.6.2",
+    "mkdocstrings[python]>=0.26.1",
+    "mkdocs-autorefs>=1.2.0",
 ]
-pythonpath = ["."]
 
+[tool.pdm]
+distribution = true
+cross_platform = true
 
 [[tool.pdm.source]]
 name = "lrz_pypi"
 url = "https://pypi.quantum.lrz.de"
 
-[tool.isort]
-profile = "black"
+[tool.setuptools]
+packages = ["mqp_dashboard_backend"]
