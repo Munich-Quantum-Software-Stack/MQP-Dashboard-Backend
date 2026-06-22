@@ -9,7 +9,7 @@ authors = [
 ]
 dependencies = [
     "flask>=2.3.2",
-    "bqp-database-access>=0.3.29",
+    "bqp-database-access>=0.3.32",
     "pony>=0.7.16",
     "flask-jwt-extended>=4.5.2",
     "gunicorn>=21.2.0",
@@ -58,3 +58,6 @@ url = "https://pypi.quantum.lrz.de"
 
 [tool.setuptools]
 packages = ["mqp_dashboard_backend"]
+
+[[tool.uv.index]]
+url = "https://pypi.quantum.lrz.de"
