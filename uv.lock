@@ -101,7 +101,7 @@ wheels = [
 
 [[package]]
 name = "bqp-database-access"
-version = "0.3.30"
+version = "0.3.32"
 source = { registry = "https://pypi.quantum.lrz.de/" }
 dependencies = [
     { name = "bcrypt" },
@@ -111,11 +111,12 @@ dependencies = [
     { name = "numpy" },
     { name = "pony" },
     { name = "psycopg2-binary" },
+    { name = "python-dotenv" },
     { name = "werkzeug" },
 ]
-sdist = { url = "https://pypi.quantum.lrz.de/packages/bqp_database_access-0.3.30.tar.gz", hash = "sha256:8378f277b61a7cb25ed084f1ac49d1df222914f742e969f663c04eed734feced" }
+sdist = { url = "https://pypi.quantum.lrz.de/packages/bqp_database_access-0.3.32.tar.gz", hash = "sha256:75faca5d2ef59e17e312b4d9cd71a3185e901446bea4f04177a03273ecc6eb49" }
 wheels = [
-    { url = "https://pypi.quantum.lrz.de/packages/bqp_database_access-0.3.30-py3-none-any.whl", hash = "sha256:f8f2ea1aed0f7f9dea113618478bfa5307a344c9eadfccf70ad37fc59c7fead8" },
+    { url = "https://pypi.quantum.lrz.de/packages/bqp_database_access-0.3.32-py3-none-any.whl", hash = "sha256:3f8a22b23e31dd84e5f106f3567dea484499cfd56b9d7f0b1fd023a6384287a2" },
 ]
 
 [[package]]
@@ -631,7 +632,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "bqp-database-access", specifier = ">=0.3.30" },
+    { name = "bqp-database-access", specifier = ">=0.3.32" },
     { name = "eliot", specifier = ">=1.18.0" },
     { name = "flask", specifier = ">=2.3.2" },
     { name = "flask-cors", specifier = ">=4.0.0" },
