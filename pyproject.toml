@@ -9,7 +9,7 @@ authors = [
 ]
 dependencies = [
     "flask>=2.3.2",
-    "bqp-database-access>=0.3.29",
+    "bqp-database-access>=0.3.30",
     "pony>=0.7.16",
     "flask-jwt-extended>=4.5.2",
     "gunicorn>=21.2.0",
