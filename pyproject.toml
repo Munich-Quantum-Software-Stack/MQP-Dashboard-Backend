@@ -28,9 +28,14 @@ license = {text = "MIT"}
 [tool.isort]
 profile = "black"
 
+[tool.pytest.ini_options]
+pythonpath = ["."]
+
+[tool.uv.sources]
+bqp-database-access = { git = "https://github.com/Munich-Quantum-Software-Stack/MQP-Database-Access.git", branch = "develop" }
+
 [dependency-groups]
 dev = [
-    "nox",
     "pre-commit",
     "pytest>=7.4.0",
     "pytest-env>=0.8.2",
@@ -47,14 +52,6 @@ docs = [
     "mkdocstrings[python]>=0.26.1",
     "mkdocs-autorefs>=1.2.0",
 ]
-
-[tool.pdm]
-distribution = true
-cross_platform = true
-
-[[tool.pdm.source]]
-name = "lrz_pypi"
-url = "https://pypi.quantum.lrz.de"
 
 [tool.setuptools]
 packages = ["mqp_dashboard_backend"]
