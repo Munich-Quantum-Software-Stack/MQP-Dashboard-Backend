@@ -55,6 +55,3 @@ docs = [
 
 [tool.setuptools]
 packages = ["mqp_dashboard_backend"]
-
-[[tool.uv.index]]
-url = "https://pypi.quantum.lrz.de"
