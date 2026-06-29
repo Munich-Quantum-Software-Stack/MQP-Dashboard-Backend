@@ -9,6 +9,14 @@
 
 The Backend component of Munich Quantum Portal Dashboard, and it is a part of MQSS Client. This repository implements interfaces API of Quantum database and connect to QDMI database.
 
+## Features
+
+- LDAP Authentication
+- Manage Access Token
+- Query Jobs and Resources from Quantum database
+- Query Telemetry Data from QDMI proxy database
+- Automated testing and CI support
+
 ## Running tests
 
 This project uses PDM for package and dependency management. The public local test suite is intended to run from the `tests/` directory with environment values loaded from a local `.env` file.
@@ -55,29 +63,20 @@ UV_PROJECT_ENVIRONMENT=.venv-ci uv run python -m pytest tests
 
 This does not replace PDM; PDM remains the project package and dependency manager.
 
-
-## Features
-
-- LDAP Authentication
-- Manage Access Token
-- Query Jobs and Resources from Quantum database
-- Query Telemetry Data from QDMI proxy database
-- Automated testing and CI support
-
-### Contributing
+## Contributing
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
-### Code of Conduct
+## Code of Conduct
 
 See [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md).
 
-### License
+## License
 
 Licensed under the Apache License v2.0 with LLVM Exceptions.
 
 
-### Commit Message Guidelines
+## Commit Message Guidelines
 
 Examples:
 ```sh
@@ -86,7 +85,7 @@ Examples:
 <short_author_name>/docs: update API documentation
 ```
 
-### Pull Request Process
+## Pull Request Process
 
 Before submitting a PR:
 - Ensure tests pass
@@ -99,20 +98,20 @@ PRs should include:
 - Related issue references
 - Screenshots/examples if applicable
 
-### Coding Standards
+## Coding Standards
 
-#### Python
+### Python
 - Follow PEP 8
 - Use type hints when possible
 - Keep functions focused and testable
 - Add docstrings for public APIs
 
-#### Flask
+### Flask
 - Keep routes lightweight
 - Move business logic into services
 - Use blueprints for modularity
 
-### Reporting Issues
+## Reporting Issues
 
 Please include:
 - Steps to reproduce
@@ -120,7 +119,7 @@ Please include:
 - Actual behavior
 - Logs/screenshots if applicable
 
-### Read-only / educational access / MQP_EDU user
+## Read-only / educational access / MQP_EDU user
 
 27-11-2024 In bqp_dashboard_backend/tokens.py, we hardcoded, that users in the user group MQP_EDU (table users_in_user_groups in the quantum database) are returned only
 "ThisIsAnEducationalTokenItCannotBeUsedToSubmitJobsThisIsAnEducat" as a token, which is not useable to submit jobs. \
