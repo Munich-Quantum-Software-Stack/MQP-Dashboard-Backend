@@ -69,5 +69,13 @@ docs = [
     "mkdocs-autorefs>=1.2.0",
 ]
 
+[tool.pdm]
+distribution = true
+cross_platform = true
+
+[[tool.pdm.source]]
+name = "lrz_pypi"
+url = "https://pypi.quantum.lrz.de"
+
 [tool.setuptools]
 packages = ["mqp_dashboard_backend"]
