@@ -34,9 +34,6 @@ def on_no_jwt_provided(message: str):
     return Response(status=http.HTTPStatus.UNAUTHORIZED)
 
 
-os.environ.setdefault("JWT_SECRET_KEY", "test-jwt-secret")
-
-
 load_dotenv()
 app = Flask(__name__)
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
