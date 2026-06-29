@@ -40,7 +40,6 @@ pdm run python -m pytest tests
 ```
 
 The `.env.example` file contains placeholder values that are safe for local development and testing.
-```
 
 These placeholder values are for local development/testing only. The `.env` file is local and private, and real `.env` files must not be committed. Do not include private credentials, private LDAP details, or deployment-specific information in this public README.
 
