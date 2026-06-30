@@ -5,7 +5,7 @@ import ldap
 def test_ldap_access(app) -> None:
     """Test whether the LDAP server is reachable."""
 
-    user_dn = "cn=ldap_test_user,ou=QuantumComputing,ou=Kennungen,o=lrz-muenchen,c=de"
+    user_dn = "cn=ldap_test_user,ou=QuantumComputing,ou=Kennungen,o=example-org,c=de"
     secret = "ldap_test_password"
 
     connection = ldap.initialize("ldap://localhost:8888")
@@ -31,6 +31,8 @@ def test_correct_login(inactive_client) -> None:
         response.status_code == HTTPStatus.OK
         and response.json["access_token"] is not None
         and response.json["force_secret_reset"] is not None
+        and response.json["is_admin"] is False
+        and response.json["redirect_to"] == "/dashboard"
     )
 
 
@@ -74,4 +76,6 @@ def test_ldap_login_user(inactive_client):
         response.status_code == HTTPStatus.OK
         and response.json["access_token"] is not None
         and response.json["force_secret_reset"] is not None
+        and response.json["is_admin"] is False
+        and response.json["redirect_to"] == "/dashboard"
     )

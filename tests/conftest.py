@@ -142,6 +142,15 @@ def create_local_database():
             "LDAP",
         )
 
+        database_access.users.create_new_user_with_secret(
+            "admin_test_user",
+            "test_password",
+            "BASIC",
+            "admin@test.mail",
+            "TEST_HPC_CENTER",
+            "QUANTUM",
+        )
+
     quantum_db = open_database()
 
     with db_session:
@@ -195,6 +204,31 @@ def create_local_database():
 
         eqe_user.user_groups.add(eqe_group)
         portal_test_user.user_groups.add(mqp_edu_group)
+
+        admin_test_user = quantum_db.User["admin_test_user"]
+
+        quantum_db.SuperUserLevel(
+            name="ADMIN",
+            note="Admin role for tests",
+            permission_user_creation=True,
+            permission_user_blocking=True,
+            permission_user_group_budget_assignment=True,
+            permission_user_group_create=True,
+            permission_user_group_user_add=True,
+            permission_user_group_user_remove=True,
+            permission_budget_create=True,
+            permission_budget_split=True,
+        )
+        admin_test_user.superuser_level = quantum_db.SuperUserLevel["ADMIN"]
+
+        editor_group = quantum_db.UserGroup(
+            name="Editor",
+            note="Editor group for testing purposes",
+            owner=admin_test_user,
+            cost_modifier=1.0,
+        )
+        ldap_test_user = quantum_db.User["ldap_test_user"]
+        ldap_test_user.user_groups.add(editor_group)
 
         quantum_db.insert(
             "resource_security_level",
@@ -371,6 +405,25 @@ def active_client_mqp_edu(app):
     client = app.test_client()
 
     user_data = {"identity": "portal_test_user", "secret": "test_password"}
+    login_response = client.post("/login", json=user_data)
+
+    assert (
+        login_response.status_code == HTTPStatus.OK
+        and login_response.json["access_token"] is not None
+    )
+
+    client.headers = Headers()
+    client.headers.add("Content-Type", "application/json")
+    client.headers.add("Authorization", "Bearer " + login_response.json["access_token"])
+
+    return client
+
+
+@pytest.fixture(scope="module")
+def active_admin_client(app):
+    client = app.test_client()
+
+    user_data = {"identity": "admin_test_user", "secret": "test_password"}
     login_response = client.post("/login", json=user_data)
 
     assert (
