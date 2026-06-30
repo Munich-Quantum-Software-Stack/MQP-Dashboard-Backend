@@ -24,6 +24,8 @@ from flask_mail import Mail
 from pony.flask import Pony
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from eliot import log_message
 from dotenv import load_dotenv
 
@@ -55,3 +57,11 @@ jwt = JWTManager(app)
 jwt.unauthorized_loader(on_no_jwt_provided)
 jwt.invalid_token_loader(on_no_jwt_provided)
 Pony(app)
+
+# Rate limiting configuration - prevents brute-force and DDoS attacks
+limiter = Limiter(
+    app=app,
+    key_func=get_remote_address,  # Track by IP address
+    default_limits=["200 per day", "50 per hour"],  # Global limits
+    storage_uri="memory://",  # Use in-memory storage (for production use Redis)
+)

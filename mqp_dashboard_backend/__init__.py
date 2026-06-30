@@ -33,6 +33,7 @@ from . import resources
 from . import feedbacks
 from . import request_access
 from . import telemetry
+from . import admin
 
 if os.getenv("QUANTUM_DB_TESTING") is None:
     add_destinations(JournaldDestination())
@@ -41,6 +42,10 @@ if os.getenv("QUANTUM_DB_TESTING") is None:
 def create_app():
     app = config.app
     try:
+        if app.config.get("TESTING") or os.getenv("QUANTUM_DB_TESTING"):
+            # Disable rate limiting during tests
+            config.limiter.enabled = False
+
         app.register_blueprint(login.BLUEPRINT)
         app.register_blueprint(tokens.BLUEPRINT)
         app.register_blueprint(jobs.BLUEPRINT)
@@ -48,6 +53,7 @@ def create_app():
         app.register_blueprint(feedbacks.BLUEPRINT)
         app.register_blueprint(request_access.BLUEPRINT)
         app.register_blueprint(telemetry.BLUEPRINT)
+        app.register_blueprint(admin.BLUEPRINT)
     except Exception:
         pass
     return app
