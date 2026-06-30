@@ -5,36 +5,41 @@ on:
   pull_request:
   workflow_dispatch:
 
-permissions:
-  contents: read
-
 jobs:
-  ci-public:
+  ci:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python: ["3.11"]
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python }}
+          python-version: "3.11"
+
+      - name: Upgrade pip
+        run: python -m pip install --upgrade pip
+
+      - name: Install PDM
+        run: python -m pip install pdm
+
+      - name: Install dependencies
+        run: pdm install -G dev
+
+      - name: Install Ruff
+        run: python -m pip install ruff
+      
+      - name: Run Ruff Linter
+        run: pdm run ruff check .
+
+      - name: Linting
+        run: pdm run pylint mqp_dashboard_backend/
 
       - name: Install test tooling
         run: |
-          python -m pip install --upgrade pip
           pip install uv
           UV_PROJECT=ci UV_PROJECT_ENVIRONMENT=.venv-ci uv sync --only-group dev
-
-      - name: Run build
-        run: |
-          python -m pip install build
-          python -m build --sdist --wheel .
 
       - name: Run pre-commit
         run: |
@@ -48,3 +53,15 @@ jobs:
         run: |
           echo "This Continuous Integration run intentionally covers only tests that do not require private PyPI or DB-backed components."
           echo "Run the full integration test suite locally in an environment with private dependencies and DB access."
+
+      - name: Tests
+        run: pdm run pytest
+        
+      - name: Run Pytest with coverage
+        run: pdm run pytest -s --maxfail=1 --disable-warnings --cov=bqp_database_access --cov-report=term-missing --cov-report=xml
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-xml
+          path: coverage.xml

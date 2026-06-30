@@ -2,11 +2,11 @@
 
 ## Installation
 
-To install MQP Dashboard-Backend component, use the following command:
+To install dependencies and packages, use the following command:
 ```sh
-pdm install mqp-dashboard-backend
+pdm install
 ```
 
 ## Usage
 
-MQP Dashboard Frontend sends HTTP Requests to fetching data.
+Sending HTTP requests to access data.

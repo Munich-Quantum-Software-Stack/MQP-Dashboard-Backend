@@ -19,9 +19,9 @@
 """MQP Dashboard Login Module"""
 
 import os
-import ldap
 from datetime import timedelta
 from http import HTTPStatus
+import ldap
 import bqp_database_access as database
 from bqp_database_access.users import (
     BlockedIdentityError,
@@ -36,40 +36,41 @@ BLUEPRINT = Blueprint("login", __name__)
 
 
 class AuthenticationError(Exception):
-    pass
+    """Base exception for authentication errors."""
 
 
 class AuthenticationMechanismUnknownError(AuthenticationError):
-    pass
+    """Raised when the authentication mechanism is unknown."""
 
 
 class UnauthorizedUser(Exception):
-    pass
+    """Raised when a user is not authorized to perform an action."""
 
 
 @log_call(include_args=["identity"])
 def authenticate_user_by_ldap(identity: str, secret: str):
-    """ """
+    """
+    Authenticate user by LDAP.
+    """
 
     connect = None
     search_user_dn = os.environ.get("LDAP_USER_DN")
     user_dn = f"cn={identity},{search_user_dn}"
     try:
         connect = ldap.initialize(os.environ.get("QUANTUM_DS_HOST"))
-        connect.protocol_version = ldap.VERSION3
-        connect.set_option(ldap.OPT_REFERRALS, 0)
+        connect.protocol_version = ldap.VERSION3    # pylint: disable=no-member
+        connect.set_option(ldap.OPT_REFERRALS, 0)   # pylint: disable=no-member
 
         # authenticate user
         if connect.simple_bind_s(user_dn, secret) is None:
             raise UnknownIdentityError
 
-        # check if part of ou=QuantumComputing
         search_filter = "(&(objectClass=user))"
-        if not connect.search_s(user_dn, ldap.SCOPE_SUBTREE, search_filter):
+        if not connect.search_s(user_dn, ldap.SCOPE_SUBTREE, search_filter):    # pylint: disable=no-member
             raise UnauthorizedUser
 
-    except ldap.INVALID_CREDENTIALS:
-        raise IncorrectSecretError
+    except ldap.INVALID_CREDENTIALS as err: # pylint: disable=no-member
+        raise IncorrectSecretError from err
 
     finally:
         if connect is not None:
@@ -109,27 +110,22 @@ def login_user():
             raise AuthenticationMechanismUnknownError
 
     except (UnknownIdentityError, IncorrectSecretError):
-        # TODO log error
         return {
             "error_message": "The identity/password is not valid. Please try again!",
         }, HTTPStatus.UNAUTHORIZED
 
     except BlockedIdentityError:
-        # TODO log error
-        # NOTE should we tell them they are blocked? this would leak information
-        #      confirming a user account exists
-        #      otherwise merge with above
         return {
             "error_message": "The identity/password is not valid. Please try again!",
         }, HTTPStatus.UNAUTHORIZED
 
-    else:
-        # generate JWT
-        access_token = create_access_token(
-            identity=identity, expires_delta=timedelta(minutes=15)
-        )
 
-        return {
-            "access_token": access_token,
-            "force_secret_reset": user.force_secret_reset,
-        }, HTTPStatus.OK
+    # generate JWT
+    access_token = create_access_token(
+        identity=identity, expires_delta=timedelta(minutes=15)
+    )
+
+    return {
+        "access_token": access_token,
+        "force_secret_reset": user.force_secret_reset,
+    }, HTTPStatus.OK

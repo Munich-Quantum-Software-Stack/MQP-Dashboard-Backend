@@ -22,12 +22,11 @@ import json
 import os
 import gzip
 import time
+from http import HTTPStatus
 
 from flask import Blueprint, stream_with_context, request, Response
 from flask_jwt_extended import jwt_required
-from http import HTTPStatus
 from eliot import log_call
-
 from influxdb import InfluxDBClient
 
 BLUEPRINT = Blueprint("telemetry", __name__)
@@ -40,8 +39,10 @@ CHUNK_FILE_SIZE = 1024 * 1024 * 1024  # 1GB
 EXPIRY_TIME = 3600  # seconds
 DELAY_TIME = 60  # seconds
 SENSOR_CACHE_TTL = 300  # seconds
-SENSOR_MAP_CACHE = {"data": [], "timestamp": 0}
-
+SENSOR_MAP_CACHE = {
+    "data": [], 
+    "timestamp": 0
+}
 
 class TelemetryError(Exception):
     """Telemetry module-specific exception."""
@@ -70,21 +71,21 @@ def _open_influxdb():
 @BLUEPRINT.get("/telemetry/sensors")
 @jwt_required()
 @log_call
-def get_available_sensors():
+def get_available_sensors() -> list[dict]:
     """
     API to get all available sensors, refresh every SENSOR_CACHE_TTL seconds
 
     Returns:
         dict: sensor list
     """
-    global SENSOR_MAP_CACHE
+    #global SENSOR_MAP_CACHE
     now = time.time()
 
     if SENSOR_MAP_CACHE["data"] is None or (
         now - SENSOR_MAP_CACHE["timestamp"] > SENSOR_CACHE_TTL
     ):
         try:
-            SENSOR_MAP_CACHE["data"] = build_sensor_map()
+            SENSOR_MAP_CACHE["data"] = _build_sensor_map()
         except TelemetryError as error:
             return {"error": str(error)}, HTTPStatus.INTERNAL_SERVER_ERROR
         SENSOR_MAP_CACHE["timestamp"] = now
@@ -93,17 +94,17 @@ def get_available_sensors():
 
 
 # Internal API: get_measurements
-def get_measurements(db_client):
+def _get_measurements(db_client):
     return db_client.get_list_measurements()
 
 
-# Internal API: get_sensors_from_measurement()
-def get_sensors_from_measurement(db_client, measurement):
+# Internal API: _get_sensors_from_measurement()
+def _get_sensors_from_measurement(db_client, measurement):
     return db_client.query(f"SHOW FIELD KEYS FROM {measurement}")
 
 
-# Internal API: build_sensor_map
-def build_sensor_map():
+# Internal API: _build_sensor_map
+def _build_sensor_map():
     """
     SENSOR_MAP = [
         {
@@ -116,10 +117,10 @@ def build_sensor_map():
     sensor_map = []  # list()
     try:
         db_client = _open_influxdb()
-        measurements_list = get_measurements(db_client)
+        measurements_list = _get_measurements(db_client)
         for item in measurements_list:
             measurement_name = item.get("name")
-            sensors = get_sensors_from_measurement(db_client, measurement_name)
+            sensors = _get_sensors_from_measurement(db_client, measurement_name)
             measurement_sensors = []
             for sensor in sensors.get_points():
                 measurement_sensors.append(sensor.get("fieldKey"))
@@ -141,22 +142,52 @@ def build_sensor_map():
 @BLUEPRINT.post("/telemetry")
 @jwt_required()
 @log_call
-def get_telemetry_data():
+def get_telemetry_data() -> tuple[dict, HTTPStatus]:
     """
     API to get telemetry data accordings to user's input.
     Temporary save data to a file on /uploads folder
 
-    Args:
-        measurements (list): requested measurements
-        sensors (list): requested sensors
-        from_timestamp (integer): start time of time window
-        to_timestamp (integer): end time of time window
-        group_by (string): group by value of user
+    Query parameters:
+        - measurements (list): requested measurements
+        - sensors (list): requested sensors
+        - from_timestamp (integer): start time of time window
+        - to_timestamp (integer): end time of time window
+        - group_by (string): group by value of user
 
     Returns:
         file_size (integer): size of saved file
         file_name (string): name of saved file
     """
+    measurements, sensors, from_timestamp, to_timestamp, request_interval = _parse_telemetry_request()
+
+    db_client = _open_influxdb()
+    if not measurements:
+        measurements = _get_measurements(db_client)
+
+    # Get matched request sensors with available sensors
+    matched_sensors = _resolve_sensors(sensors)
+
+    # Get interval
+    interval = _resolve_interval(request_interval, from_timestamp, to_timestamp)
+
+    # Fetch telemetry data
+    telemetry_data = _fetch_telemetry(
+        db_client, matched_sensors, from_timestamp, to_timestamp, interval
+    )
+    db_client.close()
+
+    if not telemetry_data:
+        return {"filesize": 0, "filename": ""}, HTTPStatus.OK
+
+    # Save data to file
+    filename = f"{int(time.time())}_telemetry.json.gz"
+    file_path = os.path.join(UPLOAD_FOLDER, filename)
+    file_path = _create_compressed_file(telemetry_data, file_path)
+    filesize = os.path.getsize(file_path)
+    return {"filesize": filesize, "filename": filename}, HTTPStatus.OK
+
+# Internal API: _parse_telemetry_request
+def _parse_telemetry_request():
     data = request.get_json()
     measurements = data.get("measurements", [])
     sensors = data.get("sensors", [])
@@ -164,71 +195,39 @@ def get_telemetry_data():
     to_timestamp = int(data.get("to_timestamp"))
     request_interval = data.get("group_by")
 
-    db_client = _open_influxdb()
-    if not measurements:
-        measurements = get_measurements(db_client)
+    return measurements, sensors, from_timestamp, to_timestamp, request_interval
 
-    # Get matched request sensors with available sensors
-    matched_sensors = []
+# Internal API: _resolve_sensors
+def _resolve_sensors(sensors):
     available_sensors = get_available_sensors()
+
     if not sensors:
-        matched_sensors = available_sensors
-    else:
-        matched_sensors = build_matched_sensors(sensors, available_sensors)
+        return available_sensors
+    return _build_matched_sensors(sensors, available_sensors)
 
-    # Get interval by user
-    interval = request_interval
-    # Otherwise get default interval by timestamps
-    if interval is None or len(interval) == 0:
-        interval = get_default_interval(from_timestamp, to_timestamp)
-
-    telemetry_data = {}
-
-    for measurement in matched_sensors:
-        measurement_name = measurement.get("measurement")
-        sensors = measurement.get("sensors")
-        query = build_telemetry_query(
-            measurement_name, sensors, from_timestamp, to_timestamp, interval
-        )
-
-        if not query:
-            continue
-        query_result = db_client.query(query)
-        if len(query_result) > 0:
-            points = []
-            for series in query_result.raw.get("series", []):
-                columns = series["columns"]
-                for row in series["values"]:
-                    record = dict(zip(columns, row))
-                    points.append(record)
-            telemetry_data[measurement_name] = points
-    db_client.close()
-    if len(telemetry_data) == 0:
-        filename = ""
-        filesize = 0
-        return {"filesize": filesize, "filename": filename}, HTTPStatus.OK
-    else:
-        # Save data to file
-        filename = f"{int(time.time())}_telemetry.json.gz"
-        file_path = os.path.join(UPLOAD_FOLDER, filename)
-        file_path = create_compressed_file(telemetry_data, file_path)
-        filesize = os.path.getsize(file_path)
-        return {"filesize": filesize, "filename": filename}, HTTPStatus.OK
-
-
-# Internal API: get_interval
-def get_default_interval(start, end):
+# Internal API: _resolve_interval
+def _resolve_interval(request_interval, start, end):
+    if request_interval:
+        return request_interval
     duration = (end - start) / 1000
     if duration > (7 * 24 * 3600):
         return "1h"
-    elif duration > (24 * 3600):
+    if duration > (24 * 3600):
         return "5m"
-    else:
-        return "1m"
+    return "1m"
+
+# # Internal API: get_interval
+# def _get_default_interval(start, end):
+#     duration = (end - start) / 1000
+#     if duration > (7 * 24 * 3600):
+#         return "1h"
+#     if duration > (24 * 3600):
+#         return "5m"
+#     return "1m"
 
 
-# Internal API: build_telemetry_query
-def build_telemetry_query(measurement, sensors, start, end, interval):
+# Internal API: _build_telemetry_query
+def _build_telemetry_query(measurement, sensors, start, end, interval):
     if sensors is None:
         return None
 
@@ -243,7 +242,7 @@ def build_telemetry_query(measurement, sensors, start, end, interval):
 
 
 # Internal API: match_sensors
-def build_matched_sensors(sensors, available_sensors):
+def _build_matched_sensors(sensors, available_sensors):
     result = []
 
     sensor_set = set(sensors)
@@ -254,9 +253,32 @@ def build_matched_sensors(sensors, available_sensors):
 
     return result
 
+# Internal API: _fetch_telemetry
+def _fetch_telemetry(db_client, matched_sensors, from_ts, to_ts, interval): # pylint: disable=too-many-locals
+    telemetry_data = {}
+
+    for measurement in matched_sensors:
+        measurement_name = measurement.get("measurement")
+        sensors = measurement.get("sensors")
+        query = _build_telemetry_query(
+            measurement_name, sensors, from_ts, to_ts, interval
+        )
+
+        if not query:
+            continue
+        query_result = db_client.query(query)
+        if len(query_result) > 0:
+            points = []
+            for series in query_result.raw.get("series", []):
+                columns = series["columns"]
+                for row in series["values"]:
+                    record = dict(zip(columns, row))
+                    points.append(record)
+            telemetry_data[measurement_name] = points
+    return telemetry_data
 
 # Internal API: write_data
-def create_compressed_file(data, output_path):
+def _create_compressed_file(data, output_path):
     # write compressed data
     # compressed_data = str.encode((json.dumps(data)))
     with gzip.open(output_path, "wt", encoding="utf-8") as f:
@@ -271,15 +293,15 @@ def create_compressed_file(data, output_path):
 # Return: File
 # -------------------------------------------------------------------
 @BLUEPRINT.get("/telemetry/download")
-def download_telemetry_file():
+def download_telemetry_file() -> Response:
     """
     Sending file and deleting it after finishing process
 
-    Args:
-        string: filename
+    Query parameter:
+        - filename: string
 
     Returns:
-        File: File object that matches given name
+        File Object: File object that matches given name
     """
     filename = request.args.get("filename")
     file_path = os.path.join(UPLOAD_FOLDER, filename)
