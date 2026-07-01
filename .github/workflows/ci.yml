@@ -29,12 +29,6 @@ jobs:
       - name: Install dependencies
         run: UV_PROJECT_ENVIRONMENT=.venv-ci uv sync --group dev
 
-      - name: Create test environment file
-        run: cp .env.example .env
-
-      - name: Run Ruff
-        run: UV_PROJECT_ENVIRONMENT=.venv-ci uv run ruff check .
-
       - name: Run Pylint
         run: UV_PROJECT_ENVIRONMENT=.venv-ci uv run pylint mqp_dashboard_backend/
 

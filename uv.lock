@@ -626,8 +626,6 @@ dev = [
     { name = "mkdocs-autorefs" },
     { name = "mkdocs-material" },
     { name = "mkdocstrings-python" },
-    { name = "pylint" },
-    { name = "ruff" },
 ]
 
 [package.dev-dependencies]
@@ -659,10 +657,8 @@ requires-dist = [
     { name = "mkdocs-material", marker = "extra == 'dev'", specifier = ">=9.6.2" },
     { name = "mkdocstrings-python", marker = "extra == 'dev'", specifier = ">=0.26.1" },
     { name = "pony", specifier = ">=0.7.16" },
-    { name = "pylint", marker = "extra == 'dev'", specifier = ">=3.3.8" },
     { name = "python-dotenv", specifier = ">=1.2.2" },
     { name = "python-ldap", specifier = ">=3.4.3" },
-    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.15.20" },
 ]
 provides-extras = ["dev"]
 

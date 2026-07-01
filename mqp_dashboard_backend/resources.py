@@ -19,6 +19,7 @@
 """MQP Dashboard Resources Module"""
 
 from http import HTTPStatus
+from typing import TypedDict
 from flask import Blueprint
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from eliot import log_call
@@ -28,7 +29,9 @@ import bqp_database_access as database
 BLUEPRINT = Blueprint("resources", __name__)
 
 
-class ResourceResponse:
+class ResourceResponse(TypedDict):
+    """Response schema for resource availability data."""
+
     resources: list[dict]
     available_resources: list[dict]
     restricted_resource_names: list[str]

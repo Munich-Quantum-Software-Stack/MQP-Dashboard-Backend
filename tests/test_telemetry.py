@@ -64,30 +64,30 @@ def telemetry_module(monkeypatch):
     return telemetry
 
 
-def test_get_default_interval_returns_1h_for_duration_over_7_days(telemetry_module):
+def test_resolve_interval_returns_1h_for_duration_over_7_days(telemetry_module):
     start = 0
     end = (7 * 24 * 3600 + 1) * 1000
 
-    assert telemetry_module.get_default_interval(start, end) == "1h"
+    assert telemetry_module._resolve_interval(None, start, end) == "1h"
 
 
-def test_get_default_interval_returns_5m_for_duration_over_1_day_and_up_to_7_days(
+def test_resolve_interval_returns_5m_for_duration_over_1_day_and_up_to_7_days(
     telemetry_module,
 ):
     start = 0
     end = (24 * 3600 + 1) * 1000
 
-    assert telemetry_module.get_default_interval(start, end) == "5m"
+    assert telemetry_module._resolve_interval(None, start, end) == "5m"
 
 
-def test_get_default_interval_returns_1m_for_duration_up_to_1_day(telemetry_module):
+def test_resolve_interval_returns_1m_for_duration_up_to_1_day(telemetry_module):
     start = 0
     end = 24 * 3600 * 1000
 
-    assert telemetry_module.get_default_interval(start, end) == "1m"
+    assert telemetry_module._resolve_interval(None, start, end) == "1m"
 
 
-def test_build_matched_sensors_returns_only_matching_sensors_grouped_by_measurement(
+def test__build_matched_sensors_returns_only_matching_sensors_grouped_by_measurement(
     telemetry_module,
 ):
     requested_sensors = ["temperature", "pressure", "not_available"]
@@ -97,7 +97,7 @@ def test_build_matched_sensors_returns_only_matching_sensors_grouped_by_measurem
         {"measurement": "m3", "sensors": ["current"]},
     ]
 
-    matched = telemetry_module.build_matched_sensors(
+    matched = telemetry_module._build_matched_sensors(
         requested_sensors, available_sensors
     )
 
@@ -107,24 +107,24 @@ def test_build_matched_sensors_returns_only_matching_sensors_grouped_by_measurem
     ]
 
 
-def test_build_matched_sensors_returns_empty_when_no_sensor_matches(telemetry_module):
+def test__build_matched_sensors_returns_empty_when_no_sensor_matches(telemetry_module):
     requested_sensors = ["x", "y"]
     available_sensors = [{"measurement": "m1", "sensors": ["a", "b"]}]
 
     assert (
-        telemetry_module.build_matched_sensors(requested_sensors, available_sensors)
+        telemetry_module._build_matched_sensors(requested_sensors, available_sensors)
         == []
     )
 
 
-def test_build_telemetry_query_returns_none_when_sensors_is_none(telemetry_module):
+def test__build_telemetry_query_returns_none_when_sensors_is_none(telemetry_module):
     assert (
-        telemetry_module.build_telemetry_query("measurement", None, 1, 2, "1m") is None
+        telemetry_module._build_telemetry_query("measurement", None, 1, 2, "1m") is None
     )
 
 
-def test_build_telemetry_query_builds_expected_query_string(telemetry_module):
-    query = telemetry_module.build_telemetry_query(
+def test__build_telemetry_query_builds_expected_query_string(telemetry_module):
+    query = telemetry_module._build_telemetry_query(
         measurement="machine.telemetry",
         sensors=["temperature", "pressure"],
         start=1000,
@@ -138,16 +138,16 @@ def test_build_telemetry_query_builds_expected_query_string(telemetry_module):
     assert "GROUP BY time(5m) fill(null) ORDER BY time ASC" in query
 
 
-def test_create_compressed_file_returns_output_path(tmp_path, telemetry_module):
+def test__create_compressed_file_returns_output_path(tmp_path, telemetry_module):
     data = {"measurement": [{"temperature": 18.5}]}
     output_path = tmp_path / "telemetry.json.gz"
 
-    returned_path = telemetry_module.create_compressed_file(data, str(output_path))
+    returned_path = telemetry_module._create_compressed_file(data, str(output_path))
 
     assert returned_path == str(output_path)
 
 
-def test_create_compressed_file_writes_expected_gzip_json(tmp_path, telemetry_module):
+def test__create_compressed_file_writes_expected_gzip_json(tmp_path, telemetry_module):
     data = {
         "measurement": [
             {"time": "2024-01-01T00:00:00Z", "temperature": 18.5},
@@ -156,7 +156,7 @@ def test_create_compressed_file_writes_expected_gzip_json(tmp_path, telemetry_mo
     }
     output_path = tmp_path / "telemetry.json.gz"
 
-    telemetry_module.create_compressed_file(data, str(output_path))
+    telemetry_module._create_compressed_file(data, str(output_path))
 
     with gzip.open(output_path, "rt", encoding="utf-8") as f:
         content = json.load(f)

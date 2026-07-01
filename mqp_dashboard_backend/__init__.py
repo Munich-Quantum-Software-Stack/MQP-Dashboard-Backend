@@ -50,5 +50,11 @@ def create_app():
         request_access.BLUEPRINT,
         telemetry.BLUEPRINT,
     ):
+        if blueprint.name in app.blueprints:
+            continue
+
+        if getattr(app, "_got_first_request", False):
+            continue
+
         app.register_blueprint(blueprint)
     return app
