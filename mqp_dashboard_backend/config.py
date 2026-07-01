@@ -32,10 +32,7 @@ def _on_no_jwt_provided(message: str):
     log_message(message)
     return Response(status=http.HTTPStatus.UNAUTHORIZED)
 
-<<<<<<< HEAD
 
-=======
->>>>>>> origin/th/public_repo
 load_dotenv()
 app = Flask(__name__)
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")

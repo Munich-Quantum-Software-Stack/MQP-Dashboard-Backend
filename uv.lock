@@ -636,10 +636,12 @@ dev = [
     { name = "mkdocs-material" },
     { name = "mkdocstrings", extra = ["python"] },
     { name = "pre-commit" },
+    { name = "pylint" },
     { name = "pytest" },
     { name = "pytest-cov" },
     { name = "pytest-env" },
     { name = "python-ldap-test" },
+    { name = "ruff" },
 ]
 
 [package.metadata]
@@ -670,10 +672,12 @@ dev = [
     { name = "mkdocs-material" },
     { name = "mkdocstrings", extras = ["python"] },
     { name = "pre-commit" },
+    { name = "pylint", specifier = ">=4.0.6" },
     { name = "pytest", specifier = ">=7.4.0" },
     { name = "pytest-cov", specifier = ">=7.1.0" },
     { name = "pytest-env", specifier = ">=0.8.2" },
     { name = "python-ldap-test", specifier = ">=0.3.1" },
+    { name = "ruff", specifier = ">=0.15.20" },
 ]
 
 [[package]]

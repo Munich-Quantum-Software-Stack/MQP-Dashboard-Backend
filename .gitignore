@@ -152,6 +152,10 @@ venv.bak/
 .dmypy.json
 dmypy.json
 
+# test_db.sqlite
+*.sqlite
+*.sqlite3
+
 # Pyre type checker
 .pyre/
 

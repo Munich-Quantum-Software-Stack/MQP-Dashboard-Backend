@@ -39,10 +39,8 @@ CHUNK_FILE_SIZE = 1024 * 1024 * 1024  # 1GB
 EXPIRY_TIME = 3600  # seconds
 DELAY_TIME = 60  # seconds
 SENSOR_CACHE_TTL = 300  # seconds
-SENSOR_MAP_CACHE = {
-    "data": [], 
-    "timestamp": 0
-}
+SENSOR_MAP_CACHE = {"data": [], "timestamp": 0}
+
 
 class TelemetryError(Exception):
     """Telemetry module-specific exception."""
@@ -78,7 +76,7 @@ def get_available_sensors() -> list[dict]:
     Returns:
         dict: sensor list
     """
-    #global SENSOR_MAP_CACHE
+    # global SENSOR_MAP_CACHE
     now = time.time()
 
     if SENSOR_MAP_CACHE["data"] is None or (
@@ -158,7 +156,9 @@ def get_telemetry_data() -> tuple[dict, HTTPStatus]:
         file_size (integer): size of saved file
         file_name (string): name of saved file
     """
-    measurements, sensors, from_timestamp, to_timestamp, request_interval = _parse_telemetry_request()
+    measurements, sensors, from_timestamp, to_timestamp, request_interval = (
+        _parse_telemetry_request()
+    )
 
     db_client = _open_influxdb()
     if not measurements:
@@ -186,6 +186,7 @@ def get_telemetry_data() -> tuple[dict, HTTPStatus]:
     filesize = os.path.getsize(file_path)
     return {"filesize": filesize, "filename": filename}, HTTPStatus.OK
 
+
 # Internal API: _parse_telemetry_request
 def _parse_telemetry_request():
     data = request.get_json()
@@ -197,6 +198,7 @@ def _parse_telemetry_request():
 
     return measurements, sensors, from_timestamp, to_timestamp, request_interval
 
+
 # Internal API: _resolve_sensors
 def _resolve_sensors(sensors):
     available_sensors = get_available_sensors()
@@ -204,6 +206,7 @@ def _resolve_sensors(sensors):
     if not sensors:
         return available_sensors
     return _build_matched_sensors(sensors, available_sensors)
+
 
 # Internal API: _resolve_interval
 def _resolve_interval(request_interval, start, end):
@@ -215,6 +218,7 @@ def _resolve_interval(request_interval, start, end):
     if duration > (24 * 3600):
         return "5m"
     return "1m"
+
 
 # # Internal API: get_interval
 # def _get_default_interval(start, end):
@@ -253,8 +257,9 @@ def _build_matched_sensors(sensors, available_sensors):
 
     return result
 
+
 # Internal API: _fetch_telemetry
-def _fetch_telemetry(db_client, matched_sensors, from_ts, to_ts, interval): # pylint: disable=too-many-locals
+def _fetch_telemetry(db_client, matched_sensors, from_ts, to_ts, interval):  # pylint: disable=too-many-locals
     telemetry_data = {}
 
     for measurement in matched_sensors:
@@ -276,6 +281,7 @@ def _fetch_telemetry(db_client, matched_sensors, from_ts, to_ts, interval): # py
                     points.append(record)
             telemetry_data[measurement_name] = points
     return telemetry_data
+
 
 # Internal API: write_data
 def _create_compressed_file(data, output_path):

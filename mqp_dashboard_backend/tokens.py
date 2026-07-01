@@ -40,15 +40,20 @@ from bqp_database_access.tokens import (
 
 BLUEPRINT = Blueprint("tokens", __name__)
 
-STATIC_TOKEN_FILE = files("mqp_dashboard_backend").joinpath("static_config/static_token.json")
+STATIC_TOKEN_FILE = files("mqp_dashboard_backend").joinpath(
+    "static_config/static_token.json"
+)
 with STATIC_TOKEN_FILE.open("r", encoding="utf-8") as f:
     STATIC_TOKEN_CONFIG = json.load(f)
+
 
 def _get_static_token_groups() -> list[str]:
     return list(STATIC_TOKEN_CONFIG.key())
 
+
 def _get_token_from_usergroup(usergroup: str) -> str:
     return STATIC_TOKEN_CONFIG.get(usergroup)
+
 
 def generate_token() -> str:
     """Generate Access Token"""
@@ -63,7 +68,7 @@ def generate_token() -> str:
 def create_token() -> tuple[dict, HTTPStatus]:
     """
     Create a token with given token data.
-    
+
     Query parameters:
         - token_name (string): name of token
         - validity (integer): validity time of token (day)
@@ -85,7 +90,7 @@ def create_token() -> tuple[dict, HTTPStatus]:
         datetime.max.time(),
     )
     quantum_db = open_database()
-    user = quantum_db.User.get(identity=user_token) # pylint: disable=no-member
+    user = quantum_db.User.get(identity=user_token)  # pylint: disable=no-member
     _user_group_names = [user_group.name.upper() for user_group in user.user_groups]
     _static_token_usergroups = _get_static_token_groups()
     try:
@@ -168,7 +173,9 @@ def get_all_tokens() -> tuple[dict, HTTPStatus]:
         for token in tokens
     ]
 
-    sorted_tokens = sorted(sanitized_tokens, key=lambda x: x["token_name"], reverse=True)
+    sorted_tokens = sorted(
+        sanitized_tokens, key=lambda x: x["token_name"], reverse=True
+    )
 
     return {
         "tokens": sorted_tokens,

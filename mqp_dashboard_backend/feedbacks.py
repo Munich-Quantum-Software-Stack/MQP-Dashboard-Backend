@@ -57,7 +57,9 @@ def new_feedback() -> None:
 
     # send email to administrator
     sender = os.getenv("MQP_MAIL_DEFAULT_SENDER")
-    message_recipients = list(os.getenv("MQP_MAIL_ADMIN", "MQP_MAIL_RECIPIENTS").split(","))
+    message_recipients = list(
+        os.getenv("MQP_MAIL_ADMIN", "MQP_MAIL_RECIPIENTS").split(",")
+    )
     message = Message(subject="New feedback", sender=("MQP-Dashboard", sender))
     message.recipients = message_recipients
     message.html = "<p>Hello Admin,<br/>you received a feedback from user. Please see the content below.</p>"
@@ -73,13 +75,13 @@ def new_feedback() -> None:
         + "</td></tr>"
     )
     message.html += (
-        "<tr><th align='left'>Comment: </th><td>"
-        + request_data["note"]
-        + "</td></tr>"
+        "<tr><th align='left'>Comment: </th><td>" + request_data["note"] + "</td></tr>"
     )
     message.html += "</tbody></table><br/><br/>"
 
-    message.html += "<small>This email was sent automatically. Please do not reply to it.</small>"
+    message.html += (
+        "<small>This email was sent automatically. Please do not reply to it.</small>"
+    )
     mail.send(message)
 
-    return {"message": "Mail has sent"}, HTTPStatus.OK # pylint: disable=duplicate-code
+    return {"message": "Mail has sent"}, HTTPStatus.OK  # pylint: disable=duplicate-code

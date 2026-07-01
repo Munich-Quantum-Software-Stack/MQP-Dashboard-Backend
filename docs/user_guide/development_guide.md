@@ -29,8 +29,8 @@ pdm update
 
 To run the project locally, update the environment variables in file .env:
 
-1. Locate the .env.example file in the project root 
-2. Create a copy of this file and rename it to .env 
+1. Locate the .env.example file in the project root
+2. Create a copy of this file and rename it to .env
 3. Open the .env file and update the configuration values to match your local setup.
 
 ### Build and run Docker Container

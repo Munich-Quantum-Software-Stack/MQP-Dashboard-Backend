@@ -48,7 +48,7 @@ def create_app():
         resources.BLUEPRINT,
         feedbacks.BLUEPRINT,
         request_access.BLUEPRINT,
-        telemetry.BLUEPRINT
+        telemetry.BLUEPRINT,
     ):
         app.register_blueprint(blueprint)
     return app

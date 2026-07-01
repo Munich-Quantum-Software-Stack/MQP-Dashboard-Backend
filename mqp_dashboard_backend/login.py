@@ -58,18 +58,18 @@ def authenticate_user_by_ldap(identity: str, secret: str):
     user_dn = f"cn={identity},{search_user_dn}"
     try:
         connect = ldap.initialize(os.environ.get("QUANTUM_DS_HOST"))
-        connect.protocol_version = ldap.VERSION3    # pylint: disable=no-member
-        connect.set_option(ldap.OPT_REFERRALS, 0)   # pylint: disable=no-member
+        connect.protocol_version = ldap.VERSION3  # pylint: disable=no-member
+        connect.set_option(ldap.OPT_REFERRALS, 0)  # pylint: disable=no-member
 
         # authenticate user
         if connect.simple_bind_s(user_dn, secret) is None:
             raise UnknownIdentityError
 
         search_filter = "(&(objectClass=user))"
-        if not connect.search_s(user_dn, ldap.SCOPE_SUBTREE, search_filter):    # pylint: disable=no-member
+        if not connect.search_s(user_dn, ldap.SCOPE_SUBTREE, search_filter):  # pylint: disable=no-member
             raise UnauthorizedUser
 
-    except ldap.INVALID_CREDENTIALS as err: # pylint: disable=no-member
+    except ldap.INVALID_CREDENTIALS as err:  # pylint: disable=no-member
         raise IncorrectSecretError from err
 
     finally:
@@ -118,7 +118,6 @@ def login_user():
         return {
             "error_message": "The identity/password is not valid. Please try again!",
         }, HTTPStatus.UNAUTHORIZED
-
 
     # generate JWT
     access_token = create_access_token(
