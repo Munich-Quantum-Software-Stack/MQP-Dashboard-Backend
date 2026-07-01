@@ -5,56 +5,47 @@ on:
   pull_request:
   workflow_dispatch:
 
-permissions:
-  contents: read
-
 jobs:
   ci:
     runs-on: ubuntu-latest
-    env:
-      PDM_IGNORE_SAVED_PYTHON: "1"
-      PDM_CHECK_UPDATE: "0"
-      QUANTUM_DB_TESTING: "TRUE"
-      QUANTUM_DB_FILENAME: test_db.sqlite
-      QUANTUM_DB_USER: postgres
-      QUANTUM_DB_PASS: example
-      QUANTUM_DB_HOST: localhost:5432
-      QUANTUM_DB_PEPPER: ci-test-pepper
-      QUANTUM_DB_TOKEN_PEPPER: ci-test-token-pepper
-    strategy:
-      fail-fast: false
-      matrix:
-        python: ["3.11"]
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python }}
+          python-version: "3.11"
 
-      - name: Install system build dependencies
+      - name: Install system dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y libsasl2-dev python3-dev libldap2-dev libssl-dev
 
-      - name: Install test tooling
-        run: |
-          python -m pip install --upgrade pip
-          pip install uv
-                    UV_PROJECT_ENVIRONMENT=.venv-ci uv sync --group dev
+      - name: Install uv
+        run: python -m pip install --upgrade pip uv
 
-      - name: Run build
-        run: |
-          python -m pip install build
-          python -m build --sdist --wheel .
+      - name: Install dependencies
+        run: UV_PROJECT_ENVIRONMENT=.venv-ci uv sync --group dev
+
+      - name: Create test environment file
+        run: cp .env.example .env
+
+      - name: Run Ruff
+        run: UV_PROJECT_ENVIRONMENT=.venv-ci uv run ruff check .
+
+      - name: Run Pylint
+        run: UV_PROJECT_ENVIRONMENT=.venv-ci uv run pylint mqp_dashboard_backend/
 
       - name: Run pre-commit
-        run: |
-          UV_PROJECT_ENVIRONMENT=.venv-ci uv run pre-commit run --all-files --config .pre-commit-config-ci.yaml
+        run: UV_PROJECT_ENVIRONMENT=.venv-ci uv run pre-commit run --all-files --config .pre-commit-config-ci.yaml
 
-      - name: Run tests
-        run: |
-          UV_PROJECT_ENVIRONMENT=.venv-ci uv run python -m pytest tests
+      - name: Run Pytest with coverage
+        run: UV_PROJECT_ENVIRONMENT=.venv-ci uv run python -m pytest tests
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-xml
+          path: coverage.xml

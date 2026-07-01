@@ -1,6 +1,6 @@
 [project]
 name = "mqp-dashboard-backend"
-version = "1.0.0"
+version = "0.1.5"
 description = "MQP Dashboard Backend"
 authors = [
     {name = "Tobias Bauer", email = "tobias.bauer@lrz.de"},
@@ -9,7 +9,6 @@ authors = [
 ]
 dependencies = [
     "flask>=2.3.2",
-    "bqp-database-access>=0.3.32",
     "pony>=0.7.16",
     "flask-jwt-extended>=4.5.2",
     "gunicorn>=21.2.0",
@@ -19,6 +18,7 @@ dependencies = [
     "influxdb>=5.3.2",
     "python-dotenv>=1.2.2",
     "eliot>=1.18.0",
+    "bqp-database-access>=0.3.33"
 ]
 
 requires-python=">=3.11,<3.12"
@@ -49,6 +49,16 @@ skip_covered = false
 [tool.uv.sources]
 bqp-database-access = { git = "https://github.com/Munich-Quantum-Software-Stack/MQP-Database-Access.git", branch = "develop" }
 
+[project.optional-dependencies]
+dev = [
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.6.2",
+    "mkdocstrings-python>=0.26.1",
+    "mkdocs-autorefs>=1.2.0",
+    "pylint>=3.3.8",
+    "ruff>=0.15.20"
+]
+
 [dependency-groups]
 dev = [
     "pre-commit",
@@ -61,14 +71,6 @@ dev = [
     "pytest-cov>=7.1.0",
 ]
 
-[project.optional-dependencies]
-docs = [
-    "mkdocs>=1.6.1",
-    "mkdocs-material>=9.6.2",
-    "mkdocstrings[python]>=0.26.1",
-    "mkdocs-autorefs>=1.2.0",
-]
-
 [tool.pdm]
 distribution = true
 cross_platform = true
@@ -79,3 +81,6 @@ url = "https://pypi.quantum.lrz.de"
 
 [tool.setuptools]
 packages = ["mqp_dashboard_backend"]
+
+[tool.pylint.format]
+max-line-length = 120

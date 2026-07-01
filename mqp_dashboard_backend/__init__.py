@@ -21,11 +21,6 @@
 import os
 from eliot import add_destinations
 from . import config
-
-if os.getenv("QUANTUM_DB_TESTING") is None:
-    from eliot.journald import JournaldDestination
-
-
 from . import login
 from . import tokens
 from . import jobs
@@ -34,20 +29,26 @@ from . import feedbacks
 from . import request_access
 from . import telemetry
 
+
+if os.getenv("QUANTUM_DB_TESTING") is None:
+    from eliot.journald import JournaldDestination
 if os.getenv("QUANTUM_DB_TESTING") is None:
     add_destinations(JournaldDestination())
 
 
 def create_app():
+    """
+    Create and configure the application.
+    """
     app = config.app
-    try:
-        app.register_blueprint(login.BLUEPRINT)
-        app.register_blueprint(tokens.BLUEPRINT)
-        app.register_blueprint(jobs.BLUEPRINT)
-        app.register_blueprint(resources.BLUEPRINT)
-        app.register_blueprint(feedbacks.BLUEPRINT)
-        app.register_blueprint(request_access.BLUEPRINT)
-        app.register_blueprint(telemetry.BLUEPRINT)
-    except Exception:
-        pass
+    for blueprint in (
+        login.BLUEPRINT,
+        tokens.BLUEPRINT,
+        jobs.BLUEPRINT,
+        resources.BLUEPRINT,
+        feedbacks.BLUEPRINT,
+        request_access.BLUEPRINT,
+        telemetry.BLUEPRINT
+    ):
+        app.register_blueprint(blueprint)
     return app
