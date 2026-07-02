@@ -16,6 +16,22 @@ class FakeAction:
         return False
 
 
+class FakeInfluxQueryResult:
+    def __init__(self, raw):
+        self.raw = raw
+
+    def __len__(self):
+        return len(self.raw.get("series", []))
+
+
+class FakeSensorsResult:
+    def __init__(self, points):
+        self._points = points
+
+    def get_points(self):
+        return iter(self._points)
+
+
 def _identity_decorator(func):
     return func
 
@@ -162,3 +178,230 @@ def test__create_compressed_file_writes_expected_gzip_json(tmp_path, telemetry_m
         content = json.load(f)
 
     assert content == data
+
+
+def test__open_influxdb_passes_environment_to_client(monkeypatch, telemetry_module):
+    captured_kwargs = {}
+
+    class FakeInfluxDBClient:
+        def __init__(self, **kwargs):
+            captured_kwargs.update(kwargs)
+
+    monkeypatch.setenv("PROXY_DB_HOST", "influx.example.test")
+    monkeypatch.setenv("PROXY_DB_PORT", "8086")
+    monkeypatch.setenv("PROXY_DB", "telemetry")
+    monkeypatch.setenv("PROXY_DB_USER", "dashboard")
+    monkeypatch.setenv("PROXY_DB_PASS", "secret")
+    monkeypatch.setattr(telemetry_module, "InfluxDBClient", FakeInfluxDBClient)
+
+    client = telemetry_module._open_influxdb()
+
+    assert isinstance(client, FakeInfluxDBClient)
+    assert captured_kwargs == {
+        "host": "influx.example.test",
+        "port": "8086",
+        "database": "telemetry",
+        "username": "dashboard",
+        "password": "secret",
+    }
+
+
+def test__open_influxdb_wraps_type_error(monkeypatch, telemetry_module):
+    class BrokenInfluxDBClient:
+        def __init__(self, **kwargs):
+            raise TypeError("invalid influx configuration")
+
+    monkeypatch.setattr(telemetry_module, "InfluxDBClient", BrokenInfluxDBClient)
+
+    with pytest.raises(telemetry_module.TelemetryError) as exc_info:
+        telemetry_module._open_influxdb()
+
+    assert str(exc_info.value) == "invalid influx configuration"
+
+
+def test__get_measurements_delegates_to_influx_client(telemetry_module):
+    class FakeClient:
+        def get_list_measurements(self):
+            return [{"name": "cpu"}, {"name": "memory"}]
+
+    assert telemetry_module._get_measurements(FakeClient()) == [
+        {"name": "cpu"},
+        {"name": "memory"},
+    ]
+
+
+def test__get_sensors_from_measurement_queries_field_keys(telemetry_module):
+    class FakeClient:
+        def __init__(self):
+            self.queries = []
+
+        def query(self, query):
+            self.queries.append(query)
+            return FakeSensorsResult([{"fieldKey": "temperature"}])
+
+    client = FakeClient()
+
+    result = telemetry_module._get_sensors_from_measurement(client, "machine")
+
+    assert list(result.get_points()) == [{"fieldKey": "temperature"}]
+    assert client.queries == ["SHOW FIELD KEYS FROM machine"]
+
+
+def test__build_sensor_map_fetches_measurements_and_fields(
+    monkeypatch, telemetry_module
+):
+    class FakeClient:
+        def __init__(self):
+            self.closed = False
+
+        def get_list_measurements(self):
+            return [{"name": "machine"}, {"name": "rack"}]
+
+        def query(self, query):
+            if query == "SHOW FIELD KEYS FROM machine":
+                return FakeSensorsResult(
+                    [{"fieldKey": "temperature"}, {"fieldKey": "pressure"}]
+                )
+            if query == "SHOW FIELD KEYS FROM rack":
+                return FakeSensorsResult([{"fieldKey": "humidity"}])
+            raise AssertionError(f"unexpected query: {query}")
+
+        def close(self):
+            self.closed = True
+
+    fake_client = FakeClient()
+    monkeypatch.setattr(telemetry_module, "_open_influxdb", lambda: fake_client)
+
+    sensor_map = telemetry_module._build_sensor_map()
+
+    assert sensor_map == [
+        {"measurement": "machine", "sensors": ["temperature", "pressure"]},
+        {"measurement": "rack", "sensors": ["humidity"]},
+    ]
+    assert fake_client.closed is True
+
+
+def test__resolve_sensors_returns_all_available_when_request_is_empty(
+    monkeypatch, telemetry_module
+):
+    available_sensors = [
+        {"measurement": "machine", "sensors": ["temperature", "pressure"]}
+    ]
+    monkeypatch.setattr(
+        telemetry_module, "get_available_sensors", lambda: available_sensors
+    )
+
+    assert telemetry_module._resolve_sensors([]) == available_sensors
+
+
+def test__resolve_sensors_filters_requested_sensors(monkeypatch, telemetry_module):
+    monkeypatch.setattr(
+        telemetry_module,
+        "get_available_sensors",
+        lambda: [
+            {"measurement": "machine", "sensors": ["temperature", "pressure"]},
+            {"measurement": "rack", "sensors": ["humidity"]},
+        ],
+    )
+
+    assert telemetry_module._resolve_sensors(["humidity", "missing"]) == [
+        {"measurement": "rack", "sensors": ["humidity"]}
+    ]
+
+
+def test__fetch_telemetry_builds_queries_and_maps_series_rows(telemetry_module):
+    class FakeClient:
+        def __init__(self):
+            self.queries = []
+
+        def query(self, query):
+            self.queries.append(query)
+            if 'FROM "empty"' in query:
+                return FakeInfluxQueryResult({"series": []})
+            return FakeInfluxQueryResult(
+                {
+                    "series": [
+                        {
+                            "columns": [
+                                "time",
+                                "mean_temperature",
+                                "mean_pressure",
+                            ],
+                            "values": [
+                                ["2026-01-01T00:00:00Z", 18.5, 101.2],
+                                ["2026-01-01T00:01:00Z", 18.6, 101.1],
+                            ],
+                        }
+                    ]
+                }
+            )
+
+    matched_sensors = [
+        {"measurement": "machine", "sensors": ["temperature", "pressure"]},
+        {"measurement": "skip", "sensors": None},
+        {"measurement": "empty", "sensors": ["humidity"]},
+    ]
+
+    telemetry_data = telemetry_module._fetch_telemetry(
+        FakeClient(), matched_sensors, 1000, 2000, "1m"
+    )
+
+    assert telemetry_data == {
+        "machine": [
+            {
+                "time": "2026-01-01T00:00:00Z",
+                "mean_temperature": 18.5,
+                "mean_pressure": 101.2,
+            },
+            {
+                "time": "2026-01-01T00:01:00Z",
+                "mean_temperature": 18.6,
+                "mean_pressure": 101.1,
+            },
+        ]
+    }
+
+
+def test_download_telemetry_file_streams_file_and_removes_it(
+    tmp_path, monkeypatch, telemetry_module
+):
+    from flask import Flask
+
+    upload_folder = tmp_path / "uploads"
+    upload_folder.mkdir()
+    telemetry_file = upload_folder / "telemetry.json.gz"
+    telemetry_file.write_bytes(b"compressed telemetry")
+    monkeypatch.setattr(telemetry_module, "UPLOAD_FOLDER", str(upload_folder))
+    monkeypatch.setattr(telemetry_module, "CHUNK_FILE_SIZE", 4)
+
+    app = Flask(__name__)
+    app.register_blueprint(telemetry_module.BLUEPRINT)
+
+    response = app.test_client().get(
+        "/telemetry/download", query_string={"filename": telemetry_file.name}
+    )
+
+    assert response.status_code == 200
+    assert response.headers["Content-Disposition"] == (
+        "attachment; filename=telemetry.json.gz"
+    )
+    assert response.headers["Content-Type"] == "application/gzip"
+    assert response.data == b"compressed telemetry"
+    assert not telemetry_file.exists()
+
+
+def test_download_telemetry_file_returns_not_found_for_missing_file(
+    tmp_path, monkeypatch, telemetry_module
+):
+    from flask import Flask
+
+    monkeypatch.setattr(telemetry_module, "UPLOAD_FOLDER", str(tmp_path))
+    app = Flask(__name__)
+    app.register_blueprint(telemetry_module.BLUEPRINT)
+
+    response = app.test_client().get(
+        "/telemetry/download", query_string={"filename": "missing.json.gz"}
+    )
+
+    assert response.status_code == 404
+    assert response.get_json() == {"error": "File not found"}
