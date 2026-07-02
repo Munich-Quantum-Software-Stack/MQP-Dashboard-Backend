@@ -46,9 +46,6 @@ omit = [
 show_missing = true
 skip_covered = false
 
-[tool.uv.sources]
-bqp-database-access = { git = "https://github.com/Munich-Quantum-Software-Stack/MQP-Database-Access.git", branch = "develop" }
-
 [project.optional-dependencies]
 dev = [
     "mkdocs>=1.6.1",
@@ -76,7 +73,8 @@ cross_platform = true
 
 [[tool.pdm.source]]
 name = "lrz_pypi"
-url = "https://pypi.quantum.lrz.de"
+url = "https://pypi.quantum.lrz.de/simple"
+include_packages = ["bqp-database-access"]
 
 [tool.setuptools]
 packages = ["mqp_dashboard_backend"]
