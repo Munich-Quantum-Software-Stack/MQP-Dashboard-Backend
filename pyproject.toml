@@ -18,7 +18,7 @@ dependencies = [
     "influxdb>=5.3.2",
     "python-dotenv>=1.2.2",
     "eliot>=1.18.0",
-    "bqp-database-access>=0.3.33"
+    "bqp-database-access @ git+https://github.com/Munich-Quantum-Software-Stack/MQP-Database-Access.git@develop"
 ]
 
 requires-python=">=3.11,<3.12"
@@ -70,11 +70,6 @@ dev = [
 [tool.pdm]
 distribution = true
 cross_platform = true
-
-[[tool.pdm.source]]
-name = "lrz_pypi"
-url = "https://pypi.quantum.lrz.de/simple"
-include_packages = ["bqp-database-access"]
 
 [tool.setuptools]
 packages = ["mqp_dashboard_backend"]

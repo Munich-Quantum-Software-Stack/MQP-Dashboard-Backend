@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:0b979e74ac45a3dbffafb5389c296d20e588b8de473587fd574713614b2a691f"
+content_hash = "sha256:0d92c11b63d0d7f65392ab6073b3e78fc33fca8f72448761593a4b7c5d3bff9c"
 
 [[metadata.targets]]
 requires_python = ">=3.11,<3.12"
@@ -104,7 +104,10 @@ files = [
 [[package]]
 name = "bqp-database-access"
 version = "0.3.33"
-requires_python = "<3.12,>=3.10"
+requires_python = ">=3.10,<3.12"
+git = "https://github.com/Munich-Quantum-Software-Stack/MQP-Database-Access.git"
+ref = "develop"
+revision = "6ad2baff4f95e5743b6226df69352a347ceec018"
 summary = ""
 groups = ["default"]
 dependencies = [
@@ -117,10 +120,6 @@ dependencies = [
     "psycopg2-binary>=2.9.10",
     "python-dotenv>=1.2.2",
     "werkzeug>=3.1.4",
-]
-files = [
-    {file = "bqp_database_access-0.3.33-py3-none-any.whl", hash = "sha256:00d07d93c7c79f4997b5e18befac902dfc97f080aa8fdfbca0b8255a68e7ab73"},
-    {file = "bqp_database_access-0.3.33.tar.gz", hash = "sha256:34817c53320090670f596d61b1c7869b75c222f77f301a9589050c81bbd92e43"},
 ]
 
 [[package]]
