@@ -27,16 +27,16 @@ jobs:
         run: python -m pip install --upgrade pip uv
 
       - name: Install dependencies
-        run: UV_PROJECT_ENVIRONMENT=.venv-ci uv sync --group dev
+        run: uv run --active --group dev
 
       - name: Run Pylint
-        run: UV_PROJECT_ENVIRONMENT=.venv-ci uv run pylint mqp_dashboard_backend/
+        run: uv run --active pylint mqp_dashboard_backend/
 
       - name: Run pre-commit
-        run: UV_PROJECT_ENVIRONMENT=.venv-ci uv run pre-commit run --all-files --config .pre-commit-config-ci.yaml
+        run: uv run --active pre-commit run --all-files --config .pre-commit-config-ci.yaml
 
       - name: Run Pytest with coverage
-        run: UV_PROJECT_ENVIRONMENT=.venv-ci uv run python -m pytest tests
+        run: uv run --active python -m pytest tests
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
