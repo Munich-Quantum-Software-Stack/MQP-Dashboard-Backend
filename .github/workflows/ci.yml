@@ -33,7 +33,7 @@ jobs:
           pdm info
 
       - name: Install dependencies
-        run: pdm install -G dev --frozen-lockfile -v
+        run: pdm sync -G dev --no-self -v
 
       - name: Run Pylint
         run: uv run --active pylint mqp_dashboard_backend/
