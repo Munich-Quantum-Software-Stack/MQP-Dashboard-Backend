@@ -26,14 +26,7 @@ jobs:
       - name: Install uv and PDM
         run: python -m pip install --upgrade pip uv pdm
 
-      - name: Show dependency environment
-        run: |
-          python --version
-          pdm --version
-          pdm info
-
       - name: Install dependencies
-        timeout-minutes: 3
         run: pdm sync -G dev --no-self -v
 
       - name: Run Pylint
@@ -43,7 +36,7 @@ jobs:
         run: uv run --active pre-commit run --all-files --config .pre-commit-config-ci.yaml
 
       - name: Run Pytest with coverage
-        run: uv run --active python -m pytest tests
+        run: uv run --active python -m pytest
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
