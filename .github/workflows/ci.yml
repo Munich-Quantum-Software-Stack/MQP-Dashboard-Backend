@@ -31,17 +31,6 @@ jobs:
           python --version
           pdm --version
           pdm info
-      
-      - name: Check LRZ PyPI access
-        run: |
-          python - <<'PY'
-          import urllib.request
-
-          url = "https://pypi.quantum.lrz.de/simple/bqp-database-access/"
-          with urllib.request.urlopen(url, timeout=20) as response:
-              print(f"{url} -> HTTP {response.status}")
-              print(response.read(500).decode("utf-8", errors="replace"))
-          PY
 
       - name: Install dependencies
         timeout-minutes: 3
