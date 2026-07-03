@@ -28,7 +28,7 @@ jobs:
 
       - name: Install dependencies
         run: pdm sync -G dev --no-self -v
-      
+
       - name: Create test environment file
         run: cp .env.example .env
 
