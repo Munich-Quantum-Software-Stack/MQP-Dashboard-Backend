@@ -30,7 +30,7 @@ BLUEPRINT = Blueprint("jobs", __name__)
 
 
 class JobsResponse(TypedDict):
-    """JobResponse Type"""
+    """Response schema for paginated jobs data."""
 
     jobs: list[dict]
     totaljob_nr: int
@@ -91,15 +91,15 @@ def fetch_all_jobs() -> tuple[JobsResponse, HTTPStatus]:
     return {"jobs": sanitized_jobs, "totaljob_nr": totaljob_nr}, HTTPStatus.OK
 
 
-@BLUEPRINT.get("/jobs/<id>")
+@BLUEPRINT.get("/jobs/<int:job_id>")
 @jwt_required()
 @log_call
-def fetch_job() -> tuple[dict, HTTPStatus]:
+def fetch_job(job_id: int) -> tuple[dict, HTTPStatus]:
     """
     Fetch detail of a job.
 
     Query parameter:
-        - id (int): id of job
+        - job_id (int): id of job
 
     Returns:
         Job: job
@@ -111,7 +111,7 @@ def fetch_job() -> tuple[dict, HTTPStatus]:
 
     job = None
     for job_item in sanitized_jobs:
-        if job_item.get("id") == int(id):
+        if job_item.get("id") == job_id:
             job = job_item
 
     return {"job": job}, HTTPStatus.OK

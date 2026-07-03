@@ -16,15 +16,19 @@ cd MQP-Dashboard-Backend
 pdm install
 ```
 
-## Contributing
+## Environment Variables
+
+Use `.env.example` as a template for local configuration, then set environment-specific secret values before running project and tests.
+
+### Contributing
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
-## Code of Conduct
+### Code of Conduct
 
 See [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md).
 
-## License
+### License
 
 Licensed under the Apache License v2.0 with LLVM Exceptions.
 
@@ -51,9 +55,9 @@ PRs should include:
 - Related issue references
 - Screenshots/examples if applicable
 
-## Coding Standards
+### Coding Standards
 
-### Python
+#### Python
 - Follow PEP 8
 - Use type hints when possible
 - Keep functions focused and testable

@@ -30,7 +30,7 @@ BLUEPRINT = Blueprint("resources", __name__)
 
 
 class ResourceResponse(TypedDict):
-    """ResourceResponse Type"""
+    """Response schema for resource availability data."""
 
     resources: list[dict]
     available_resources: list[dict]
@@ -75,4 +75,4 @@ def fetch_all_resources() -> tuple[ResourceResponse, HTTPStatus]:
             "restricted_resource_names": restricted_resource_names,
         }, HTTPStatus.OK
     except TypeError as error:
-        return {"error_message": error}, HTTPStatus.FORBIDDEN
+        return {"error_message": str(error)}, HTTPStatus.FORBIDDEN

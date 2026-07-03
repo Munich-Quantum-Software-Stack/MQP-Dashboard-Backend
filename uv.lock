@@ -616,7 +616,7 @@ dependencies = [
 ]
 
 [package.optional-dependencies]
-docs = [
+dev = [
     { name = "mkdocs" },
     { name = "mkdocs-autorefs" },
     { name = "mkdocs-material" },
@@ -655,7 +655,7 @@ requires-dist = [
     { name = "python-dotenv", specifier = ">=1.2.2" },
     { name = "python-ldap", specifier = ">=3.4.3" },
 ]
-provides-extras = ["docs"]
+provides-extras = ["dev"]
 
 [package.metadata.requires-dev]
 dev = [
