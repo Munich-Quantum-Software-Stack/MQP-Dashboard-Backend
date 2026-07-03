@@ -56,7 +56,6 @@ def _get_token_from_usergroup(usergroup: str) -> str:
     return STATIC_TOKEN_CONFIG.get(usergroup)
 
 
-
 def generate_token() -> str:
     """Generate Access Token"""
     return "".join(
