@@ -8,6 +8,16 @@ on:
 jobs:
   ci:
     runs-on: ubuntu-latest
+    env:
+      PDM_IGNORE_SAVED_PYTHON: "1"
+      PDM_CHECK_UPDATE: "0"
+      QUANTUM_DB_TESTING: "TRUE"
+      QUANTUM_DB_FILENAME: test_db.sqlite
+      QUANTUM_DB_USER: postgres
+      QUANTUM_DB_PASS: example
+      QUANTUM_DB_HOST: localhost:5432
+      QUANTUM_DB_PEPPER: ci-test-pepper
+      QUANTUM_DB_TOKEN_PEPPER: ci-test-token-pepper
 
     steps:
       - name: Check out repository
@@ -28,9 +38,6 @@ jobs:
 
       - name: Install dependencies
         run: pdm sync -G dev --no-self -v
-
-      - name: Create test environment file
-        run: cp .env.example .env
 
       - name: Run Pylint
         run: uv run --active pylint mqp_dashboard_backend/
