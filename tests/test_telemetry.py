@@ -16,35 +16,6 @@ class FakeAction:
         return False
 
 
-class _DummyBlueprint:
-    def __init__(self, *args, **kwargs):
-        pass
-
-    def get(self, *args, **kwargs):
-        def decorator(func):
-            return func
-
-        return decorator
-
-    def post(self, *args, **kwargs):
-        def decorator(func):
-            return func
-
-        return decorator
-
-
-def _dummy_send_file(*args, **kwargs):
-    return None
-
-
-def _dummy_send_from_directory(*args, **kwargs):
-    return None
-
-
-def _dummy_after_this_request(func):
-    return func
-
-
 def _identity_decorator(func):
     return func
 
@@ -62,24 +33,6 @@ TELEMETRY_PATH = (
 
 @pytest.fixture
 def telemetry_module(monkeypatch):
-    monkeypatch.setitem(
-        sys.modules,
-        "flask",
-        types.SimpleNamespace(
-            Blueprint=_DummyBlueprint,
-            request=None,
-            Response=object,
-            stream_with_context=lambda value: value,
-            send_file=_dummy_send_file,
-            send_from_directory=_dummy_send_from_directory,
-            after_this_request=_dummy_after_this_request,
-        ),
-    )
-    monkeypatch.setitem(
-        sys.modules,
-        "flask_jwt_extended",
-        types.SimpleNamespace(jwt_required=lambda *a, **k: (lambda f: f)),
-    )
     monkeypatch.setitem(
         sys.modules,
         "influxdb",
@@ -105,6 +58,7 @@ def telemetry_module(monkeypatch):
     assert spec is not None and spec.loader is not None
 
     telemetry = importlib.util.module_from_spec(spec)
+    monkeypatch.setitem(sys.modules, "mqp_dashboard_backend.telemetry", telemetry)
     spec.loader.exec_module(telemetry)
 
     return telemetry

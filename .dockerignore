@@ -6,8 +6,6 @@ __pypackages__
 .ruff_cache
 .vscode
 build
-ci
-ci_tests
 dist
 uploads
 .pdm-python

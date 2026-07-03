@@ -28,9 +28,13 @@ from eliot import log_call
 
 BLUEPRINT = Blueprint("jobs", __name__)
 
+
 class JobsResponse(TypedDict):
+    """JobResponse Type"""
+
     jobs: list[dict]
     totaljob_nr: int
+
 
 @BLUEPRINT.get("/jobs")
 @jwt_required()

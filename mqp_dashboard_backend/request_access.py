@@ -36,9 +36,7 @@ def request_access() -> None:
     """
     request_data = request.get_json()
     sender = os.getenv("MQP_MAIL_DEFAULT_SENDER")
-    message = Message(
-        subject="New Request Access", sender=("MQP-Dashboard", sender)
-    )
+    message = Message(subject="New Request Access", sender=("MQP-Dashboard", sender))
     message.recipients = [os.getenv("MQP_MAIL_ADMIN")]
     # message.add_recipient("")
     message.html = (
@@ -85,7 +83,9 @@ def request_access() -> None:
     )
     message.html += "</tbody></table><br/><br/>"
 
-    message.html += "<small>This email was sent automatically. Please do not reply to it.</small>"
+    message.html += (
+        "<small>This email was sent automatically. Please do not reply to it.</small>"
+    )
 
     mail.send(message)
     return {"message": "Mail has sent"}, HTTPStatus.OK  # pylint: disable=duplicate-code

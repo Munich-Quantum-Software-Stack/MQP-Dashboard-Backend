@@ -30,10 +30,21 @@ Before submitting, please search the issues to see if your bug has been reported
 2. **Build Container:** `make build`
 3. **Run Container:** `make up``
 4. **Run application:** `pdm install` and `pdm run flask --app mqp_dashboard_backend --debug run`
-3. **Create a branch:**
-4. **Make changes and commit:** Use clear, descriptive commit messages.
-5. **Run tests and linting:** `pytest`
-6. **Push your branch** and open a Pull Request.
+5. **Create a branch.**
+6. **Make changes.**
+7. **Run tests and linting:** `pytest`
+8. **Run pre-commit checks** before committing changes.
+9. **Commit your changes:** Use clear, descriptive commit messages.
+10. **Push your branch** and open a Pull Request.
+
+## ✅ Pre-commit checks
+
+CI uses `.pre-commit-config-ci.yaml` for pre-commit checks. PDM remains the project package and dependency manager; `uv` is used only for CI/testing commands.
+To run the same pre-commit check locally, use:
+
+```bash
+UV_PROJECT_ENVIRONMENT=.venv-ci uv run pre-commit run --all-files --config .pre-commit-config-ci.yaml
+```
 
 ## ✅ Pull Request Guidelines
 

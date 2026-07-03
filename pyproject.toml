@@ -18,7 +18,7 @@ dependencies = [
     "influxdb>=5.3.2",
     "python-dotenv>=1.2.2",
     "eliot>=1.18.0",
-    "bqp-database-access>=0.3.33"
+    "bqp-database-access @ git+https://github.com/Munich-Quantum-Software-Stack/MQP-Database-Access.git@develop"
 ]
 
 requires-python=">=3.11,<3.12"
@@ -28,29 +28,49 @@ license = {text = "MIT"}
 [tool.isort]
 profile = "black"
 
+[tool.pytest.ini_options]
+pythonpath = ["."]
+addopts = [
+    "--cov=mqp_dashboard_backend",
+    "--cov-report=term-missing",
+    "--cov-report=xml",
+]
+
+[tool.coverage.run]
+source = ["mqp_dashboard_backend"]
+omit = [
+    "mqp_dashboard_backend/__init__.py",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+
+
 [project.optional-dependencies]
-dev = [
+docs = [
     "mkdocs>=1.6.1",
     "mkdocs-material>=9.6.2",
     "mkdocstrings-python>=0.26.1",
     "mkdocs-autorefs>=1.2.0",
-    "pylint>=3.3.8",
-    "ruff>=0.15.20"
 ]
 
 [dependency-groups]
 dev = [
-    "nox",
     "pre-commit",
     "pytest>=7.4.0",
     "pytest-env>=0.8.2",
+    "pytest-cov>=7.1.0",
     "python-ldap-test>=0.3.1",
     "mkdocs",
     "mkdocs-material",
     "mkdocstrings-python",
+    "pylint>=3.3.8",
+    "ruff>=0.15.20"
 ]
 
-
+[tool.pylint.format]
+max-line-length = 120
 
 [tool.pdm]
 distribution = true
@@ -62,6 +82,3 @@ url = "https://pypi.quantum.lrz.de"
 
 [tool.setuptools]
 packages = ["mqp_dashboard_backend"]
-
-[tool.pylint.format]
-max-line-length = 120
