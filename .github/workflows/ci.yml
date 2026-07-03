@@ -18,6 +18,7 @@ jobs:
       QUANTUM_DB_HOST: localhost:5432
       QUANTUM_DB_PEPPER: ci-test-pepper
       QUANTUM_DB_TOKEN_PEPPER: ci-test-token-pepper
+      JWT_SECRET_KEY: test-jwt-secret
 
     steps:
       - name: Check out repository
