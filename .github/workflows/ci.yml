@@ -37,19 +37,19 @@ jobs:
           sudo apt-get install -y libsasl2-dev python3-dev libldap2-dev libssl-dev build-essential
 
       - name: Install uv and PDM
-        run: python -m pip install --upgrade pip uv pdm
+        run: python -m pip install --upgrade uv
 
       - name: Install dependencies
-        run: pdm sync -G dev --no-self -v
+        run: uv sync --group dev
 
       - name: Run Pylint
-        run: uv run --active pylint mqp_dashboard_backend/
+        run: uv run pylint mqp_dashboard_backend/
 
       - name: Run pre-commit
-        run: uv run --active pre-commit run --all-files --config .pre-commit-config-ci.yaml
+        run: uv run pre-commit run --all-files --config .pre-commit-config-ci.yaml
 
       - name: Run Pytest with coverage
-        run: uv run --active python -m pytest
+        run: uv run pytest
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
