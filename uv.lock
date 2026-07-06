@@ -653,7 +653,7 @@ requires-dist = [
     { name = "mkdocstrings-python", marker = "extra == 'docs'", specifier = ">=0.26.1" },
     { name = "pony", specifier = ">=0.7.16" },
     { name = "python-dotenv", specifier = ">=1.2.2" },
-    { name = "python-ldap", specifier = ">=3.4.3" },
+    { name = "python-ldap", specifier = ">=3.4.7" },
 ]
 provides-extras = ["docs"]
 
