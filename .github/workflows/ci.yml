@@ -34,7 +34,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libsasl2-dev python3-dev libldap2-dev libssl-dev
+          sudo apt-get install -y libsasl2-dev python3-dev libldap2-dev libssl-dev build-essential
 
       - name: Install uv and PDM
         run: python -m pip install --upgrade pip uv pdm
