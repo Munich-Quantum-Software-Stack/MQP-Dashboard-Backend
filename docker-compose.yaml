@@ -8,9 +8,9 @@ services:
     platform: linux/amd64
     image: mqp-dashboard-backend:0.1.5
     container_name: mqp-dashboard-backend-server
-    #volumes:
-    #  - ./mqp_dashboard_backend:/mqp-dashboard-backend-server/mqp_dashboard_backend
-    #  - ./.env:/mqp-dashboard-backend-server/.env
+    volumes:
+      - ./mqp_dashboard_backend:/mqp-dashboard-backend-server/mqp_dashboard_backend
+      - ./.env:/mqp-dashboard-backend-server/.env
     env_file:
       - .env
     environment:

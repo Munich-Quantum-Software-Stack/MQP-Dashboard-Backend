@@ -9,7 +9,6 @@ from pony.orm import db_session
 from werkzeug.datastructures import Headers
 from ldap_test import LdapServer
 
-
 NOW = datetime.datetime.now()
 
 
@@ -69,7 +68,10 @@ def create_ldap_server():
             {
                 "objectclass": ["user"],
                 "dn": "cn=ldap_test_user,ou=QuantumComputing,ou=Kennungen,o=example-org,c=de",
-                "attributes": {"cn": "ldap_test_user"},
+                "attributes": {
+                    "cn": "ldap_test_user",
+                    "userPassword": "ldap_test_password",
+                },
             },
         ],
     }
