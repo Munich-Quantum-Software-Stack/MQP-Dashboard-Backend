@@ -37,10 +37,10 @@ jobs:
           sudo apt-get install -y libsasl2-dev python3-dev libldap2-dev libssl-dev build-essential
 
       - name: Install uv and PDM
-        run: python -m pip install --upgrade pip uv pdm
+        run: python -m pip install --upgrade uv
 
       - name: Install dependencies
-        run: pdm sync -G dev --no-self -v
+        run: uv sync -G dev --no-self -v --no-isolation
 
       - name: Run Pylint
         run: uv run --active pylint mqp_dashboard_backend/
