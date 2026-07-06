@@ -19,8 +19,8 @@ jobs:
       QUANTUM_DB_PEPPER: test-pepper
       QUANTUM_DB_TOKEN_PEPPER: test-token-pepper
       JWT_SECRET_KEY: test-jwt-secret
-      QUANTUM_DS_HOST: ""
-      LDAP_USER_DN: ""
+      QUANTUM_DS_HOST: "ldap://localhost:8888"
+      LDAP_USER_DN: "ou=QuantumComputing,ou=Kennungen,o=example-org,c=de"
 
     steps:
       - name: Check out repository
