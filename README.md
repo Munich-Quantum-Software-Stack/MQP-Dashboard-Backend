@@ -1,14 +1,24 @@
 # MQP-Dashboard-Backend
 
-The Backend component of Munich Quantum Portal Dashboard, and it is a part of MQSS Client. This repository implements interfaces API of Quantum database and connect to QDMI database.
+[![Documentation](https://img.shields.io/badge/Documentation-Read%20the%20Docs-blue)](https://munich-quantum-software-stack.github.io/MQP-Dashboard-Backend/index.html)
 
-## Features
+## Overview
 
-- LDAP Authentication
-- Manage Access Token
-- Query Jobs and Resources from Quantum database
-- Query Telemetry Data from QDMI proxy database
-- Automated testing and CI support
+The MQP-Dashboard-Backend is a part of MQSS Client. It provides a unified platform for secure user authentication, access token management, and data retrieval from Quantum Database and QDMI proxy telemetry services.
+
+## Getting started
+
+1. Clone this repository
+2. Install dependencies and developer tools
+```sh
+git clone https://github.com/Munich-Quantum-Software-Stack/MQP-Dashboard-Backend.git
+cd MQP-Dashboard-Backend
+pdm install
+```
+
+## Environment Variables
+
+Use `.env.example` as a template for local configuration, then set environment-specific secret values before running project and tests.
 
 ### Contributing
 
@@ -23,7 +33,7 @@ See [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md).
 Licensed under the Apache License v2.0 with LLVM Exceptions.
 
 
-### Commit Message Guidelines
+## Commit Message Guidelines
 
 Examples:
 ```sh
@@ -32,7 +42,7 @@ Examples:
 <short_author_name>/docs: update API documentation
 ```
 
-### Pull Request Process
+## Pull Request Process
 
 Before submitting a PR:
 - Ensure tests pass
@@ -53,21 +63,10 @@ PRs should include:
 - Keep functions focused and testable
 - Add docstrings for public APIs
 
-#### Flask
-- Keep routes lightweight
-- Move business logic into services
-- Use blueprints for modularity
-
-### Reporting Issues
+## Reporting Issues
 
 Please include:
 - Steps to reproduce
 - Expected behavior
 - Actual behavior
 - Logs/screenshots if applicable
-
-### Read-only / educational access / MQP_EDU user
-
-27-11-2024 In bqp_dashboard_backend/tokens.py, we hardcoded, that users in the user group MQP_EDU (table users_in_user_groups in the quantum database) are returned only
-"ThisIsAnEducationalTokenItCannotBeUsedToSubmitJobsThisIsAnEducat" as a token, which is not useable to submit jobs. \
-If this token is encountered by the frontend, it will display a banner "This is an educational token, it cannot be used to submit jobs".

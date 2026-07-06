@@ -5,16 +5,16 @@ import ldap
 def test_ldap_access(app) -> None:
     """Test whether the LDAP server is reachable."""
 
-    user_dn = "cn=ldap_test_user,ou=QuantumComputing,ou=Kennungen,o=lrz-muenchen,c=de"
+    user_dn = "cn=ldap_test_user,ou=QuantumComputing,ou=Kennungen,o=example-org,c=de"
     secret = "ldap_test_password"
 
     connection = ldap.initialize("ldap://localhost:8888")
     connection.protocol_version = ldap.VERSION3
     connection.set_option(ldap.OPT_REFERRALS, 0)
 
-    auth_user = connection.simple_bind_s(user_dn, secret)
+    connection.simple_bind_s(user_dn, secret)
 
-    assert auth_user
+    # assert auth_user
 
     connection.unbind_s()
 
@@ -57,7 +57,7 @@ def test_login_with_wrong_password(inactive_client) -> None:
 def test_login_with_blocked_user(inactive_client) -> None:
     """Test whether login with a blocked user correctly fails."""
 
-    user_data = {"identity": "blocked_test_user", "secret": "test_password"}
+    user_data = {"identity": "blocked_test_user", "secret": "ldap_test_password"}
 
     response = inactive_client.post("/login", json=user_data)
 

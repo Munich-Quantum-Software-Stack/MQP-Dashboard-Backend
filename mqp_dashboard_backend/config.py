@@ -28,19 +28,14 @@ from eliot import log_message
 from dotenv import load_dotenv
 
 
-def on_no_jwt_provided(message: str):
+def _on_no_jwt_provided(message: str):
     log_message(message)
-
     return Response(status=http.HTTPStatus.UNAUTHORIZED)
-
-
-os.environ.setdefault("JWT_SECRET_KEY", "test-jwt-secret")
 
 
 load_dotenv()
 app = Flask(__name__)
 app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
-
 app.config["MAIL_SERVER"] = os.getenv("MQP_MAIL_SERVER")
 app.config["MAIL_PORT"] = os.getenv("MQP_MAIL_PORT")
 app.config["MAIL_USE_TLS"] = os.getenv("MQP_MAIL_USE_TLS")
@@ -52,6 +47,6 @@ app.config["MAIL_DEFAULT_SENDER"] = os.getenv("MQP_MAIL_DEFAULT_SENDER")
 mail = Mail(app)
 CORS(app)
 jwt = JWTManager(app)
-jwt.unauthorized_loader(on_no_jwt_provided)
-jwt.invalid_token_loader(on_no_jwt_provided)
+jwt.unauthorized_loader(_on_no_jwt_provided)
+jwt.invalid_token_loader(_on_no_jwt_provided)
 Pony(app)

@@ -5,46 +5,54 @@ on:
   pull_request:
   workflow_dispatch:
 
-permissions:
-  contents: read
-
 jobs:
-  ci-public:
+  ci:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python: ["3.11"]
+    env:
+      PDM_IGNORE_SAVED_PYTHON: "1"
+      PDM_CHECK_UPDATE: "0"
+      QUANTUM_DB_TESTING: "TRUE"
+      QUANTUM_DB_FILENAME: test_db.sqlite
+      QUANTUM_DB_USER: postgres
+      QUANTUM_DB_PASS: example
+      QUANTUM_DB_HOST: localhost
+      QUANTUM_DB_PEPPER: test-pepper
+      QUANTUM_DB_TOKEN_PEPPER: test-token-pepper
+      JWT_SECRET_KEY: test-jwt-secret
+      QUANTUM_DS_HOST: "ldap://localhost:8888"
+      LDAP_USER_DN: "ou=QuantumComputing,ou=Kennungen,o=example-org,c=de"
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python }}
+          python-version: "3.11"
 
-      - name: Install test tooling
+      - name: Install system dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install uv
-          UV_PROJECT=ci UV_PROJECT_ENVIRONMENT=.venv-ci uv sync --only-group dev
+          sudo apt-get update
+          sudo apt-get install -y libsasl2-dev python3-dev libldap2-dev libssl-dev
 
-      - name: Run build
-        run: |
-          python -m pip install build
-          python -m build --sdist --wheel .
+      - name: Install uv and PDM
+        run: python -m pip install --upgrade pip uv pdm
+
+      - name: Install dependencies
+        run: pdm sync -G dev --no-self -v
+
+      - name: Run Pylint
+        run: uv run --active pylint mqp_dashboard_backend/
 
       - name: Run pre-commit
-        run: |
-          UV_PROJECT=ci UV_PROJECT_ENVIRONMENT=.venv-ci uv run pre-commit run --all-files --config .pre-commit-config-ci.yaml
+        run: uv run --active pre-commit run --all-files --config .pre-commit-config-ci.yaml
 
-      - name: Run public Continuous Integration test subset
-        run: |
-          UV_PROJECT=ci UV_PROJECT_ENVIRONMENT=.venv-ci uv run nox --session ci_tests
+      - name: Run Pytest with coverage
+        run: uv run --active python -m pytest
 
-      - name: Continuous Integration scope note
-        run: |
-          echo "This Continuous Integration run intentionally covers only tests that do not require private PyPI or DB-backed components."
-          echo "Run the full integration test suite locally in an environment with private dependencies and DB access."
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-xml
+          path: coverage.xml

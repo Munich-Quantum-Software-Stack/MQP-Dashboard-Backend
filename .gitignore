@@ -4,11 +4,12 @@ __pycache__/
 *.py[cod]
 *$py.class
 .env
+.test.env
 .vscode/
 mqp_dashboard_backend/__pycache__/
 uploads/
 .devcontainer/
-
+tests/__pycache__/
 # C extensions
 *.so
 
@@ -45,7 +46,6 @@ pip-delete-this-directory.txt
 # Unit test / coverage reports
 htmlcov/
 .tox/
-.nox/
 .coverage
 .coverage.*
 .cache
@@ -131,6 +131,7 @@ celerybeat.pid
 # Environments
 .env
 .venv
+.venv-ci
 env/
 venv/
 ENV/
@@ -151,6 +152,10 @@ venv.bak/
 .mypy_cache/
 .dmypy.json
 dmypy.json
+
+# test_db.sqlite
+*.sqlite
+*.sqlite3
 
 # Pyre type checker
 .pyre/

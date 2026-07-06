@@ -1,6 +1,6 @@
 [project]
 name = "mqp-dashboard-backend"
-version = "1.0.0"
+version = "0.1.5"
 description = "MQP Dashboard Backend"
 authors = [
     {name = "Tobias Bauer", email = "tobias.bauer@lrz.de"},
@@ -9,7 +9,6 @@ authors = [
 ]
 dependencies = [
     "flask>=2.3.2",
-    "bqp-database-access>=0.3.32",
     "pony>=0.7.16",
     "flask-jwt-extended>=4.5.2",
     "gunicorn>=21.2.0",
@@ -18,7 +17,8 @@ dependencies = [
     "flask-mail>=0.10.0",
     "influxdb>=5.3.2",
     "python-dotenv>=1.2.2",
-    "eliot>=1.18.0"
+    "eliot>=1.18.0",
+    "bqp-database-access @ git+https://github.com/Munich-Quantum-Software-Stack/MQP-Database-Access.git@develop"
 ]
 
 requires-python=">=3.11,<3.12"
@@ -28,36 +28,52 @@ license = {text = "MIT"}
 [tool.isort]
 profile = "black"
 
-[dependency-groups]
-dev = [
-    "nox",
-    "pre-commit",
-    "pytest>=7.4.0",
-    "pytest-env>=0.8.2",
-    "python-ldap-test>=0.3.1",
-    "mkdocs",
-    "mkdocs-material",
-    "mkdocstrings[python]",
+[tool.pytest.ini_options]
+pythonpath = ["."]
+addopts = [
+    "--cov=mqp_dashboard_backend",
+    "--cov-report=term-missing",
+    "--cov-report=xml",
 ]
+
+[tool.coverage.run]
+source = ["mqp_dashboard_backend"]
+omit = [
+    "mqp_dashboard_backend/__init__.py",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
 
 [project.optional-dependencies]
 docs = [
     "mkdocs>=1.6.1",
     "mkdocs-material>=9.6.2",
-    "mkdocstrings[python]>=0.26.1",
+    "mkdocstrings-python>=0.26.1",
     "mkdocs-autorefs>=1.2.0",
 ]
+
+[dependency-groups]
+dev = [
+    "pre-commit",
+    "pytest>=7.4.0",
+    "pytest-env>=0.8.2",
+    "pytest-cov>=7.1.0",
+    "python-ldap-test>=0.3.1",
+    "mkdocs",
+    "mkdocs-material",
+    "mkdocstrings-python",
+    "pylint>=3.3.8",
+    "ruff>=0.15.20"
+]
+
+[tool.pylint.format]
+max-line-length = 120
 
 [tool.pdm]
 distribution = true
 cross_platform = true
 
-[[tool.pdm.source]]
-name = "lrz_pypi"
-url = "https://pypi.quantum.lrz.de"
-
 [tool.setuptools]
 packages = ["mqp_dashboard_backend"]
-
-[[tool.uv.index]]
-url = "https://pypi.quantum.lrz.de"

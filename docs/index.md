@@ -1,6 +1,6 @@
 # Welcome to MQP Dashboard Backend Document
 
-This is the documentation for MQP Dashboard Backend.
+The MQP-Dashboard-Backend is a part of MQSS Client. It provides a unified platform for secure user authentication, access token management, and data retrieval from Quantum Database and QDMI proxy telemetry services.
 
 ## Getting Started
 

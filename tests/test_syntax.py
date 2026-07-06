@@ -1,12 +1,13 @@
-"""CI-safe tests that avoid private dependencies and DB setup."""
+"""Syntax tests for backend Python sources."""
 
 from pathlib import Path
 
 
 def test_backend_python_sources_are_syntax_valid() -> None:
-    """Compile backend sources to catch syntax errors without importing private deps."""
+    """Compile backend sources to catch syntax errors without importing them."""
 
-    python_files = sorted(Path("mqp_dashboard_backend").rglob("*.py"))
+    backend_root = Path(__file__).resolve().parents[1] / "mqp_dashboard_backend"
+    python_files = sorted(backend_root.rglob("*.py"))
 
     for path in python_files:
         source = path.read_text(encoding="utf-8")

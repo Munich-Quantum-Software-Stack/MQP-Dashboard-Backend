@@ -20,13 +20,16 @@
 
 import secrets
 import string
+import json
+from importlib.resources import files
 from datetime import datetime, timedelta
 from http import HTTPStatus
 from flask import Blueprint, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
 from eliot import log_call
 import bqp_database_access as database
-from bqp_database_access._database import open_database
+
+# from bqp_database_access._database import open_database
 from bqp_database_access.tokens import (
     TokenExistsError,
     TokenExpirationAfterMaximum,
@@ -38,8 +41,23 @@ from bqp_database_access.tokens import (
 
 BLUEPRINT = Blueprint("tokens", __name__)
 
+STATIC_TOKEN_FILE = files("mqp_dashboard_backend").joinpath(
+    "static_config/static_token.json"
+)
+with STATIC_TOKEN_FILE.open("r", encoding="utf-8") as f:
+    STATIC_TOKEN_CONFIG = json.load(f)
+
+
+def _get_static_token_groups() -> list[str]:
+    return list(STATIC_TOKEN_CONFIG.keys())
+
+
+def _get_token_from_usergroup(usergroup: str) -> str:
+    return STATIC_TOKEN_CONFIG.get(usergroup)
+
 
 def generate_token() -> str:
+    """Generate Access Token"""
     return "".join(
         secrets.choice(string.ascii_letters + string.digits) for _ in range(64)
     )
@@ -48,14 +66,15 @@ def generate_token() -> str:
 @BLUEPRINT.post("/tokens/new")
 @jwt_required()
 @log_call
-def create_token():
+def create_token() -> tuple[dict, HTTPStatus]:
     """
     Create a token with given token data.
-    Args:
-        token_name (string): name of token
-        validity (integer): validity time of token (day)
-        max_nb_jobs (integer): maximum number of jobs for this token
-        max_budget (integer): maximum budget for this token
+
+    Query parameters:
+        - token_name (string): name of token
+        - validity (integer): validity time of token (day)
+        - max_nb_jobs (integer): maximum number of jobs for this token
+        - max_budget (integer): maximum budget for this token
 
     Returns:
         token_value: hash value of token
@@ -64,7 +83,6 @@ def create_token():
     """
 
     request_data = request.get_json()
-
     user_token = get_jwt_identity()
     remember_name = request_data["token_name"]
 
@@ -72,47 +90,47 @@ def create_token():
         datetime.now().date() + timedelta(days=int(request_data["validity"])),
         datetime.max.time(),
     )
-
-    token = generate_token()
-
-    quantum_db = open_database()
-    user = quantum_db.User.get(identity=user_token)
+    # quantum_db = open_database()
+    # user = quantum_db.User.get(identity=user_token)  # pylint: disable=no-member
+    user = database.users.fetch_user_by_identity(identity=user_token)
     _user_group_names = [user_group.name.upper() for user_group in user.user_groups]
-
+    _static_token_usergroups = _get_static_token_groups()
     try:
-        if "MQP_EDU" in _user_group_names:
-            database.tokens.add_new_token(
-                remember_name,
-                user_token,
-                token,
-                expiration,
-                request_data["max_nb_jobs"],
-                request_data["max_budget"],
-            )
-            return {
-                "token_data": {
-                    "token_value": "ThisIsAnEducationalTokenItCannotBeUsedToSubmitJobsThisIsAnEducat",
-                    "token_name": remember_name,
-                    "token_expiration": expiration.isoformat(),
-                }
-            }, HTTPStatus.OK
-        else:
-            database.tokens.add_new_token(
-                remember_name,
-                user_token,
-                token,
-                expiration,
-                request_data["max_nb_jobs"],
-                request_data["max_budget"],
-            )
+        for group in _static_token_usergroups:
+            if group in _user_group_names:
+                token = _get_token_from_usergroup(group)
+                database.tokens.add_new_token(
+                    remember_name,
+                    user_token,
+                    token,
+                    expiration,
+                    request_data["max_nb_jobs"],
+                    request_data["max_budget"],
+                )
+                return {
+                    "token_data": {
+                        "token_value": token,
+                        "token_name": remember_name,
+                        "token_expiration": expiration.isoformat(),
+                    }
+                }, HTTPStatus.OK
+        token = generate_token()
+        database.tokens.add_new_token(
+            remember_name,
+            user_token,
+            token,
+            expiration,
+            request_data["max_nb_jobs"],
+            request_data["max_budget"],
+        )
 
-            return {
-                "token_data": {
-                    "token_value": token,
-                    "token_name": remember_name,
-                    "token_expiration": expiration.isoformat(),
-                }
-            }, HTTPStatus.OK
+        return {
+            "token_data": {
+                "token_value": token,
+                "token_name": remember_name,
+                "token_expiration": expiration.isoformat(),
+            }
+        }, HTTPStatus.OK
 
     except TooManyTokensError:
         return {
@@ -137,7 +155,7 @@ def create_token():
 @BLUEPRINT.get("/tokens")
 @jwt_required()
 @log_call
-def get_all_tokens():
+def get_all_tokens() -> tuple[dict, HTTPStatus]:
     """
     Get all tokens that belong to user.
     Returns:
@@ -157,17 +175,19 @@ def get_all_tokens():
         for token in tokens
     ]
 
-    sortedTokens = sorted(sanitized_tokens, key=lambda x: x["token_name"], reverse=True)
+    sorted_tokens = sorted(
+        sanitized_tokens, key=lambda x: x["token_name"], reverse=True
+    )
 
     return {
-        "tokens": sortedTokens,
+        "tokens": sorted_tokens,
     }, HTTPStatus.OK
 
 
 @BLUEPRINT.get("/tokens/user_limits")
 @jwt_required()
 @log_call
-def get_user_token_creation_limits():
+def get_user_token_creation_limits() -> list[dict]:
     """Fetch the user security level limits."""
 
     identity = get_jwt_identity()
@@ -186,7 +206,7 @@ def get_user_token_creation_limits():
 @BLUEPRINT.delete("/tokens")
 @jwt_required()
 @log_call
-def revoke_token():
+def revoke_token() -> tuple[dict, HTTPStatus]:
     """
     Revoke given token and owner combination.
     Returns:

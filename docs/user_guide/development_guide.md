@@ -2,7 +2,6 @@
 
 ## Prerequisites
 
-- Docker
 - Docker Compose
 - Python 3.11
 
@@ -15,45 +14,104 @@ git clone https://github.com/Munich-Quantum-Software-Stack/MQP-Dashboard-Backend
 cd MQP-Dashboard-Backend
 ```
 
+### Install dependencies
+
+```sh
+pdm install
+```
+
+### Update project
+```sh
+pdm update
+```
+
 ### Environment Variables
 
-To run the project locally, you need to configure your environment variables:
+To run the project locally, update the environment variables in file .env:
+
 1. Locate the .env.example file in the project root
 2. Create a copy of this file and rename it to .env
 3. Open the .env file and update the configuration values to match your local setup.
-4. The application runs inside a container. To make these environment variables affected to the app, run this command:
+
+### Build and run Docker Container
+
+**Build Docker Container**
+
+Command to build container:
+```sh
+docker compose -f docker-compose.yaml build --no-cache
+```
+or shortcut:
+```sh
+make build
+```
+
+**Start Container**
+```sh
+docker compose up -d
+```
+or shortcut:
+```sh
+make up
+```
+
+To make environment variables affected to the application inside container, run this command:
 ```sh
 make run-image
 ```
 
-### Run with Docker
-
+Update environment values from outside of container:
 ```sh
-make build
-make up
-```
-Application should be available at: http://localhost:5000
-
-### Unit testing with pytest
-
-In order for the unit-tests to run, following environment-variables need to be set (test_db.db can in principle be anything except already existing files):
-
-```sh
-export QUANTUM_DB_TESTING=1
-export QUANTUM_DB_FILENAME=test_db.db
-export QUANTUM_DS_HOST=ldap://localhost:8888
+docker run -e <variable_name=value>
 ```
 
-To run the tests, use pytest:
+More commands will be found in `Makefile`
+
+Application should run at: http://localhost:5000
+
+
+### Testing
+
+This project uses PDM for packages and dependencies management. The public local test suite is intended to run from the `tests/` directory with environment values loaded from a local `.env` file.
+
+1. Install the development dependencies with PDM:
+
 ```sh
-pytest
+pdm install -G dev
 ```
 
-### Linting
+2. Copy the safe example environment file to a private local `.env` file:
 
 ```sh
-ruff check .
-black --check .
+cp .env.example .env.test
+```
+
+3. Load the variables into your shell before running tests:
+
+```sh
+set -a
+source .env.test
+set +a
+```
+
+4. Run the normal public test suite:
+
+```sh
+pdm run python -m pytest tests
+```
+
+The `.env.example` file contains placeholder values that are safe for local development and testing.
+
+These placeholder values are for local development/testing only. The `.env` file is local and private, and real `.env` files must not be committed. Do not include private credentials, private LDAP details, or deployment-specific information in this public README.
+
+If tests try to connect to PostgreSQL through `/var/run/postgresql/.s.PGSQL.5432`, this indicates that test environment variables are not loaded in container. Reload `.env` in container and confirm the testing variables are set before rerunning the tests.
+
+
+### Linting and Ruff check
+
+```sh
+pdm run ruff check .
+pdm run black --check .
 ```
 
 ### Development Workflow
@@ -64,15 +122,10 @@ black --check .
 4. Run linting and tests locally
 5. Submit a pull request
 
-### Security
 
-- Do not commit secrets
-- Use environment variables for configuration
-- Review dependencies regularly
+## Building Documentation
 
-### Building Documentation
-
-To build the documentation, follow these steps:\
+To build the documentation, follow these steps:
 
 **Install MkDocs and the Material theme:**
 ```sh

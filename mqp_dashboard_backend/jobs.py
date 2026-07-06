@@ -18,9 +18,10 @@
 
 """MQP Dashboard Jobs Module"""
 
+from http import HTTPStatus
+from typing import TypedDict
 from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from http import HTTPStatus
 import bqp_database_access as database
 from eliot import log_call
 
@@ -28,19 +29,27 @@ from eliot import log_call
 BLUEPRINT = Blueprint("jobs", __name__)
 
 
+class JobsResponse(TypedDict):
+    """Response schema for paginated jobs data."""
+
+    jobs: list[dict]
+    totaljob_nr: int
+
+
 @BLUEPRINT.get("/jobs")
 @jwt_required()
 @log_call
-def fetch_all_jobs():
+def fetch_all_jobs() -> tuple[JobsResponse, HTTPStatus]:
     """
     Return a paginated list of jobs for the current user.
 
-    Args:
-        page (int): Page number of results.
-        jobs_per_page (int): Number of jobs per page.
-        order (str): Sort order, "ASC" or "DESC".
-        order_by (str): Field to order by. "ID" or any field name form the quantum database, e.g. timestamp_submitted.
-        filter (str): String of the filter to be applied (setting CANELLED will yield only jobs with the CANCELLED status)
+    Query parameters:
+        - p (int): Page number of results.
+        - jpp (int): Number of jobs per page.
+        - order (str): Sort order, "ASC" or "DESC".
+        - order_by (str): Field to order by. "ID" or any field name form the quantum database, e.g. timestamp_submitted.
+        - filter (str): String of the filter to be applied \
+                    (setting CANELLED will yield only jobs with the CANCELLED status)
 
     Returns:
         dict: Jobs in the requested range and total number of jobs.
@@ -82,15 +91,15 @@ def fetch_all_jobs():
     return {"jobs": sanitized_jobs, "totaljob_nr": totaljob_nr}, HTTPStatus.OK
 
 
-@BLUEPRINT.get("/jobs/<id>")
+@BLUEPRINT.get("/jobs/<int:job_id>")
 @jwt_required()
 @log_call
-def fetch_job(id=0):
+def fetch_job(job_id: int) -> tuple[dict, HTTPStatus]:
     """
     Fetch detail of a job.
 
-    Args:
-        id (int): id of job
+    Query parameter:
+        - job_id (int): id of job
 
     Returns:
         Job: job
@@ -101,8 +110,8 @@ def fetch_job(id=0):
     sanitized_jobs = [job.to_dict() for job in jobs]
 
     job = None
-    for jobItem in sanitized_jobs:
-        if jobItem.get("id") == int(id):
-            job = jobItem
+    for job_item in sanitized_jobs:
+        if job_item.get("id") == job_id:
+            job = job_item
 
     return {"job": job}, HTTPStatus.OK
