@@ -15,6 +15,7 @@ dependencies = [
     "flask-cors>=4.0.0",
     "python-ldap>=3.4.7",
     "flask-mail>=0.10.0",
+    "flask-limiter>=3.5.0",
     "influxdb>=5.3.2",
     "python-dotenv>=1.2.2",
     "eliot>=1.18.0",

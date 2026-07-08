@@ -31,6 +31,8 @@ def test_correct_login(inactive_client) -> None:
         response.status_code == HTTPStatus.OK
         and response.json["access_token"] is not None
         and response.json["force_secret_reset"] is not None
+        and response.json["is_admin"] is False
+        and response.json["redirect_to"] == "/dashboard"
     )
 
 
@@ -74,4 +76,6 @@ def test_ldap_login_user(inactive_client):
         response.status_code == HTTPStatus.OK
         and response.json["access_token"] is not None
         and response.json["force_secret_reset"] is not None
+        and response.json["is_admin"] is False
+        and response.json["redirect_to"] == "/dashboard"
     )

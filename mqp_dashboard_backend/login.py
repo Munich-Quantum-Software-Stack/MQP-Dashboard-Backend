@@ -31,6 +31,7 @@ from bqp_database_access.users import (
 from eliot import log_call
 from flask import Blueprint, request
 from flask_jwt_extended import create_access_token
+from .config import limiter
 
 BLUEPRINT = Blueprint("login", __name__)
 
@@ -78,6 +79,7 @@ def authenticate_user_by_ldap(identity: str, secret: str):
 
 
 @BLUEPRINT.post("/login")
+@limiter.limit("5 per minute")
 @log_call(action_type="login_attempt")
 def login_user():
     """
@@ -119,6 +121,8 @@ def login_user():
             "error_message": "The identity/password is not valid. Please try again!",
         }, HTTPStatus.UNAUTHORIZED
 
+    is_admin = user.superuser_level is not None
+
     # generate JWT
     access_token = create_access_token(
         identity=identity, expires_delta=timedelta(minutes=15)
@@ -127,4 +131,6 @@ def login_user():
     return {
         "access_token": access_token,
         "force_secret_reset": user.force_secret_reset,
+        "is_admin": is_admin,
+        "redirect_to": "/admin/panel" if is_admin else "/dashboard",
     }, HTTPStatus.OK

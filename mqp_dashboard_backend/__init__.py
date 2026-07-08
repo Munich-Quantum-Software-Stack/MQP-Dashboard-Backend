@@ -28,6 +28,7 @@ from . import resources
 from . import feedbacks
 from . import request_access
 from . import telemetry
+from . import admin
 
 
 if os.getenv("QUANTUM_DB_TESTING") is None:
@@ -41,6 +42,10 @@ def create_app():
     Create and configure the application.
     """
     app = config.app
+
+    if app.config.get("TESTING") or os.getenv("QUANTUM_DB_TESTING"):
+        config.limiter.enabled = False
+
     for blueprint in (
         login.BLUEPRINT,
         tokens.BLUEPRINT,
@@ -49,6 +54,7 @@ def create_app():
         feedbacks.BLUEPRINT,
         request_access.BLUEPRINT,
         telemetry.BLUEPRINT,
+        admin.BLUEPRINT,
     ):
         if blueprint.name in app.blueprints:
             continue
