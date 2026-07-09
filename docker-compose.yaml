@@ -7,6 +7,7 @@ services:
         - linux/amd64
     platform: linux/amd64
     image: mqp-dashboard-backend:0.1.6
+    network_mode: "host"
     container_name: mqp-dashboard-backend-server
     volumes:
       - ./mqp_dashboard_backend:/mqp-dashboard-backend-server/mqp_dashboard_backend
@@ -14,7 +15,7 @@ services:
     env_file:
       - .env
     environment:
-      ENV: development
+      ENV: developement
     ports:
       - "5000:5000"
     stdin_open: true
