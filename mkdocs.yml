@@ -9,7 +9,6 @@ watch:
   - mkdocs.yml
 
 nav:
-  - MQP-Dashboard-Backend Interfaces: https://munich-quantum-software-stack.github.io/MQP-Dashboard-Backend
   - Home: index.md
   - User Guide:
       - Getting Started: user_guide/getting_started.md
