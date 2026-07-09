@@ -34,19 +34,21 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
+          sudo apt-get install -y --no-install-recommends \
+          gcc \
+          build-essential \
+          python3-dev \
+          libldap2-dev \
+          libsasl2-dev \
+          libssl-dev \
+          sssd-ldap \
           slapd \
           ldap-utils \
           libldap-common \
-          sssd-ldap \
-          libsasl2-dev \
-          libldap2-dev \
-          libssl-dev \
-          python3-dev \
-          build-essential \
           tox \
           lcov \
-          valgrind
+          valgrind \
+          openjdk-17-jre
 
       - name: Install uv and PDM
         run: python -m pip install --upgrade uv
