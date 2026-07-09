@@ -7,25 +7,24 @@ endif
 # Extract version in pyproject.toml
 $(eval VERSION=$(shell grep -m 1 version pyproject.toml | tr -d '"' | cut -d' ' -f3 | tr -s ' ' | tr -d "'" ) )
 
-DOCKER := /usr/local/bin/docker
 IMAGE_NAME = mqp-dashboard-backend
 
 .PHONY: build-app run-app build-test run-test up down logs run-image tag-image push-image clean
 
 build-app:
-	$(DOCKER) compose -f docker-compose.yaml build --no-cache
+	docker compose -f docker-compose.yaml build --no-cache
 
 run-app:
-	$(DOCKER) compose up -d
+	docker compose up -d
 
 build-test:
-	$(DOCKER) compose -f docker-compose-test.yaml build --no-cache
+	docker compose -f docker-compose-test.yaml build --no-cache
 
 run-test:
-	$(DOCKER) compose -f docker-compose-test.yaml up -d
+	docker compose -f docker-compose-test.yaml up -d
 
 up:
-	$(DOCKER) compose up -d
+	docker compose up -d
 
 down:
 	docker compose down --volumes
@@ -34,13 +33,13 @@ logs:
 	docker compose logs -f
 
 run-image:
-	$(DOCKER) run --rm -it --detach \
+	docker run --rm -it --detach \
 	-p 5000:5000 \
 	--env-file .env \
 	$(IMAGE_NAME):$(VERSION)
 
 tag-image:
-	$(DOCKER) tag $(IMAGE_NAME):$(VERSION) $(IMAGE_NAME):latest
+	docker tag $(IMAGE_NAME):$(VERSION) $(IMAGE_NAME):latest
 
 push-image:
 	docker tag $(IMAGE_NAME):${VERSION} ${DOCKERHUB}/$(IMAGE_NAME):${VERSION}
@@ -49,5 +48,5 @@ push-image:
 	docker push ${DOCKERHUB}/$(IMAGE_NAME):latest
 
 clean:
-	$(DOCKER) rmi $(IMAGE_NAME):$(VERSION) || true
-	$(DOCKER) rmi $(IMAGE_NAME):latest || true
+	docker rmi $(IMAGE_NAME):$(VERSION) || true
+	docker rmi $(IMAGE_NAME):latest || true
