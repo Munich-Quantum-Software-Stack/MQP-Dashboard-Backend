@@ -5,7 +5,6 @@ on:
     branches:
       - develop
 
-
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -21,6 +20,23 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+          build-essential \
+          python3-dev \
+          libldap2-dev \
+          libsasl2-dev \
+          libssl-dev \
+          sssd-ldap \
+          slapd \
+          ldap-utils \
+          libldap-common \
+          tox \
+          lcov \
+          valgrind
+
       - name: Install UV
         run: curl -LsSf https://astral.sh/uv/install.sh | sh
         shell: bash
@@ -30,7 +46,7 @@ jobs:
         shell: bash
 
       - name: Install the project
-        run: uv sync --all-extras --dev
+        run: uv sync --group dev
 
       - name: Build documentation
         run: uv run mkdocs build
