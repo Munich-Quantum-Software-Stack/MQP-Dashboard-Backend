@@ -1,0 +1,11 @@
+services:
+  mqp-dashboard-backend-test:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    image: mqp-dashboard-backend:test
+    container_name: backend-test-server
+    volumes:
+      - ./tests:/mqp-dashboard-backend-test/tests
+    env_file:
+      - .env.test

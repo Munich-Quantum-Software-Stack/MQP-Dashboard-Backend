@@ -10,16 +10,25 @@ $(eval VERSION=$(shell grep -m 1 version pyproject.toml | tr -d '"' | cut -d' ' 
 DOCKER := /usr/local/bin/docker
 IMAGE_NAME = mqp-dashboard-backend
 
-.PHONY: build up down logs run-image tag-image push-image clean
+.PHONY: build-app run-app build-test run-test up down logs run-image tag-image push-image clean
 
-build:
+build-app:
 	$(DOCKER) compose -f docker-compose.yaml build --no-cache
+
+run-app:
+	$(DOCKER) compose up -d
+
+build-test:
+	$(DOCKER) compose -f docker-compose-test.yaml build --no-cache
+
+run-test:
+	$(DOCKER) compose -f docker-compose-test.yaml up -d
 
 up:
 	$(DOCKER) compose up -d
 
 down:
-	docker compose down
+	docker compose down --volumes
 
 logs:
 	docker compose logs -f

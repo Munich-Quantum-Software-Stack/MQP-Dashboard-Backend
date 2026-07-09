@@ -93,7 +93,7 @@ wheels = [
 [[package]]
 name = "bqp-database-access"
 version = "0.3.33"
-source = { git = "https://github.com/Munich-Quantum-Software-Stack/MQP-Database-Access.git?rev=develop#6ad2baff4f95e5743b6226df69352a347ceec018" }
+source = { git = "https://github.com/Munich-Quantum-Software-Stack/MQP-Database-Access.git#6ad2baff4f95e5743b6226df69352a347ceec018" }
 dependencies = [
     { name = "bcrypt" },
     { name = "cffi" },
@@ -599,8 +599,8 @@ wheels = [
 
 [[package]]
 name = "mqp-dashboard-backend"
-version = "0.1.5"
-source = { virtual = "." }
+version = "0.1.6"
+source = { editable = "." }
 dependencies = [
     { name = "bqp-database-access" },
     { name = "eliot" },
@@ -639,7 +639,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "bqp-database-access", git = "https://github.com/Munich-Quantum-Software-Stack/MQP-Database-Access.git?rev=develop" },
+    { name = "bqp-database-access", git = "https://github.com/Munich-Quantum-Software-Stack/MQP-Database-Access.git" },
     { name = "eliot", specifier = ">=1.18.0" },
     { name = "flask", specifier = ">=2.3.2" },
     { name = "flask-cors", specifier = ">=4.0.0" },

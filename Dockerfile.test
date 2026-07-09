@@ -1,16 +1,16 @@
 # -----------------------------------------------------------------------------
-# Runtime Image
+# Test image
 # -----------------------------------------------------------------------------
-FROM python:3.11-slim-bookworm
+FROM python:3.11-slim-bookworm AS builder
 
 ENV TZ="Europe/Berlin" \
     PYTHONUNBUFFERED=1 \
     PDM_VENV_IN_PROJECT=1 \
-    #PYTHONPATH=/mqp-dashboard-backend-server \
-    PATH="/mqp-dashboard-backend-server/.venv/bin:$PATH"
+    PYTHONPATH=/mqp-dashboard-backend-test \
+    PATH="/mqp-dashboard-backend-test/.venv/bin:$PATH"
 
 # Set workdir
-WORKDIR /mqp-dashboard-backend-server
+WORKDIR /mqp-dashboard-backend-test
 
 # Install libraries
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -25,6 +25,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     slapd \
     ldap-utils \
     libldap-common \
+    tox \
+    lcov \
+    valgrind \
+    openjdk-17-jre \
     && rm -rf /var/lib/apt/lists/*
 
 # Install PDM
@@ -36,11 +40,9 @@ COPY gunicorn.conf.py pyproject.toml pdm.lock README.md ./
 
 # Copy application
 COPY mqp_dashboard_backend ./mqp_dashboard_backend
+#COPY tests ./tests
 
-
-# Install the project and dependencies into the virtual environment
+# Install development dependencies
 RUN pdm update
 
-# Run the server
 CMD ["pdm", "run", "gunicorn", "-c","gunicorn.conf.py"]
-
