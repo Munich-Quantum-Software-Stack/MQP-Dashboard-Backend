@@ -43,7 +43,10 @@ jobs:
           libldap2-dev \
           libssl-dev \
           python3-dev \
-          build-essential
+          build-essential \
+          tox \
+          lcov \
+          valgrind
 
       - name: Install uv and PDM
         run: python -m pip install --upgrade uv
