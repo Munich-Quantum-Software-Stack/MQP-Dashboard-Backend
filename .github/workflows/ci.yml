@@ -50,7 +50,7 @@ jobs:
           valgrind \
           openjdk-17-jre
 
-      - name: Install uv and PDM
+      - name: Install UV
         run: python -m pip install --upgrade uv
 
       - name: Install dependencies
