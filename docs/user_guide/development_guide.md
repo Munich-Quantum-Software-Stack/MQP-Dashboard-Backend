@@ -27,7 +27,11 @@ pdm update
 
 ### Setting Environment Variables
 
-To run the project locally, update the environment variables in file .env (the filename is fixed):
+There are two places that need to be updated environment variables:
+- .env (filename is fixed)
+- docker-compose.yaml
+
+To run the project locally:
 
 1. Create a copy of file .env.example and rename it to .env
 2. The .env file must be at root directory
