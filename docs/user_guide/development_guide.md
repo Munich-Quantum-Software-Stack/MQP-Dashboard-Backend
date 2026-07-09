@@ -14,50 +14,70 @@ git clone https://github.com/Munich-Quantum-Software-Stack/MQP-Dashboard-Backend
 cd MQP-Dashboard-Backend
 ```
 
-### Install dependencies
+### Install dependencies first time
 
 ```sh
 pdm install
 ```
 
-### Update project
+### Update project and dependencies
 ```sh
 pdm update
 ```
 
-### Environment Variables
+### Setting Environment Variables
 
-To run the project locally, update the environment variables in file .env:
+To run the project locally, update the environment variables in file .env (the filename is fixed):
 
-1. Locate the .env.example file in the project root
-2. Create a copy of this file and rename it to .env
+1. Create a copy of file .env.example and rename it to .env
+2. The .env file must be at root directory
 3. Open the .env file and update the configuration values to match your local setup.
 
 ### Build and run Docker Container
 
-**Build Docker Container**
+**Build Development Container**
 
-Command to build container:
+in file docker-compose.yaml, make sure environment is `development` value:
+```sh
+environment:
+    ENV: developemnt
+```
+and mounted volumes:
+```sh
+volumes:
+    - ./mqp_dashboard_backend:/mqp-dashboard-backend-server/mqp_dashboard_backend
+```
+
+**Build Production Container**
+
+docker-compose.yaml:
+```sh
+environment:
+    ENV: production
+```
+disable mounted volumes:
+```sh
+#volumes:
+#    - ./mqp_dashboard_backend:/mqp-dashboard-backend-server/mqp_dashboard_backend
+```
+
+After setting environment variables in `.env` and `docker-compose.yaml`, build docker container by command:
 ```sh
 docker compose -f docker-compose.yaml build --no-cache
 ```
 or shortcut:
 ```sh
-make build
+make build-app
 ```
 
 **Start Container**
+
 ```sh
 docker compose up -d
 ```
 or shortcut:
 ```sh
-make up
-```
-
-To make environment variables affected to the application inside container, run this command:
-```sh
-make run-image
+make run-app
 ```
 
 Update environment values from outside of container:
@@ -70,41 +90,39 @@ More commands will be found in `Makefile`
 Application should run at: http://localhost:5000
 
 
-### Testing
+### Unit Test
 
-This project uses PDM for packages and dependencies management. The public local test suite is intended to run from the `tests/` directory with environment values loaded from a local `.env` file.
+This project uses PDM for packages and dependencies management. The public local test suite is intended to run from the `tests/` directory with environment values loaded from a local `.env.test` file.
 
-1. Install the development dependencies with PDM:
-
-```sh
-pdm install -G dev
-```
-
-2. Copy the safe example environment file to a private local `.env` file:
-
+1. Copy test environment values from file .env.examle to an `.env.test` file
 ```sh
 cp .env.example .env.test
 ```
 
-3. Load the variables into your shell before running tests:
-
+2. Build test container from Dockerfile.test locally:
 ```sh
-set -a
-source .env.test
-set +a
+make build-test
 ```
 
-4. Run the normal public test suite:
-
+4. Run test container:
 ```sh
-pdm run python -m pytest tests
+make run-test
+```
+
+5. Run pytest inside test container:
+```sh
+docker ps
+docker exec -it <container_name/container_ID> /bin/bash
+pdm run pytest
 ```
 
 The `.env.example` file contains placeholder values that are safe for local development and testing.
 
-These placeholder values are for local development/testing only. The `.env` file is local and private, and real `.env` files must not be committed. Do not include private credentials, private LDAP details, or deployment-specific information in this public README.
+The `.env` file stores sensitive data, and must not be committed.
 
-If tests try to connect to PostgreSQL through `/var/run/postgresql/.s.PGSQL.5432`, this indicates that test environment variables are not loaded in container. Reload `.env` in container and confirm the testing variables are set before rerunning the tests.
+The `.env.test` is used only for unit test and CI testing.
+
+If tests try to connect to PostgreSQL through `/var/run/postgresql/.s.PGSQL.5432`, this indicates that test environment variables are not loaded in container. Reload `.env.test` in container and confirm the testing variables are set before rerunning the tests.
 
 
 ### Linting and Ruff check

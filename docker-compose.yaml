@@ -6,7 +6,7 @@ services:
       platforms:
         - linux/amd64
     platform: linux/amd64
-    image: mqp-dashboard-backend:0.1.5
+    image: mqp-dashboard-backend:0.1.6
     container_name: mqp-dashboard-backend-server
     volumes:
       - ./mqp_dashboard_backend:/mqp-dashboard-backend-server/mqp_dashboard_backend
@@ -19,4 +19,4 @@ services:
       - "5000:5000"
     stdin_open: true
     tty: true
-    restart: unless-stopped
+    restart: always

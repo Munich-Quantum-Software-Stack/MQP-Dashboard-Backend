@@ -4,7 +4,6 @@ __pycache__/
 *.py[cod]
 *$py.class
 .env
-.test.env
 .vscode/
 mqp_dashboard_backend/__pycache__/
 uploads/
@@ -137,6 +136,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+.env.test
 
 # Spyder project settings
 .spyderproject
