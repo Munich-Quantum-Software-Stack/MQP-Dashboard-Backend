@@ -43,4 +43,3 @@ RUN pdm update
 
 # Run the server
 CMD ["pdm", "run", "gunicorn", "-c","gunicorn.conf.py"]
-
